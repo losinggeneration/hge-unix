@@ -135,7 +135,7 @@ private:
 class hgeParticleManager
 {
 public:
-	hgeParticleManager();
+	hgeParticleManager(int unused=50);
 	~hgeParticleManager();
 
 	void				Update(float dt);

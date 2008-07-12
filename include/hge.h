@@ -10,18 +10,31 @@
 #ifndef HGE_H
 #define HGE_H
 
-
+#ifdef _WINDOWS
 #include <windows.h>
+#endif
 
 #define HGE_VERSION 0x180
 
-#ifdef HGEDLL
-#define EXPORT  __declspec(dllexport)
-#else
-#define EXPORT
+#ifndef EXPORT
+#  ifdef HGEDLL
+#    ifdef _WINDOWS
+#      define EXPORT __declspec(dllexport)
+#    elif (__GNUC__ >= 3)
+#      define EXPORT __attribute__((visibility("default")))
+#    else
+#      define EXPORT
+#    endif
+#  else
+#    define EXPORT
+#  endif
 #endif
 
+#ifdef _WINDOWS
 #define CALL  __stdcall
+#else
+#define CALL
+#endif
 
 #ifdef __BORLANDC__
  #define floorf (float)floor
@@ -41,21 +54,30 @@
 /*
 ** Common data types
 */
+#ifdef _WINDOWS
 #ifndef DWORD
 typedef unsigned long       DWORD;
 typedef unsigned short      WORD;
 typedef unsigned char       BYTE;
 #endif
-
+#endif
 
 /*
 ** Common math constants
 */
 #ifndef M_PI
 #define M_PI	3.14159265358979323846f
+#endif
+#ifndef M_PI_2
 #define M_PI_2	1.57079632679489661923f
+#endif
+#ifndef M_PI_4
 #define M_PI_4	0.785398163397448309616f
+#endif
+#ifndef M_1_PI
 #define M_1_PI	0.318309886183790671538f
+#endif
+#ifndef M_2_PI
 #define M_2_PI	0.636619772367581343076f
 #endif
 
@@ -273,6 +295,9 @@ struct hgeInputEvent
 class HGE
 {
 public:
+	HGE() {}
+	virtual ~HGE() {};
+
 	virtual	void		CALL	Release() = 0;
 
 	virtual bool		CALL	System_Initiate() = 0;
@@ -525,7 +550,6 @@ extern "C" { EXPORT HGE * CALL hgeCreate(int ver); }
 #define HGEK_F10		0x79
 #define HGEK_F11		0x7A
 #define HGEK_F12		0x7B
-
 
 #endif
 
