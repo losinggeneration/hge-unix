@@ -10,8 +10,8 @@
 #ifndef HGEGUIRANGE_H
 #define HGEGUIRANGE_H
 
-#include "..\..\include\hgegui.h"
-#include "..\..\include\hgesprite.h"
+#include "../../include/hgegui.h"
+#include "../../include/hgesprite.h"
 
 
 /*

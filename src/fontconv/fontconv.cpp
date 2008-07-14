@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <windows.h>
 
-#include "..\..\include\hge.h"
+#include "../../include/hge.h"
 HGE *hge = 0;
 
 

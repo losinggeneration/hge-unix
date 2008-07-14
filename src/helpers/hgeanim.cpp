@@ -7,7 +7,7 @@
 */
 
 
-#include "..\..\include\hgeanim.h"
+#include "../../include/hgeanim.h"
 
 
 hgeAnimation::hgeAnimation(HTEXTURE tex, int nframes, float FPS, float x, float y, float w, float h)

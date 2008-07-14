@@ -11,7 +11,7 @@
 
 #define NOCRYPT
 //#define NOUNCRYPT
-#include "ZLIB\unzip.h"
+#include "ZLIB/unzip.h"
 
 
 bool CALL HGE_Impl::Resource_AttachPack(const char *filename, const char *password)

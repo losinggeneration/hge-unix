@@ -11,7 +11,7 @@
 
 
 #define BASSDEF(f) (WINAPI *f)	// define the functions as pointers
-#include "BASS\bass.h"
+#include "BASS/bass.h"
 
 #define LOADBASSFUNCTION(f) *((void**)&f)=(void*)GetProcAddress(hBass,#f)
 

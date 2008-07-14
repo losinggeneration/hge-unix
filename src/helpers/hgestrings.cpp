@@ -7,7 +7,7 @@
 */
 
 
-#include "..\..\include\hgestrings.h"
+#include "../../include/hgestrings.h"
 #include <ctype.h>
 
 const char STRHEADERTAG[]="[HGESTRINGTABLE]";

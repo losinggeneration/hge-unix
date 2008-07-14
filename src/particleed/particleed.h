@@ -11,12 +11,12 @@
 #define PARTICLEED_H
 
 
-#include "..\..\include\hge.h"
-#include "..\..\include\hgeanim.h"
-#include "..\..\include\hgefont.h"
-#include "..\..\include\hgeparticle.h"
-#include "..\..\include\hgegui.h"
-#include "..\..\include\hgeguictrls.h"
+#include "../../include/hge.h"
+#include "../../include/hgeanim.h"
+#include "../../include/hgefont.h"
+#include "../../include/hgeparticle.h"
+#include "../../include/hgegui.h"
+#include "../../include/hgeguictrls.h"
 
 
 #define PARTICLE_SIZE			32

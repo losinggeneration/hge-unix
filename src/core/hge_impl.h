@@ -10,7 +10,7 @@
 #ifndef HGE_IMPL_H
 #define HGE_IMPL_H
 
-#include "..\..\include\hge.h"
+#include "../../include/hge.h"
 #include <stdio.h>
 #include <d3d8.h>
 #include <d3dx8.h>

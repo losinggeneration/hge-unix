@@ -9,7 +9,7 @@
 #include "texasm.h"
 #include "texture_assembler.h"
 
-#include "..\..\include\hgeresource.h"
+#include "../../include/hgeresource.h"
 
 #include <direct.h>
 

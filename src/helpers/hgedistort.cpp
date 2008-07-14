@@ -6,7 +6,7 @@
 ** hgeDistortionMesh helper class implementation
 */
 
-#include "..\..\include\hgedistort.h"
+#include "../../include/hgedistort.h"
 
 
 HGE *hgeDistortionMesh::hge=0;

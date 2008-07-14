@@ -7,7 +7,7 @@
 */
 
 
-#include "..\..\include\hgerect.h"
+#include "../../include/hgerect.h"
 #include <math.h>
 
 

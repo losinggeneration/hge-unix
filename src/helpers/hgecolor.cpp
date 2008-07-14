@@ -7,7 +7,7 @@
 */
 
 
-#include "..\..\include\hgecolor.h"
+#include "../../include/hgecolor.h"
 #include <math.h>
 
 

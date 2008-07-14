@@ -10,7 +10,7 @@
 #define HGEPARSER_H
 
 
-#include "..\..\include\hge.h"
+#include "../../include/hge.h"
 #include <string.h>
 #include <stdlib.h>
 

@@ -3,7 +3,7 @@
 #define TEXTURE_ASSEMBLER_H
 
 
-#include "..\..\include\hgeresource.h"
+#include "../../include/hgeresource.h"
 #include "gfx_object.h"
 #include "optimized_texture.h"
 
