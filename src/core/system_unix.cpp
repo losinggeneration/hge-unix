@@ -11,6 +11,10 @@
 
 #if PLATFORM_UNIX
 
+#if PLATFORM_MACOSX
+#include <Carbon/Carbon.h>
+#endif
+
 #define LOWORDINT(n) ((int)((signed short)(LOWORD(n))))
 #define HIWORDINT(n) ((int)((signed short)(HIWORD(n))))
 
@@ -86,8 +90,8 @@ bool CALL HGE_Impl::System_Initiate()
 	// Create window
 	SDL_WM_SetCaption(szWindowTitle, szWindowTitle);
 	Uint32 flags = SDL_OPENGL;
-//	if (!bWindowed)
-//		flags |= SDL_FULLSCREEN;
+	if (!bWindowed)
+		flags |= SDL_FULLSCREEN;
 	hwnd = SDL_SetVideoMode(nScreenWidth, nScreenHeight, nScreenBPP, flags);
 	if (!hwnd)
 	{
@@ -282,49 +286,47 @@ void CALL HGE_Impl::System_SetStateBool(hgeBoolState state, bool value)
 	switch(state)
 	{
 		case HGE_WINDOWED:		if(VertArray || hwndParent) break;
-								if(hwnd && bWindowed != value)
+								if(pOpenGLDevice && bWindowed != value)
 								{
 									if(d3dppW.BackBufferFormat==D3DFMT_UNKNOWN || d3dppFS.BackBufferFormat==D3DFMT_UNKNOWN) break;
 
-									if(bWindowed) GetWindowRect(hwnd, &rectW);
 									bWindowed=value;
-									if(bWindowed) d3dpp=&d3dppW;
-									else d3dpp=&d3dppFS;
 
 									if(_format_id(d3dpp->BackBufferFormat) < 4) nScreenBPP=16;
 									else nScreenBPP=32;
 
 									_GfxRestore();
-									_AdjustWindow();
 								}
-								else bWindowed=value;
 								break;
 
-		case HGE_ZBUFFER:		if(!pD3DDevice)	bZBuffer=value;
+		case HGE_ZBUFFER:		if(!pOpenGLDevice) bZBuffer=value;
 								break;
 
 		case HGE_TEXTUREFILTER: bTextureFilter=value;
-								if(pD3DDevice)
+								if(pOpenGLDevice)
 								{
 									_render_batch();
+									STUBBED("set texture filter mode");
+									#if 0
 									if(bTextureFilter)
 									{
-										pD3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTEXF_LINEAR);
-										pD3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTEXF_LINEAR);
+										pOpenGLDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTEXF_LINEAR);
+										pOpenGLevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTEXF_LINEAR);
 									}
 									else
 									{
 										pD3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTEXF_POINT);
 										pD3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTEXF_POINT);
 									}
+									#endif
 								}
 								break;
 
 		case HGE_USESOUND:		if(bUseSound!=value)
 								{
 									bUseSound=value;
-									if(bUseSound && hwnd) _SoundInit();
-									if(!bUseSound && hwnd) _SoundDone();
+									if(bUseSound) _SoundInit();
+									if(!bUseSound) _SoundDone();
 								}
 								break;
 
@@ -355,7 +357,14 @@ void CALL HGE_Impl::System_SetStateHwnd(hgeHwndState state, HWND value)
 {
 	switch(state)
 	{
-		case HGE_HWNDPARENT:	if(!hwnd) hwndParent=value; break;
+		case HGE_HWNDPARENT:
+			if (value != 0) {
+				System_Log("WARNING: Trying to set HGE_HWNDPARENT is unsupported!\n");
+				System_Log("WARNING: You will not get the behaviour you expect\n");
+			}
+			if(!hwnd)
+				hwndParent=value;
+			break;
 	}
 }
 
@@ -363,13 +372,13 @@ void CALL HGE_Impl::System_SetStateInt(hgeIntState state, int value)
 {
 	switch(state)
 	{
-		case HGE_SCREENWIDTH:	if(!pD3DDevice) nScreenWidth=value; break;
+		case HGE_SCREENWIDTH:	if(!pOpenGLDevice) nScreenWidth=value; break;
 
-		case HGE_SCREENHEIGHT:	if(!pD3DDevice) nScreenHeight=value; break;
+		case HGE_SCREENHEIGHT:	if(!pOpenGLDevice) nScreenHeight=value; break;
 
-		case HGE_SCREENBPP:		if(!pD3DDevice) nScreenBPP=value; break;
+		case HGE_SCREENBPP:		if(!pOpenGLDevice) nScreenBPP=value; break;
 
-		case HGE_SAMPLERATE:	if(!hBass) nSampleRate=value;
+		case HGE_SAMPLERATE:	if(!hOpenALDevice) nSampleRate=value;
 								break;
 
 		case HGE_FXVOLUME:		nFXVolume=value;
@@ -386,10 +395,12 @@ void CALL HGE_Impl::System_SetStateInt(hgeIntState state, int value)
 
 		case HGE_FPS:			if(VertArray) break;
 
-								if(pD3DDevice)
+								if(pOpenGLDevice)
 								{
 									if((nHGEFPS>=0 && value <0) || (nHGEFPS<0 && value>=0))
 									{
+										STUBBED("vsync stuff");
+										#if 0
 										if(value==HGEFPS_VSYNC)
 										{
 											d3dppW.SwapEffect = D3DSWAPEFFECT_COPY_VSYNC;
@@ -403,6 +414,7 @@ void CALL HGE_Impl::System_SetStateInt(hgeIntState state, int value)
 										//if(procFocusLostFunc) procFocusLostFunc();
 										_GfxRestore();
 										//if(procFocusGainFunc) procFocusGainFunc();
+										#endif
 									}
 								}
 								nHGEFPS=value;
@@ -422,7 +434,7 @@ void CALL HGE_Impl::System_SetStateString(hgeStringState state, const char *valu
 								if(pHGE->hwnd) SetClassLong(pHGE->hwnd, GCL_HICON, (LONG)LoadIcon(pHGE->hInstance, szIcon));
 								break;
 		case HGE_TITLE:			strcpy(szWinTitle,value);
-								if(pHGE->hwnd) SetWindowText(pHGE->hwnd, szWinTitle);
+								if(pHGE->hwnd) SDL_WM_SetCaption(value, value);
 								break;
 		case HGE_INIFILE:		if(value) strcpy(szIniFile,Resource_MakePath(value));
 								else szIniFile[0]=0;
@@ -540,8 +552,15 @@ void CALL HGE_Impl::System_Log(const char *szFormat, ...)
 
 bool CALL HGE_Impl::System_Launch(const char *url)
 {
-	if((DWORD)ShellExecute(pHGE->hwnd, NULL, url, NULL, NULL, SW_SHOWMAXIMIZED)>32) return true;
-	else return false;
+#if PLATFORM_MACOSX
+	CFURLRef cfurl = CFURLCreateWithBytes(NULL, (const UInt8 *) url,
+	                                      strlen(url), kCFStringEncodingUTF8, NULL);
+	const OSStatus err = LSOpenCFURLRef(cfurl, NULL);
+	CFRelease(cfurl);
+	return (err == noErr);
+#else
+	return false;
+#endif
 }
 
 void CALL HGE_Impl::System_Snapshot(const char *filename)
@@ -563,11 +582,12 @@ void CALL HGE_Impl::System_Snapshot(const char *filename)
 		filename=Resource_MakePath(tempname);
 	}
 
-	if(pD3DDevice)
+	if(pOpenGLDevice)
 	{
-		pD3DDevice->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &pSurf);
-		D3DXSaveSurfaceToFile(filename, D3DXIFF_BMP, pSurf, NULL, NULL);
-		pSurf->Release();
+		STUBBED("glReadPixels and write .bmp");
+		//pOpenGLDevice->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &pSurf);
+		//D3DXSaveSurfaceToFile(filename, D3DXIFF_BMP, pSurf, NULL, NULL);
+		//pSurf->Release();
 	}
 }
 
@@ -581,9 +601,7 @@ HGE_Impl::HGE_Impl()
 	bActive=false;
 	szError[0]=0;
 
-	pD3D=0;
-	pD3DDevice=0;
-	d3dpp=0;
+	pOpenGLDevice=0;
 	pTargets=0;
 	pCurTarget=0;
 	pScreenSurf=0;
@@ -645,10 +663,11 @@ HGE_Impl::HGE_Impl()
 	bDMO=true;
 #endif
 
-
-	GetModuleFileName(GetModuleHandle(NULL), szAppPath, sizeof(szAppPath));
+	STUBBED("get basedir");
+//	GetModuleFileName(GetModuleHandle(NULL), szAppPath, sizeof(szAppPath));
+	szAppPath[0] = '\0';
 	int i;
-	for(i=strlen(szAppPath)-1; i>0; i--) if(szAppPath[i]=='\\') break;
+	for(i=strlen(szAppPath)-1; i>0; i--) if(szAppPath[i]=='/') break;
 	szAppPath[i+1]=0;
 }
 
@@ -677,7 +696,7 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 	switch(e.type)
 	{
 		case SDL_VIDEOEXPOSE:
-			if(pHGE->pD3D && pHGE->procRenderFunc && pHGE->bWindowed) procRenderFunc();
+			if(pHGE->procRenderFunc && pHGE->bWindowed) procRenderFunc();
 			break;
 
 		case SDL_QUIT:

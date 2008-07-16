@@ -260,7 +260,6 @@ public:
 	D3DPRESENT_PARAMETERS*  d3dpp;
 
 	D3DPRESENT_PARAMETERS   d3dppW;
-	RECT					rectW;
 	LONG					styleW;
 
 	D3DPRESENT_PARAMETERS   d3dppFS;
@@ -294,7 +293,7 @@ public:
 	
 
 	// Audio
-	HINSTANCE			hBass;
+	HINSTANCE			hOpenALDevice;
 	bool				bSilent;
 	CStreamList*		streams;
 	bool				_SoundInit();
