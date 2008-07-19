@@ -266,6 +266,10 @@ public:
 	RECT					rectFS;
 	LONG					styleFS;
 
+	COpenGLDevice*			pOpenGLDevice;  // GL entry points, dynamically loaded.
+	hgeVertex*				pVB;  // vertex buffer is a client-side array in the OpenGL renderer.
+	GLushort*				pIB;  // index buffer is a client-side array in the OpenGL renderer.
+
 	CRenderTargetList*	pTargets;
 	CRenderTargetList*	pCurTarget;
 
