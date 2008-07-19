@@ -11,6 +11,11 @@
 #define HGE_IMPL_H
 
 #include "../../include/hge.h"
+
+#if PLATFORM_UNIX
+#include "hge_impl_unix.h"
+#else
+
 #include <stdio.h>
 #include <d3d8.h>
 #include <d3dx8.h>
@@ -341,5 +346,6 @@ private:
 
 extern HGE_Impl*		pHGE;
 
+#endif  // PLATFORM_UNIX
 #endif
 
