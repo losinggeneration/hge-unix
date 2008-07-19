@@ -656,9 +656,24 @@ void HGE_Impl::_SetProjectionMatrix(int width, int height)
 	pOpenGLDevice->glOrtho(0, (float)width, 0, (float)height, 0.0f, 1.0f);
 }
 
+void HGE_Impl::_UnloadOpenGLEntryPoints()
+{
+	#define GL_PROC(ret,fn,parms) pOpenGLDevice->fn = NULL;
+	#include "hge_glfuncs.h"
+	#undef GL_PROC
+}
+
 bool HGE_Impl::_LoadOpenGLEntryPoints()
 {
-	STUBBED("write me");
+	bool ok = true;
+
+	#define GL_PROC(ret,fn,parms) if ((pOpenGLDevice->fn = SDL_GL_GetProcAddress(#fn)) == NULL) { ok = false; }
+	#include "hge_glfuncs.h"
+	#undef GL_PROC
+
+	if (!ok)
+		_UnloadOpenGLEntryPoints();
+	return ok;
 }
 
 bool HGE_Impl::_GfxInit()
@@ -751,7 +766,7 @@ void HGE_Impl::_GfxDone()
 
 	if(pOpenGLDevice)
 	{
-        delete pOpenGLDevice;
+		delete pOpenGLDevice;
 		pOpenGLDevice=0;
 	}
 }
@@ -779,6 +794,10 @@ bool HGE_Impl::_GfxRestore()
 
 	delete[] pIB;
 	pIB=0;
+
+	_UnloadOpenGLEntryPoints();
+	if (!_LoadOpenGLEntryPoints())
+		return false;
 
 	if(!_init_lost()) return false;
 

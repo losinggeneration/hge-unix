@@ -87,6 +87,13 @@ bool CALL HGE_Impl::System_Initiate()
 		return false;
 	}
 
+	if (SDL_GL_LoadLibrary(NULL) == -1) {
+		char buffer[1024];
+		snprintf(buffer, sizeof (buffer), "SDL_GL_LoadLibrary() failed: %s\n", SDL_GetError());
+		_PostError(buffer);
+		return false;
+	}
+
 	// Create window
 	SDL_WM_SetCaption(szWindowTitle, szWindowTitle);
 	Uint32 flags = SDL_OPENGL;

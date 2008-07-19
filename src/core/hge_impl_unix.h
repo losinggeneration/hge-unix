@@ -23,6 +23,15 @@
 #include <GL/gl.h>
 #endif
 
+class COpenGLDevice
+{
+public:
+	#define GL_PROC(ret,func,parms) ret (STDCALL *func)parms;
+	#include "hge_glfuncs.h"
+	#undef GL_EXT
+};
+
+
 #define DEMO
 
 #define D3DFVF_HGEVERTEX (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
@@ -283,6 +292,9 @@ public:
 	int					CurPrimType;
 	int					CurBlendMode;
 	HTEXTURE			CurTexture;
+
+	void 				_UnloadOpenGLEntryPoints();
+	bool 				_LoadOpenGLEntryPoints();
 
 	bool				_GfxInit();
 	void				_GfxDone();
