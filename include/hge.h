@@ -10,6 +10,8 @@
 #ifndef HGE_H
 #define HGE_H
 
+#include "unix_compat.h"
+
 #ifdef _WINDOWS
 #include <windows.h>
 #endif
