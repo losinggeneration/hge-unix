@@ -19,6 +19,7 @@
 
 #include "../../include/hge.h"
 #include <stdio.h>
+#include <dirent.h>
 #include "SDL.h"
 
 #define GL_GLEXT_LEGACY 1
@@ -339,9 +340,14 @@ public:
 	// Resources
 	char				szTmpFilename[_MAX_PATH];
 	CResourceList*		res;
-	HANDLE				hSearch;
-//	WIN32_FIND_DATA		SearchData;
 
+	bool				_WildcardMatch(const char *str, const char *wildcard);
+	bool				_PrepareFileEnum(const char *wildcard);
+	char*				_DoEnumIteration(const bool wantdir);
+	DIR*				hSearch;
+	char				szSearchDir[_MAX_PATH];
+	char				szSearchWildcard[_MAX_PATH];
+	char				szSearchResult[_MAX_PATH];
 
 	// Timer
 	float				fTime;

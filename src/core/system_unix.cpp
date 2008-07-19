@@ -165,8 +165,7 @@ void CALL HGE_Impl::System_Shutdown()
 {
 	System_Log("\nFinishing..");
 
-STUBBED("directory search");
-//	if(hSearch) { FindClose(hSearch); hSearch=0; }
+	if(hSearch) { closedir(hSearch); hSearch=0; }
 	_ClearQueue();
 	_SoundDone();
 	_GfxDone();
