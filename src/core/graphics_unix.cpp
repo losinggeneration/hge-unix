@@ -109,7 +109,7 @@ bool CALL HGE_Impl::Gfx_BeginScene(HTARGET targ)
 {
 //	LPDIRECT3DSURFACE8 pSurf=0, pDepth=0;
 //	D3DDISPLAYMODE Mode;
-//	CRenderTargetList *target=(CRenderTargetList *)targ;
+	CRenderTargetList *target=(CRenderTargetList *)targ;
 
 	if(VertArray)
 	{
@@ -169,6 +169,13 @@ void CALL HGE_Impl::Gfx_EndScene()
 	if(!pCurTarget) SDL_GL_SwapBuffers();
 }
 
+void HGE_Impl::_SetTextureFilter()
+{
+	const GLenum filter = (bTextureFilter) ? GL_LINEAR : GL_NEAREST;
+	pOpenGLDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+	pOpenGLDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+}
+
 void CALL HGE_Impl::Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD color, float z)
 {
 	if(VertArray)
@@ -207,6 +214,7 @@ void CALL HGE_Impl::Gfx_RenderTriple(const hgeTriple *triple)
 			if(triple->tex != CurTexture) {
 				pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, ((gltexture*)triple->tex)->name );
 				CurTexture = triple->tex;
+				_SetTextureFilter();
 			}
 		}
 
@@ -229,6 +237,7 @@ void CALL HGE_Impl::Gfx_RenderQuad(const hgeQuad *quad)
 			{
 				pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, ((gltexture*)quad->tex)->name );
 				CurTexture = quad->tex;
+				_SetTextureFilter();
 			}
 		}
 
@@ -249,6 +258,7 @@ hgeVertex* CALL HGE_Impl::Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend,
 		{
 			pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, ((gltexture*)tex)->name );
 			CurTexture = tex;
+			_SetTextureFilter();
 		}
 
 		*max_prim=VERTEX_BUFFER_SIZE / prim_type;
@@ -341,7 +351,7 @@ HTEXTURE CALL HGE_Impl::Target_GetTexture(HTARGET target)
 	else return 0;
 }
 
-HTEXTURE CALL HGE_Impl::_build_texture(int width, int height, DWORD *pixels)
+HTEXTURE HGE_Impl::_BuildTexture(int width, int height, DWORD *pixels)
 {
 	gltexture *retval = new gltexture;
 	memset(retval, '\0', sizeof (gltexture));
@@ -357,18 +367,8 @@ HTEXTURE CALL HGE_Impl::_build_texture(int width, int height, DWORD *pixels)
 	pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, tex);
 	pOpenGLDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 	pOpenGLDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-	if(bTextureFilter)
-	{
-		pD3DDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		pD3DDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	}
-	else
-	{
-		pD3DDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		pD3DDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	}
+	_SetTextureFilter();
 	pOpenGLDevice->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-
 	pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
 
 	return (HTEXTURE)retval;
@@ -378,7 +378,7 @@ HTEXTURE CALL HGE_Impl::Texture_Create(int width, int height)
 {
 	DWORD *pixels = new DWORD[width * height];
 	memset(pixels, '\0', sizeof (DWORD) * width * height);
-	return _build_texture(width, height, pixels);
+	return _BuildTexture(width, height, pixels);
 }
 
 HTEXTURE CALL HGE_Impl::Texture_Load(const char *filename, DWORD size, bool bMipmap)
@@ -524,8 +524,6 @@ int CALL HGE_Impl::Texture_GetHeight(HTEXTURE tex, bool bOriginal)
 DWORD * CALL HGE_Impl::Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int top, int width, int height)
 {
 	gltexture *pTex=(gltexture*)tex;
-	RECT region, *prec;
-	int flags;
 
 	if (pTex->lock_pixels)
 	{
@@ -576,14 +574,14 @@ void CALL HGE_Impl::Texture_Unlock(HTEXTURE tex)
 
 	if (pTex->lock_pixels == NULL) return;  // not locked.
 
-	if (!pTex->lock_read_only)  // have to reupload to the hardware.
+	if (!pTex->lock_readonly)  // have to reupload to the hardware.
 	{
 		pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, pTex->name);
 		pOpenGLDevice->glTexSubImage2D(GL_TEXTURE_2D, 0, pTex->lock_x, pTex->lock_y,
 		                               pTex->lock_width, pTex->lock_height, GL_RGBA,
 		                               GL_UNSIGNED_BYTE, pTex->lock_pixels);
-	pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
-	} // if
+		pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
+	}
 
 	delete[] pTex->lock_pixels;
 	pTex->lock_pixels = NULL;
@@ -658,7 +656,7 @@ void HGE_Impl::_SetProjectionMatrix(int width, int height)
 
 void HGE_Impl::_UnloadOpenGLEntryPoints()
 {
-	#define GL_PROC(ret,fn,parms) pOpenGLDevice->fn = NULL;
+    #define GL_PROC(fn,call,ret,params) pOpenGLDevice->fn = NULL;
 	#include "hge_glfuncs.h"
 	#undef GL_PROC
 }
@@ -667,7 +665,13 @@ bool HGE_Impl::_LoadOpenGLEntryPoints()
 {
 	bool ok = true;
 
-	#define GL_PROC(ret,fn,parms) if ((pOpenGLDevice->fn = SDL_GL_GetProcAddress(#fn)) == NULL) { ok = false; }
+    #define GL_PROC(fn,call,ret,params) \
+        if (ok) { \
+            if ((pOpenGLDevice->fn = (_HGE_PFN_##fn) SDL_GL_GetProcAddress(#fn)) == NULL) { \
+                 _PostError("Failed to load OpenGL entry point '" #fn "'"); \
+                 ok = false; \
+            } \
+        } else {}
 	#include "hge_glfuncs.h"
 	#undef GL_PROC
 
@@ -686,7 +690,7 @@ bool HGE_Impl::_GfxInit()
 	System_Log("GL_VERSION: %s", (const char *) pOpenGLDevice->glGetString(GL_VERSION));
 	System_Log("GL_VENDOR: %s", (const char *) pOpenGLDevice->glGetString(GL_VENDOR));
 
-	nScreenBPP=SDL_GetVideoSurface()->fmt->bpp;
+	nScreenBPP=SDL_GetVideoSurface()->format->BitsPerPixel;
 
 	_AdjustWindow();
 
@@ -745,6 +749,8 @@ void HGE_Impl::_GfxDone()
 	
 	while(textures)	Texture_Free(textures->tex);
 
+	STUBBED("cleanup stuff");
+	#if 0
 	if(pScreenSurf) { pScreenSurf->Release(); pScreenSurf=0; }
 	if(pScreenDepth) { pScreenDepth->Release(); pScreenDepth=0; }
 
@@ -757,6 +763,7 @@ void HGE_Impl::_GfxDone()
 		target=next_target;
 	}
 	pTargets=0;
+#endif
 
 	VertArray = 0;
 	delete[] pVB;
@@ -779,6 +786,8 @@ bool HGE_Impl::_GfxRestore()
 	//if(!pD3DDevice) return false;
 	//if(pD3DDevice->TestCooperativeLevel() == D3DERR_DEVICELOST) return;
 
+STUBBED("render target stuff");
+#if 0
 	if(pScreenSurf) pScreenSurf->Release();
 	if(pScreenDepth) pScreenDepth->Release();
 
@@ -788,6 +797,7 @@ bool HGE_Impl::_GfxRestore()
 		if(target->pDepth) target->pDepth->Release();
 		target=target->next;
 	}
+#endif
 
     delete[] pVB;
 	pVB=0;
@@ -809,6 +819,8 @@ bool HGE_Impl::_GfxRestore()
 
 bool HGE_Impl::_init_lost()
 {
+STUBBED("(re)create render targets");
+#if 0
 	CRenderTargetList *target=pTargets;
 
 // Store render target
@@ -816,8 +828,6 @@ bool HGE_Impl::_init_lost()
 	pScreenSurf=0;
 	pScreenDepth=0;
 
-STUBBED("(re)create render targets");
-#if 0
 	pD3DDevice->GetRenderTarget(&pScreenSurf);
 	pD3DDevice->GetDepthStencilSurface(&pScreenDepth);
 	

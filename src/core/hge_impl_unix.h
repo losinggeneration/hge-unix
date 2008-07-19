@@ -17,18 +17,23 @@
 #include <stdio.h>
 #include "SDL.h"
 
-#if PLATFORM_MACOSX
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
+#define GL_GLEXT_LEGACY 1
+#include "gl.h"
+
+#ifndef APIENTRYP
+#define APIENTRYP APIENTRY *
 #endif
+
+#define GL_PROC(fn,call,ret,params) typedef call ret (APIENTRYP _HGE_PFN_##fn) params;
+#include "hge_glfuncs.h"
+#undef GL_PROC
 
 class COpenGLDevice
 {
 public:
-	#define GL_PROC(ret,func,parms) ret (STDCALL *func)parms;
+    #define GL_PROC(fn,call,ret,params) _HGE_PFN_##fn fn;
 	#include "hge_glfuncs.h"
-	#undef GL_EXT
+	#undef GL_PROC
 };
 
 
@@ -38,15 +43,16 @@ public:
 #define VERTEX_BUFFER_SIZE 4000
 
 
-typedef BOOL (WINAPI *GetSystemPowerStatusFunc)(LPSYSTEM_POWER_STATUS);
+//typedef BOOL (WINAPI *GetSystemPowerStatusFunc)(LPSYSTEM_POWER_STATUS);
 
+struct gltexture;  // used internally.
 
 struct CRenderTargetList
 {
 	int					width;
 	int					height;
-	GLuint				tex;
-	GLuint				depth;
+	gltexture*			pTex;
+	void*				pDepth;
 	CRenderTargetList*	next;
 };
 
@@ -214,7 +220,7 @@ public:
 	void				_PostError(char *error);
 
 
-	HINSTANCE			hInstance;
+	//HINSTANCE			hInstance;
 	HWND				hwnd;
 
 	bool				bActive;
@@ -257,8 +263,6 @@ public:
 
 	// Power
 	int							nPowerStatus;
-	HMODULE						hKrnl32;
-	GetSystemPowerStatusFunc	lpfnGetSystemPowerStatus;
 
 	void				_InitPowerStatus();
 	void				_UpdatePowerStatus();
@@ -266,15 +270,6 @@ public:
 
 
 	// Graphics
-	D3DPRESENT_PARAMETERS*  d3dpp;
-
-	D3DPRESENT_PARAMETERS   d3dppW;
-	LONG					styleW;
-
-	D3DPRESENT_PARAMETERS   d3dppFS;
-	RECT					rectFS;
-	LONG					styleFS;
-
 	COpenGLDevice*			pOpenGLDevice;  // GL entry points, dynamically loaded.
 	hgeVertex*				pVB;  // vertex buffer is a client-side array in the OpenGL renderer.
 	GLushort*				pIB;  // index buffer is a client-side array in the OpenGL renderer.
@@ -282,8 +277,8 @@ public:
 	CRenderTargetList*	pTargets;
 	CRenderTargetList*	pCurTarget;
 
-	D3DXMATRIX			matView;
-	D3DXMATRIX			matProj;
+	//D3DXMATRIX			matView;
+	//D3DXMATRIX			matProj;
 
 	CTextureList*		textures;
 	hgeVertex*			VertArray;
@@ -303,13 +298,15 @@ public:
 	void				_Resize(int width, int height);
 	bool				_init_lost();
 	void				_render_batch(bool bEndScene=false);
-	int					_format_id(D3DFORMAT fmt);
+	void				_SetTextureFilter();
+	HTEXTURE			_BuildTexture(int width, int height, DWORD *pixels);
+	//int					_format_id(D3DFORMAT fmt);
 	void				_SetBlendMode(int blend);
 	void				_SetProjectionMatrix(int width, int height);
 	
 
 	// Audio
-	HINSTANCE			hOpenALDevice;
+	void*				hOpenALDevice;
 	bool				bSilent;
 	CStreamList*		streams;
 	bool				_SoundInit();

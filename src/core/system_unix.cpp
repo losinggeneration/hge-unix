@@ -62,11 +62,12 @@ bool CALL HGE_Impl::System_Initiate()
 	int				width, height;
 
 	// Log system info
-
 	System_Log("HGE Started..\n");
 
 	System_Log("HGE version: %X.%X", HGE_VERSION>>8, HGE_VERSION & 0xFF);
-	System_Log("Date: %s\n", asctime(localtime(time(NULL))));
+
+	time_t t = time(NULL);
+	System_Log("Date: %s\n", asctime(localtime(&t)));
 
 	System_Log("Application: %s",szWinTitle);
 
@@ -91,11 +92,12 @@ bool CALL HGE_Impl::System_Initiate()
 		char buffer[1024];
 		snprintf(buffer, sizeof (buffer), "SDL_GL_LoadLibrary() failed: %s\n", SDL_GetError());
 		_PostError(buffer);
+		SDL_Quit();
 		return false;
 	}
 
 	// Create window
-	SDL_WM_SetCaption(szWindowTitle, szWindowTitle);
+	SDL_WM_SetCaption(szWinTitle, szWinTitle);
 	Uint32 flags = SDL_OPENGL;
 	if (!bWindowed)
 		flags |= SDL_FULLSCREEN;
@@ -159,7 +161,8 @@ void CALL HGE_Impl::System_Shutdown()
 {
 	System_Log("\nFinishing..");
 
-	if(hSearch) { FindClose(hSearch); hSearch=0; }
+STUBBED("directory search");
+//	if(hSearch) { FindClose(hSearch); hSearch=0; }
 	_ClearQueue();
 	_SoundDone();
 	_GfxDone();
@@ -174,8 +177,6 @@ void CALL HGE_Impl::System_Shutdown()
 
 bool CALL HGE_Impl::System_Start()
 {
-	MSG		msg;
-
 	if(!hwnd)
 	{
 		_PostError("System_Start: System_Initiate wasn't called");
@@ -295,12 +296,13 @@ void CALL HGE_Impl::System_SetStateBool(hgeBoolState state, bool value)
 		case HGE_WINDOWED:		if(VertArray || hwndParent) break;
 								if(pOpenGLDevice && bWindowed != value)
 								{
-									if(d3dppW.BackBufferFormat==D3DFMT_UNKNOWN || d3dppFS.BackBufferFormat==D3DFMT_UNKNOWN) break;
+                                    STUBBED("backbuffer format");
+									//if(d3dppW.BackBufferFormat==D3DFMT_UNKNOWN || d3dppFS.BackBufferFormat==D3DFMT_UNKNOWN) break;
 
 									bWindowed=value;
 
-									if(_format_id(d3dpp->BackBufferFormat) < 4) nScreenBPP=16;
-									else nScreenBPP=32;
+									//if(_format_id(d3dpp->BackBufferFormat) < 4) nScreenBPP=16;
+									//else nScreenBPP=32;
 
 									_GfxRestore();
 								}
@@ -309,24 +311,12 @@ void CALL HGE_Impl::System_SetStateBool(hgeBoolState state, bool value)
 		case HGE_ZBUFFER:		if(!pOpenGLDevice) bZBuffer=value;
 								break;
 
-		case HGE_TEXTUREFILTER: bTextureFilter=value;
+		case HGE_TEXTUREFILTER: if (bTextureFilter==value) break;
+								bTextureFilter=value;
 								if(pOpenGLDevice)
-								{
 									_render_batch();
-									STUBBED("set texture filter mode");
-									#if 0
-									if(bTextureFilter)
-									{
-										pOpenGLDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTEXF_LINEAR);
-										pOpenGLevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTEXF_LINEAR);
-									}
-									else
-									{
-										pD3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTEXF_POINT);
-										pD3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTEXF_POINT);
-									}
-									#endif
-								}
+
+								// bTextureFilter is pushed to the GL next time you draw.
 								break;
 
 		case HGE_USESOUND:		if(bUseSound!=value)
@@ -438,7 +428,8 @@ void CALL HGE_Impl::System_SetStateString(hgeStringState state, const char *valu
 	switch(state)
 	{
 		case HGE_ICON:			szIcon=value;
-								if(pHGE->hwnd) SetClassLong(pHGE->hwnd, GCL_HICON, (LONG)LoadIcon(pHGE->hInstance, szIcon));
+								STUBBED("icon");
+								//if(pHGE->hwnd) SetClassLong(pHGE->hwnd, GCL_HICON, (LONG)LoadIcon(pHGE->hInstance, szIcon));
 								break;
 		case HGE_TITLE:			strcpy(szWinTitle,value);
 								if(pHGE->hwnd) SDL_WM_SetCaption(value, value);
@@ -615,7 +606,7 @@ void CALL HGE_Impl::System_Snapshot(const char *filename)
 
 HGE_Impl::HGE_Impl()
 {
-	hInstance=GetModuleHandle(0);
+	//hInstance=GetModuleHandle(0);
 	hwnd=0;
 	bActive=false;
 	szError[0]=0;
@@ -623,14 +614,14 @@ HGE_Impl::HGE_Impl()
 	pOpenGLDevice=0;
 	pTargets=0;
 	pCurTarget=0;
-	pScreenSurf=0;
-	pScreenDepth=0;
+	//pScreenSurf=0;
+	//pScreenDepth=0;
 	pVB=0;
 	pIB=0;
 	VertArray=0;
 	textures=0;
 
-	hBass=0;
+	hOpenALDevice=0;
 	bSilent=false;
 	streams=0;
 
@@ -675,8 +666,6 @@ HGE_Impl::HGE_Impl()
 	hwndParent=0;
 
 	nPowerStatus=HGEPWR_UNSUPPORTED;
-	hKrnl32 = NULL;
-	lpfnGetSystemPowerStatus = NULL;
 
 #ifdef DEMO
 	bDMO=true;
@@ -725,7 +714,7 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 		case SDL_ACTIVEEVENT:
 			if (e.active.state & SDL_APPINPUTFOCUS) {
 				const bool bActivating = (e.active.gain != 0);
-				if(pHGE->pD3D && pHGE->bActive != bActivating) pHGE->_FocusChange(bActivating);
+				if(pHGE->bActive != bActivating) pHGE->_FocusChange(bActivating);
 			}
 			break;
 
@@ -736,14 +725,20 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 				return false;
 			}
 			#endif
-			pHGE->_BuildEvent(INPUT_KEYDOWN, wparam, HIWORD(lparam) & 0xFF, (lparam & 0x40000000) ? HGEINP_REPEAT:0, -1, -1);
-			return FALSE;
+			STUBBED("key down event");
+			//pHGE->_BuildEvent(INPUT_KEYDOWN, wparam, HIWORD(lparam) & 0xFF, (lparam & 0x40000000) ? HGEINP_REPEAT:0, -1, -1);
+			break;
 
 		case SDL_KEYUP:
-			pHGE->_BuildEvent(INPUT_KEYUP, wparam, HIWORD(lparam) & 0xFF, 0, -1, -1);
-			return FALSE;
+			STUBBED("key up event");
+			//pHGE->_BuildEvent(INPUT_KEYUP, wparam, HIWORD(lparam) & 0xFF, 0, -1, -1);
+			break;
 
-		case WM_LBUTTONDOWN:
+		case SDL_MOUSEBUTTONDOWN:
+			STUBBED("mouse button down event");
+			break;
+
+#if 0
 			SetFocus(hwnd);
 			pHGE->_BuildEvent(INPUT_MBUTTONDOWN, HGEK_LBUTTON, 0, 0, LOWORDINT(lparam), HIWORDINT(lparam));
 			return FALSE;
@@ -765,7 +760,13 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 		case WM_RBUTTONDBLCLK:
 			pHGE->_BuildEvent(INPUT_MBUTTONDOWN, HGEK_RBUTTON, 0, HGEINP_REPEAT, LOWORDINT(lparam), HIWORDINT(lparam));
 			return FALSE;
+#endif
 
+		case SDL_MOUSEBUTTONUP:
+			STUBBED("mouse button up");
+			break;
+			
+#if 0
 		case WM_LBUTTONUP:
 			pHGE->_BuildEvent(INPUT_MBUTTONUP, HGEK_LBUTTON, 0, 0, LOWORDINT(lparam), HIWORDINT(lparam));
 			return FALSE;
@@ -775,14 +776,21 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 		case WM_RBUTTONUP:
 			pHGE->_BuildEvent(INPUT_MBUTTONUP, HGEK_RBUTTON, 0, 0, LOWORDINT(lparam), HIWORDINT(lparam));
 			return FALSE;
+#endif
 
-		case WM_MOUSEMOVE:
+		case SDL_MOUSEMOTION:
+			STUBBED("mouse motion event");
+			break;
+			
+#if 0
 			pHGE->_BuildEvent(INPUT_MOUSEMOVE, 0, 0, 0, LOWORDINT(lparam), HIWORDINT(lparam));
 			return FALSE;
 		case 0x020A: // WM_MOUSEWHEEL, GET_WHEEL_DELTA_WPARAM(wparam);
 			pHGE->_BuildEvent(INPUT_MOUSEWHEEL, short(HIWORD(wparam))/120, 0, 0, LOWORDINT(lparam), HIWORDINT(lparam));
 			return FALSE;
+#endif
 
+#if 0  // !!! FIXME
 		case WM_SIZE:
 			if(pHGE->pD3D && wparam==SIZE_RESTORED) pHGE->_Resize(LOWORD(lparam), HIWORD(lparam));
 			//return FALSE;
@@ -796,6 +804,7 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 				return DefWindowProc(hwnd, msg, wparam, lparam);
 			}
 			break;
+#endif
 	}
 
 	return true;
