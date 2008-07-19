@@ -112,7 +112,6 @@ return 0;
 void CALL HGE_Impl::Effect_Free(HEFFECT eff)
 {
 STUBBED("write me");
-return 0;
 #if 0
 	if(hBass) BASS_SampleFree(eff);
 #endif
