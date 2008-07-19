@@ -9,6 +9,10 @@
 
 #include "hge_impl_unix.h"
 
+#if !PLATFORM_UNIX
+#error This source file is for Unix and Mac OS X. Use system.cpp for Windows.
+#endif
+
 #if PLATFORM_UNIX
 
 #if PLATFORM_MACOSX

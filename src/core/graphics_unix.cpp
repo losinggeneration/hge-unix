@@ -9,6 +9,10 @@
 
 #include "hge_impl_unix.h"
 
+#if !PLATFORM_UNIX
+#error This source file is for Unix and Mac OS X. Use graphics.cpp for Windows.
+#endif
+
 #if PLATFORM_UNIX
 
 struct gltexture

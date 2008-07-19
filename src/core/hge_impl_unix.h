@@ -11,6 +11,10 @@
 
 #include "unix_compat.h"
 
+#if !PLATFORM_UNIX
+#error This header is for Unix and Mac OS X. Use hge_impl.h for Windows.
+#endif
+
 #if PLATFORM_UNIX
 
 #include "../../include/hge.h"
