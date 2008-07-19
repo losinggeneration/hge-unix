@@ -565,7 +565,6 @@ bool CALL HGE_Impl::System_Launch(const char *url)
 
 void CALL HGE_Impl::System_Snapshot(const char *filename)
 {
-	LPDIRECT3DSURFACE8 pSurf;
 	char *shotname, tempname[_MAX_PATH];
 	int i;
 
@@ -584,10 +583,23 @@ void CALL HGE_Impl::System_Snapshot(const char *filename)
 
 	if(pOpenGLDevice)
 	{
-		STUBBED("glReadPixels and write .bmp");
-		//pOpenGLDevice->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &pSurf);
-		//D3DXSaveSurfaceToFile(filename, D3DXIFF_BMP, pSurf, NULL, NULL);
-		//pSurf->Release();
+		#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+		const Uint32 rmask = 0xFF0000;
+		const Uint32 gmask = 0x00FF00;
+		const Uint32 bmask = 0x0000FF;
+		#else
+		const Uint32 rmask = 0x0000FF;
+		const Uint32 gmask = 0x00FF00;
+		const Uint32 bmask = 0xFF0000;
+		#endif
+
+		pOpenGLDevice->glFinish();  // make sure screenshot is ready.
+		SDL_Surface *screen = SDL_GetVideoSurface();
+		SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE, screen->w, screen->h, 24, rmask, gmask, bmask, 0);
+		pOpenGLDevice->glReadPixels(0, 0, screen->w, screen->h, GL_RGB, GL_UNSIGNED_BYTE, surface->pixels);
+		STUBBED("image is probably upside down");
+		SDL_SaveBMP(surface, filename);
+		SDL_FreeSurface(surface);
 	}
 }
 

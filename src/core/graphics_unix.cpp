@@ -13,58 +13,17 @@
 
 struct gltexture
 {
-    GLuint name;
-    GLuint width;
-    GLuint height;
-    DWORD *pixels;  // copy in main memory
-    DWORD *lock_pixels;  // for locked texture
-    bool lock_readonly;
-    GLint lock_x;
-    GLint lock_y;
-    GLint lock_width;
-    GLint lock_height;
+	GLuint name;
+	GLuint width;
+	GLuint height;
+	DWORD *pixels;  // copy in main memory
+	DWORD *lock_pixels;  // for locked texture
+	bool lock_readonly;
+	GLint lock_x;
+	GLint lock_y;
+	GLint lock_width;
+	GLint lock_height;
 };
-
-struct glmatrix
-{
-    GLfloat _11; GLfloat _12; GLfloat _13; GLfloat _14;
-    GLfloat _21; GLfloat _22; GLfloat _23; GLfloat _24;
-    GLfloat _31; GLfloat _32; GLfloat _33; GLfloat _34;
-    GLfloat _41; GLfloat _42; GLfloat _43; GLfloat _44;
-};
-
-static inline void matrix_identity(glmatrix &mat)
-{
-    memset(&mat, '\0', sizeof (mat));
-    mat._11 = mat._22 = mat._33 = mat._44 = 1.0f;
-}
-
-static inline void matrix_scaling(glmatrix *mat, const GLfloat sx, const GLfloat sy, const GLfloat sz)
-{
-    memset(&mat, '\0', sizeof (mat));
-    mat->_11 = sx;
-    mat->_22 = sy;
-    mat->_33 = sz;
-}
-
-static inline void matrix_translation(glmatrix *mat, const GLfloat sx, const GLfloat sy, const GLfloat sz)
-{
-    memset(&mat, '\0', sizeof (mat));
-    mat->_41 = sx;
-    mat->_42 = sy;
-    mat->_43 = sz;
-}
-
-static inline void matrix_multiply(glmatrix *mat, const glmatrix *m1, const glmatrix *m2)
-{
-    #define MULTOP(i,j) mat->_#i#j = (m1->_#i#1 * m2->_1#j) + (m1->_#i#2 * m2->_2#j) + \
-                                     (m1->_#i#3 * m2->_3#j) + (m1->_#i#4 * m2->_4#j)
-    MULTOP(1,1); MULTOP(1,2); MULTOP(1,3); MULTOP(1,4);
-    MULTOP(2,1); MULTOP(2,2); MULTOP(2,3); MULTOP(2,4);
-    MULTOP(3,1); MULTOP(3,2); MULTOP(3,3); MULTOP(3,4);
-    MULTOP(4,1); MULTOP(4,2); MULTOP(4,3); MULTOP(4,4);
-    #undef MULTOP
-}
 
 void CALL HGE_Impl::Gfx_Clear(DWORD color)
 {
@@ -80,6 +39,7 @@ void CALL HGE_Impl::Gfx_Clear(DWORD color)
 	pOpenGLDevice->glClear(flags);
 
 	// !!! FIXME: clear FBOs/pBuffers, etc.
+	STUBBED("FBOs");
 }
 
 void CALL HGE_Impl::Gfx_SetClipping(int x, int y, int w, int h)
@@ -383,16 +343,16 @@ HTEXTURE CALL HGE_Impl::Target_GetTexture(HTARGET target)
 
 HTEXTURE CALL HGE_Impl::_build_texture(int width, int height, DWORD *pixels)
 {
-    gltexture *retval = new gltexture;
-    memset(retval, '\0', sizeof (gltexture));
+	gltexture *retval = new gltexture;
+	memset(retval, '\0', sizeof (gltexture));
 
-    GLuint tex = 0;
+	GLuint tex = 0;
 	pOpenGLDevice->glGenTextures(1, &tex);
 
-    retval->name = tex;
-    retval->width = width;
-    retval->height = height;
-    retval->pixels = pixels;
+	retval->name = tex;
+	retval->width = width;
+	retval->height = height;
+	retval->pixels = pixels;
 
 	pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, tex);
 	pOpenGLDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
@@ -409,14 +369,16 @@ HTEXTURE CALL HGE_Impl::_build_texture(int width, int height, DWORD *pixels)
 	}
 	pOpenGLDevice->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
+	pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
+
 	return (HTEXTURE)retval;
 }
 
 HTEXTURE CALL HGE_Impl::Texture_Create(int width, int height)
 {
-    DWORD *pixels = new DWORD[width * height];
-    memset(pixels, '\0', sizeof (DWORD) * width * height);
-    return _build_texture(width, height, pixels);
+	DWORD *pixels = new DWORD[width * height];
+	memset(pixels, '\0', sizeof (DWORD) * width * height);
+	return _build_texture(width, height, pixels);
 }
 
 HTEXTURE CALL HGE_Impl::Texture_Load(const char *filename, DWORD size, bool bMipmap)
@@ -510,12 +472,13 @@ void CALL HGE_Impl::Texture_Free(HTEXTURE tex)
 		texItem=texItem->next;
 	}
 	if(tex)
-    {
-        gltexture *pTex = (gltexture *) tex;
-        delete[] pTex->pixels;
-        delete[] pTex->lock_pixels;
-        pOpenGLDevice->glDeleteTextures(1, &pTex->name);
-    }
+	{
+		gltexture *pTex = (gltexture *) tex;
+		delete[] pTex->pixels;
+		delete[] pTex->lock_pixels;
+		pOpenGLDevice->glDeleteTextures(1, &pTex->name);
+		delete pTex;
+	}
 }
 
 int CALL HGE_Impl::Texture_GetWidth(HTEXTURE tex, bool bOriginal)
@@ -564,28 +527,28 @@ DWORD * CALL HGE_Impl::Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int 
 	RECT region, *prec;
 	int flags;
 
-    if (pTex->lock_pixels)
-    {
-        assert(false && "multiple lock of texture...");
-        return 0;
-    }
+	if (pTex->lock_pixels)
+	{
+		assert(false && "multiple lock of texture...");
+		return 0;
+	}
 
-    // !!! FIXME: is this right?
+	// !!! FIXME: is this right?
 	if((width == 0) && (height == 0))
-    {
-        width = pTex->width;
-        height = pTex->height;
-    }
+	{
+		width = pTex->width;
+		height = pTex->height;
+	}
 
-    // !!! FIXME: do something with this?
-    assert(width > 0);
-    assert(width <= pTex->width);
-    assert(height > 0);
-    assert(height <= pTex->height);
-    assert(left >= 0);
-    assert(left <= width);
-    assert(top >= 0);
-    assert(top <= height);
+	// !!! FIXME: do something with this?
+	assert(width > 0);
+	assert(width <= pTex->width);
+	assert(height > 0);
+	assert(height <= pTex->height);
+	assert(left >= 0);
+	assert(left <= width);
+	assert(top >= 0);
+	assert(top <= height);
 
 	pTex->lock_readonly = bReadOnly;
 	pTex->lock_x = left;
@@ -593,15 +556,15 @@ DWORD * CALL HGE_Impl::Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int 
 	pTex->lock_width = width;
 	pTex->lock_height = height;
 
-    pTex->lock_pixels = new DWORD[width * height];
-    DWORD *src = pTex->pixels + left;
-    DWORD *dst = pTex->lock_pixels;
-    for (int i = 0; i < height; i++)
-    {
-        memcpy(dst, src, width * sizeof (DWORD));
-        dst += width;
-        src += pTex->width;
-    }
+	pTex->lock_pixels = new DWORD[width * height];
+	DWORD *src = pTex->pixels + left;
+	DWORD *dst = pTex->lock_pixels;
+	for (int i = 0; i < height; i++)
+	{
+		memcpy(dst, src, width * sizeof (DWORD));
+		dst += width;
+		src += pTex->width;
+	}
 
 	return 0;
 }
@@ -613,16 +576,17 @@ void CALL HGE_Impl::Texture_Unlock(HTEXTURE tex)
 
 	if (pTex->lock_pixels == NULL) return;  // not locked.
 
-    if (!pTex->lock_read_only)  // have to reupload to the hardware.
-    {
-        pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, pTex->name);
-        pOpenGLDevice->glTexSubImage2D(GL_TEXTURE_2D, 0, pTex->lock_x, pTex->lock_y,
-                                       pTex->lock_width, pTex->lock_height, GL_RGBA,
-                                       GL_UNSIGNED_BYTE, pTex->lock_pixels);
-    } // if
+	if (!pTex->lock_read_only)  // have to reupload to the hardware.
+	{
+		pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, pTex->name);
+		pOpenGLDevice->glTexSubImage2D(GL_TEXTURE_2D, 0, pTex->lock_x, pTex->lock_y,
+		                               pTex->lock_width, pTex->lock_height, GL_RGBA,
+		                               GL_UNSIGNED_BYTE, pTex->lock_pixels);
+	pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
+	} // if
 
-    delete[] pTex->lock_pixels;
-    pTex->lock_pixels = NULL;
+	delete[] pTex->lock_pixels;
+	pTex->lock_pixels = NULL;
 	pTex->lock_readonly = false;
 	pTex->lock_x = -1;
 	pTex->lock_y = -1;
@@ -685,16 +649,16 @@ void HGE_Impl::_SetBlendMode(int blend)
 
 void HGE_Impl::_SetProjectionMatrix(int width, int height)
 {
-	D3DXMATRIX tmp;
-	D3DXMatrixScaling(&matProj, 1.0f, -1.0f, 1.0f);
-	D3DXMatrixTranslation(&tmp, -0.5f, height+0.5f, 0.0f);
-	D3DXMatrixMultiply(&matProj, &matProj, &tmp);
-	D3DXMatrixOrthoOffCenterLH(&tmp, 0, (float)width, 0, (float)height, 0.0f, 1.0f);
-	D3DXMatrixMultiply(&matProj, &matProj, &tmp);
+	pOpenGLDevice->glMatrixMode(GL_PROJECTION);
+	pOpenGLDevice->glLoadIdentity();
+	pOpenGLDevice->glScalef(1.0f, -1.0f, 1.0f);
+	pOpenGLDevice->glTranslatef(-0.5f, height+0.5f, 0.0f);
+	pOpenGLDevice->glOrtho(0, (float)width, 0, (float)height, 0.0f, 1.0f);
 }
 
 bool HGE_Impl::_LoadOpenGLEntryPoints()
 {
+	STUBBED("write me");
 }
 
 bool HGE_Impl::_GfxInit()
@@ -721,8 +685,9 @@ bool HGE_Impl::_GfxInit()
 // Init all stuff that can be lost
 
 	_SetProjectionMatrix(nScreenWidth, nScreenHeight);
-	matrix_identity(&matView);
-	
+	pOpenGLDevice->glMatrixMode(GL_MODELVIEW);
+	pOpenGLDevice->glLoadIdentity();
+
 	if(!_init_lost()) return false;
 
 	// make sure the framebuffers are cleared and force to screen
@@ -880,6 +845,9 @@ STUBBED("(re)create render targets");
 
 // Set common render states
 
+	pOpenGLDevice->glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	pOpenGLDevice->glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
 	//pD3DDevice->SetRenderState( D3DRS_LASTPIXEL, FALSE );
 	pOpenGLDevice->glEnable(GL_TEXTURE_2D);
 	pOpenGLDevice->glDisable(GL_CULL_FACE);
@@ -899,8 +867,9 @@ STUBBED("(re)create render targets");
 	CurBlendMode = BLEND_DEFAULT;
 	CurTexture = NULL;
 
-	pD3DDevice->SetTransform(D3DTS_VIEW, &matView);
-	pD3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
+	// currently done elsewhere.
+	//pD3DDevice->SetTransform(D3DTS_VIEW, &matView);
+	//pD3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
 
 	return true;
 }
