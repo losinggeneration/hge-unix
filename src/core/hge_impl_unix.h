@@ -224,10 +224,13 @@ public:
 	void				_FocusChange(bool bAct);
 	void				_PostError(char *error);
 
+	// ini ...
+	const char*			_BuildProfilePath(const char *section, const char *name, const char *szIniFile);
+	bool				_WritePrivateProfileString(const char *section, const char *name, const char *buf, const char *szIniFile);
+	bool				_GetPrivateProfileString(const char *section, const char *name, const char *deflt, char *buf, size_t bufsize, const char *szIniFile);
 
-	//HINSTANCE			hInstance;
+
 	HWND				hwnd;
-
 	bool				bActive;
 	char				szError[256];
 	char				szAppPath[_MAX_PATH];
