@@ -17,6 +17,8 @@
 
 #if PLATFORM_MACOSX
 #include <Carbon/Carbon.h>
+#include <sys/types.h>
+#include <sys/sysctl.h>
 #endif
 
 #define LOWORDINT(n) ((int)((signed short)(LOWORD(n))))
@@ -66,23 +68,41 @@ bool CALL HGE_Impl::System_Initiate()
 	int				width, height;
 
 	// Log system info
-	System_Log("HGE Started..\n");
+	System_Log("HGE Started...");
 
 	System_Log("HGE version: %X.%X", HGE_VERSION>>8, HGE_VERSION & 0xFF);
 
 	time_t t = time(NULL);
-	System_Log("Date: %s\n", asctime(localtime(&t)));
+	System_Log("Date: %s", asctime(localtime(&t)));
 
 	System_Log("Application: %s",szWinTitle);
 
-	STUBBED("OS version and memory");
-#if 0 // !!! FIXME
-	os_ver.dwOSVersionInfoSize=sizeof(os_ver);
-	GetVersionEx(&os_ver);
-	System_Log("OS: Windows %ld.%ld.%ld",os_ver.dwMajorVersion,os_ver.dwMinorVersion,os_ver.dwBuildNumber);
+#if PLATFORM_MACOSX
+    // !!! FIXME: this is wrong...it doesn't with with 10.y.xx, where 'xx'
+    // !!! FIXME:  is more than one digit (it appears to clamp to 9 in these
+    // !!! FIXME:  cases inside Gestalt(), for obvious reasons).
+    // !!! FIXME: This is a legacy--and incorrect--way to get this information.
+    long ver = 0x0000;
+    char verbuf[16] = { '\0' };
+	if (Gestalt(gestaltSystemVersion, &ver) == noErr)
+    {
+        char str[16];
+        snprintf(str, sizeof (str), "%X", (int) ver);
+        snprintf(verbuf, sizeof (verbuf), " %c%c.%c.%c", str[0], str[1], str[2], str[3]);
+    } // if
 
-	GlobalMemoryStatus(&mem_st);
-	System_Log("Memory: %ldK total, %ldK free\n",mem_st.dwTotalPhys/1024L,mem_st.dwAvailPhys/1024L);
+    System_Log("OS: Mac OS X%s", verbuf);
+
+	unsigned long phys = 0;
+	size_t len = sizeof (phys);
+	int mib[2] = { CTL_HW, HW_PHYSMEM };
+	if ((sysctl(mib, 2, &phys, &len, NULL, 0) != 0) || (len != sizeof (phys)))
+		phys = 0;  // oh well.
+	System_Log("Memory: %ldK total",phys/1024);
+
+#else
+	System_Log("OS: Unix");
+	STUBBED("OS version and memory");
 #endif
 
 	if (SDL_Init(SDL_INIT_VIDEO) == -1) {
@@ -561,6 +581,7 @@ bool CALL HGE_Impl::System_Launch(const char *url)
 	CFRelease(cfurl);
 	return (err == noErr);
 #else
+	STUBBED("launch URL");
 	return false;
 #endif
 }
