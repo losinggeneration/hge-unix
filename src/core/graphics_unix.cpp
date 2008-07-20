@@ -171,6 +171,7 @@ void CALL HGE_Impl::Gfx_EndScene()
 {
 	_render_batch(true);
 	if(!pCurTarget) SDL_GL_SwapBuffers();
+	//Gfx_Clear(0xFF | (0xFF<<24) | (random() & 0xFF << 16) | (random() & 0xFF << 8));
 }
 
 void HGE_Impl::_SetTextureFilter()
