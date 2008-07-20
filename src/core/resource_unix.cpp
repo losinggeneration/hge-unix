@@ -232,43 +232,43 @@ char* CALL HGE_Impl::Resource_MakePath(const char *filename)
 // !!! FIXME: kinda messy, and probably doesn't get all the corner cases right.
 bool HGE_Impl::_WildcardMatch(const char *str, const char *wildcard)
 {
-    if ((str == NULL) || (wildcard == NULL))
-        return false;
+	if ((str == NULL) || (wildcard == NULL))
+		return false;
 
-    while ((*str) && (*wildcard))
-    {
-        const char wildch = *wildcard;
-        const char strch = *str;
-        if (wildch == '?')
-            ; // okay.
-        else if (wildch == '*')
-        {
-            do {
-                wildcard++;
-            } while (((*wildcard == '*') || (*wildcard == '?')) && (*wildcard != '\0'));
-            const char newwild = *wildcard;
-            if (newwild == '\0') return true;
-            const char *ptr = str;
-            while (*ptr)  // find the greediest match possible...
-            {
-                if (*ptr == newwild)
-                    str = ptr;
-                ptr++;
-            }
-        }
-        else if ( (toupper(strch)) != (toupper(wildch)) )
-        {
-            return false;
-        }
+	while ((*str) && (*wildcard))
+	{
+		const char wildch = *wildcard;
+		const char strch = *str;
+		if (wildch == '?')
+			; // okay.
+		else if (wildch == '*')
+		{
+			do {
+				wildcard++;
+			} while (((*wildcard == '*') || (*wildcard == '?')) && (*wildcard != '\0'));
+			const char newwild = *wildcard;
+			if (newwild == '\0') return true;
+			const char *ptr = str;
+			while (*ptr)  // find the greediest match possible...
+			{
+				if (*ptr == newwild)
+					str = ptr;
+				ptr++;
+			}
+		}
+		else if ( (toupper(strch)) != (toupper(wildch)) )
+		{
+			return false;
+		}
 
-        str++;
-        wildcard++;
-    }
+		str++;
+		wildcard++;
+	}
 
-    while (*wildcard == '*')
-        wildcard++;
+	while (*wildcard == '*')
+		wildcard++;
 
-    return ((*str == '\0') && (*wildcard == '\0'));
+	return ((*str == '\0') && (*wildcard == '\0'));
 }
 
 bool HGE_Impl::_PrepareFileEnum(const char *wildcard)
