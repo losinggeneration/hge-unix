@@ -198,7 +198,7 @@ void CALL HGE_Impl::Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD
 		int i=nPrim*HGEPRIM_LINES;
 		VertArray[i].x = x1; VertArray[i+1].x = x2;
 		VertArray[i].y = y1; VertArray[i+1].y = y2;
-		VertArray[i].z     = VertArray[i+1].z = -z; 		// !!! FIXME: just correct the transformation matrix instead.
+		VertArray[i].z     = VertArray[i+1].z = z;
 		VertArray[i].col   = VertArray[i+1].col = color;
 		VertArray[i].tx    = VertArray[i+1].tx =
 		VertArray[i].ty    = VertArray[i+1].ty = 0.0f;
@@ -225,11 +225,6 @@ void CALL HGE_Impl::Gfx_RenderTriple(const hgeTriple *triple)
 		}
 
 		memcpy(&VertArray[nPrim*HGEPRIM_TRIPLES], triple->v, sizeof(hgeVertex)*HGEPRIM_TRIPLES);
-
-		// !!! FIXME: just correct the transformation matrix instead.
-		for (int i = 0; i < HGEPRIM_TRIPLES; i++)
-			VertArray[(nPrim*HGEPRIM_TRIPLES)+i].z *= -1.0f;
-
 		nPrim++;
 	}
 }
@@ -253,11 +248,6 @@ void CALL HGE_Impl::Gfx_RenderQuad(const hgeQuad *quad)
 		}
 
 		memcpy(&VertArray[nPrim*HGEPRIM_QUADS], quad->v, sizeof(hgeVertex)*HGEPRIM_QUADS);
-
-		// !!! FIXME: just correct the transformation matrix instead.
-		for (int i = 0; i < HGEPRIM_QUADS; i++)
-			VertArray[(nPrim*HGEPRIM_QUADS)+i].z *= -1.0f;
-
 		nPrim++;
 	}
 }
@@ -286,7 +276,6 @@ hgeVertex* CALL HGE_Impl::Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend,
 void CALL HGE_Impl::Gfx_FinishBatch(int nprim)
 {
 	nPrim=nprim;
-	STUBBED("fix z direction");
 }
 
 HTARGET CALL HGE_Impl::Target_Create(int width, int height, bool zbuffer)
@@ -625,6 +614,15 @@ void HGE_Impl::_render_batch(bool bEndScene)
 	{
 		if(nPrim)
 		{
+			// !!! FIXME: just correct the transformation matrix instead.
+			const float h = (float) (((SDL_Surface *) this->hwnd)->h);
+			for (int i = 0; i < nPrim*CurPrimType; i++)
+			{
+				VertArray[i].y = h - VertArray[i].y;
+				VertArray[i].z *= -1.0f;
+				VertArray[i].ty = 1.0f - VertArray[i].ty;
+			}
+
 			switch(CurPrimType)
 			{
 				case HGEPRIM_QUADS:
