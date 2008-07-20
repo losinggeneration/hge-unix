@@ -687,6 +687,8 @@ bool HGE_Impl::_LoadOpenGLEntryPoints()
 bool HGE_Impl::_GfxInit()
 {
 // Init OpenGL ... SDL should have created a context at this point.
+	assert(pOpenGLDevice == NULL);
+	pOpenGLDevice = new COpenGLDevice;
 	if (!_LoadOpenGLEntryPoints())
 		return false;   // already called _PostError().
 
