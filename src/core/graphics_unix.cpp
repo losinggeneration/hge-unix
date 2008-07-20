@@ -568,7 +568,7 @@ DWORD * CALL HGE_Impl::Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int 
 		src += pTex->width;
 	}
 
-	return 0;
+	return pTex->lock_pixels;
 }
 
 
