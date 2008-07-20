@@ -610,7 +610,7 @@ void HGE_Impl::_render_batch(bool bEndScene)
 			switch(CurPrimType)
 			{
 				case HGEPRIM_QUADS:
-					pOpenGLDevice->glDrawElements(GL_TRIANGLES, nPrim<<1, GL_UNSIGNED_SHORT, pIB);
+					pOpenGLDevice->glDrawElements(GL_TRIANGLES, nPrim * 6, GL_UNSIGNED_SHORT, pIB);
 					break;
 
 				case HGEPRIM_TRIPLES:
