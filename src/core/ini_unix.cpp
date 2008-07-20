@@ -27,14 +27,16 @@ const char *HGE_Impl::_BuildProfilePath(const char *section, const char *name, c
 	mkdir(path, S_IRWXU);
 	strcat(path, "/Application Support");
 	mkdir(path, S_IRWXU);
-	strcat(path, "/Magic Match Adventures");
+	strcat(path, "/");
+	strcat(path, szWinTitle);
 	mkdir(path, S_IRWXU);
 	#else
-	strcat(path, "/.Magic Match Adventures");
+	strcat(path, "/.");
+	strcat(path, szWinTitle);
 	mkdir(path, S_IRWXU);
 	#endif
 
-	strcat(path, "/ini");
+	strcat(path, "/inis");
 	mkdir(path, S_IRWXU);
 
 	strcat(path, "/");
