@@ -216,7 +216,7 @@ void CALL HGE_Impl::Gfx_RenderTriple(const hgeTriple *triple)
 			CurPrimType=HGEPRIM_TRIPLES;
 			if(CurBlendMode != triple->blend) _SetBlendMode(triple->blend);
 			if(triple->tex != CurTexture) {
-				pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, ((gltexture*)triple->tex)->name );
+				pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, triple->tex ? ((gltexture*)triple->tex)->name : 0);
 				CurTexture = triple->tex;
 				_SetTextureFilter();
 			}
@@ -239,7 +239,7 @@ void CALL HGE_Impl::Gfx_RenderQuad(const hgeQuad *quad)
 			if(CurBlendMode != quad->blend) _SetBlendMode(quad->blend);
 			if(quad->tex != CurTexture)
 			{
-				pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, ((gltexture*)quad->tex)->name );
+				pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, quad->tex ? ((gltexture*)quad->tex)->name : 0);
 				CurTexture = quad->tex;
 				_SetTextureFilter();
 			}
@@ -260,7 +260,7 @@ hgeVertex* CALL HGE_Impl::Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend,
 		if(CurBlendMode != blend) _SetBlendMode(blend);
 		if(tex != CurTexture)
 		{
-			pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, ((gltexture*)tex)->name );
+			pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, tex ? ((gltexture*)tex)->name : 0);
 			CurTexture = tex;
 			_SetTextureFilter();
 		}
