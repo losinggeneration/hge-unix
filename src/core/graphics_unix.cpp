@@ -15,6 +15,11 @@
 
 #if PLATFORM_UNIX
 
+#define SUPPORT_CXIMAGE 1
+#if SUPPORT_CXIMAGE
+#include "CxImage/CxImage/ximage.h"
+#endif
+
 struct gltexture
 {
 	GLuint name;
@@ -395,14 +400,13 @@ HTEXTURE CALL HGE_Impl::Texture_Create(int width, int height)
 
 HTEXTURE CALL HGE_Impl::Texture_Load(const char *filename, DWORD size, bool bMipmap)
 {
-STUBBED("read file formats from disk");
-return 0;
-#if 0
+	HTEXTURE retval = 0;
+	int width = 0;
+	int height = 0;
+
+#if SUPPORT_CXIMAGE
 	void *data;
 	DWORD _size;
-	D3DFORMAT fmt1, fmt2;
-	LPDIRECT3DTEXTURE8 pTex;
-	D3DXIMAGE_INFO info;
 	CTextureList *texItem;
 
 	if(size) { data=(void *)filename; _size=size; }
@@ -412,59 +416,47 @@ return 0;
 		if(!data) return NULL;
 	}
 
-	if(*(DWORD*)data == 0x20534444) // Compressed DDS format magic number
+	CxImage img;
+	img.Decode((BYTE*)data, _size, CXIMAGE_FORMAT_UNKNOWN);
+	if (img.IsValid())
 	{
-		fmt1=D3DFMT_UNKNOWN;
-		fmt2=D3DFMT_A8R8G8B8;
+		width = img.GetWidth();
+		height = img.GetHeight();
+		DWORD *pixels = new DWORD[width * height];
+		BYTE *wptr = (BYTE *) pixels;
+		for (int y = 0; y < height; y++)
+		{
+			for (int x = 0; x < width; x++)
+			{
+				const RGBQUAD rgb = img.GetPixelColor(x, y, true);
+				*(wptr++) = rgb.rgbRed;
+				*(wptr++) = rgb.rgbGreen;
+				*(wptr++) = rgb.rgbBlue;
+				*(wptr++) = rgb.rgbReserved;  // alpha.
+			}
+		}
+		retval = _BuildTexture(width, height, pixels);
+	}
+#endif
+
+	if(!size) Resource_Free(data);
+
+	if (retval == 0)
+	{
+		STUBBED("texture load fail!");
+		_PostError("Can't create texture");
 	}
 	else
 	{
-		fmt1=D3DFMT_A8R8G8B8;
-		fmt2=D3DFMT_UNKNOWN;
+		texItem=new CTextureList;
+		texItem->tex=retval;
+		texItem->width=width;
+		texItem->height=height;
+		texItem->next=textures;
+		textures=texItem;
 	}
 
-//	if( FAILED( D3DXCreateTextureFromFileInMemory( pD3DDevice, data, _size, &pTex ) ) ) pTex=NULL;
-	if( FAILED( D3DXCreateTextureFromFileInMemoryEx( pD3DDevice, data, _size,
-										D3DX_DEFAULT, D3DX_DEFAULT,
-										bMipmap ? 0:1,		// Mip levels
-										0,					// Usage
-										fmt1,				// Format
-										D3DPOOL_MANAGED,	// Memory pool
-										D3DX_FILTER_NONE,	// Filter
-										D3DX_DEFAULT,		// Mip filter
-										0,					// Color key
-										&info, NULL,
-										&pTex ) ) )
-
-	if( FAILED( D3DXCreateTextureFromFileInMemoryEx( pD3DDevice, data, _size,
-										D3DX_DEFAULT, D3DX_DEFAULT,
-										bMipmap ? 0:1,		// Mip levels
-										0,					// Usage
-										fmt2,				// Format
-										D3DPOOL_MANAGED,	// Memory pool
-										D3DX_FILTER_NONE,	// Filter
-										D3DX_DEFAULT,		// Mip filter
-										0,					// Color key
-										&info, NULL,
-										&pTex ) ) )
-
-	{	
-		_PostError("Can't create texture");
-		if(!size) Resource_Free(data);
-		return NULL;
-	}
-
-	if(!size) Resource_Free(data);
-	
-	texItem=new CTextureList;
-	texItem->tex=(HTEXTURE)pTex;
-	texItem->width=info.Width;
-	texItem->height=info.Height;
-	texItem->next=textures;
-	textures=texItem;
-
-	return (HTEXTURE)pTex;
-#endif
+	return retval;
 }
 
 void CALL HGE_Impl::Texture_Free(HTEXTURE tex)
