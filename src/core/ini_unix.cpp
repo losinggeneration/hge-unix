@@ -14,8 +14,6 @@
 
 #if PLATFORM_UNIX
 
-#include <sys/stat.h>
-
 const char *HGE_Impl::_BuildProfilePath(const char *section, const char *name, const char *szIniFile)
 {
 	// !!! FIXME: not efficient.
@@ -29,12 +27,15 @@ const char *HGE_Impl::_BuildProfilePath(const char *section, const char *name, c
 	mkdir(path, S_IRWXU);
 	strcat(path, "/Application Support");
 	mkdir(path, S_IRWXU);
-	strcat(path, "/Magic Match");
+	strcat(path, "/Magic Match Adventures");
 	mkdir(path, S_IRWXU);
 	#else
-	strcat(path, ".magicmatch");
+	strcat(path, "/.Magic Match Adventures");
 	mkdir(path, S_IRWXU);
 	#endif
+
+	strcat(path, "/ini");
+	mkdir(path, S_IRWXU);
 
 	strcat(path, "/");
 	strcat(path, szIniFile);
