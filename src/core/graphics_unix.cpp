@@ -89,9 +89,8 @@ void CALL HGE_Impl::Gfx_SetClipping(int x, int y, int w, int h)
 	pOpenGLDevice->glDepthRange(vp.MinZ, vp.MaxZ);
 	pOpenGLDevice->glMatrixMode(GL_PROJECTION);
 	pOpenGLDevice->glLoadIdentity();
-	pOpenGLDevice->glScalef(1.0f, -1.0f, 1.0f);
-	pOpenGLDevice->glTranslatef(-0.5f, +0.5f, 0.0f);
 	pOpenGLDevice->glOrtho((float)vp.X, (float)(vp.X+vp.Width), -((float)(vp.Y+vp.Height)), -((float)vp.Y), vp.MinZ, vp.MaxZ);
+	pOpenGLDevice->glRotatef(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 void CALL HGE_Impl::Gfx_SetTransform(float x, float y, float dx, float dy, float rot, float hscale, float vscale)
@@ -103,8 +102,8 @@ void CALL HGE_Impl::Gfx_SetTransform(float x, float y, float dx, float dy, float
 	else
 	{
 		pOpenGLDevice->glTranslatef(-x, -y, 0.0f);
-		pOpenGLDevice->glScalef(1.0f, -1.0f, 1.0f);
-		pOpenGLDevice->glRotatef(-rot, 0.0f, 0.0f, 1.0f);
+		//pOpenGLDevice->glScalef(1.0f, -1.0f, 1.0f);
+		pOpenGLDevice->glRotatef(-rot, 0.0f, 0.0f, -1.0f);
 		pOpenGLDevice->glTranslatef(x+dx, y+dy, 0.0f);
 	}
 }
@@ -199,7 +198,7 @@ void CALL HGE_Impl::Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD
 		int i=nPrim*HGEPRIM_LINES;
 		VertArray[i].x = x1; VertArray[i+1].x = x2;
 		VertArray[i].y = y1; VertArray[i+1].y = y2;
-		VertArray[i].z     = VertArray[i+1].z = z;
+		VertArray[i].z     = VertArray[i+1].z = -z; 		// !!! FIXME: just correct the transformation matrix instead.
 		VertArray[i].col   = VertArray[i+1].col = color;
 		VertArray[i].tx    = VertArray[i+1].tx =
 		VertArray[i].ty    = VertArray[i+1].ty = 0.0f;
@@ -226,6 +225,11 @@ void CALL HGE_Impl::Gfx_RenderTriple(const hgeTriple *triple)
 		}
 
 		memcpy(&VertArray[nPrim*HGEPRIM_TRIPLES], triple->v, sizeof(hgeVertex)*HGEPRIM_TRIPLES);
+
+		// !!! FIXME: just correct the transformation matrix instead.
+		for (int i = 0; i < HGEPRIM_TRIPLES; i++)
+			VertArray[(nPrim*HGEPRIM_TRIPLES)+i].z *= -1.0f;
+
 		nPrim++;
 	}
 }
@@ -249,6 +253,11 @@ void CALL HGE_Impl::Gfx_RenderQuad(const hgeQuad *quad)
 		}
 
 		memcpy(&VertArray[nPrim*HGEPRIM_QUADS], quad->v, sizeof(hgeVertex)*HGEPRIM_QUADS);
+
+		// !!! FIXME: just correct the transformation matrix instead.
+		for (int i = 0; i < HGEPRIM_QUADS; i++)
+			VertArray[(nPrim*HGEPRIM_QUADS)+i].z *= -1.0f;
+
 		nPrim++;
 	}
 }
@@ -277,6 +286,7 @@ hgeVertex* CALL HGE_Impl::Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend,
 void CALL HGE_Impl::Gfx_FinishBatch(int nprim)
 {
 	nPrim=nprim;
+	STUBBED("fix z direction");
 }
 
 HTARGET CALL HGE_Impl::Target_Create(int width, int height, bool zbuffer)
@@ -601,6 +611,14 @@ void CALL HGE_Impl::Texture_Unlock(HTEXTURE tex)
 
 //////// Implementation ////////
 
+#define DEBUG_VERTICES 0
+#if DEBUG_VERTICES
+static inline void print_vertex(const hgeVertex *v)
+{
+    printf("  (%f, %f, %f), 0x%X, (%f, %f)\n", v->x, v->y, v->z, v->col, v->tx, v->ty);
+}
+#endif
+
 void HGE_Impl::_render_batch(bool bEndScene)
 {
 	if(VertArray)
@@ -611,6 +629,16 @@ void HGE_Impl::_render_batch(bool bEndScene)
 			{
 				case HGEPRIM_QUADS:
 					pOpenGLDevice->glDrawElements(GL_TRIANGLES, nPrim * 6, GL_UNSIGNED_SHORT, pIB);
+					#if DEBUG_VERTICES
+					for (int i = 0; i < nPrim*6; i+=3)
+					{
+						printf("QUAD'S TRIANGLE:\n");
+						print_vertex(&pVB[pIB[i+0]]);
+						print_vertex(&pVB[pIB[i+1]]);
+						print_vertex(&pVB[pIB[i+2]]);
+					}
+					printf("DONE.\n");
+					#endif
 					break;
 
 				case HGEPRIM_TRIPLES:
@@ -656,8 +684,6 @@ void HGE_Impl::_SetProjectionMatrix(int width, int height)
 {
 	pOpenGLDevice->glMatrixMode(GL_PROJECTION);
 	pOpenGLDevice->glLoadIdentity();
-	pOpenGLDevice->glScalef(1.0f, -1.0f, 1.0f);
-	pOpenGLDevice->glTranslatef(-0.5f, height+0.5f, 0.0f);
 	pOpenGLDevice->glOrtho(0, (float)width, 0, (float)height, 0.0f, 1.0f);
 }
 
