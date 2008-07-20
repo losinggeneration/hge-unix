@@ -549,7 +549,7 @@ return false;
 bool HGE_Impl::_SoundInit()
 {
 STUBBED("write me");
-return false;
+return true;
 #if 0
 	if(!bUseSound || hBass) return true;
 
