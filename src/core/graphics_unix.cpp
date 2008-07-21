@@ -759,6 +759,12 @@ bool HGE_Impl::_GfxInit()
 	int min = 0;
 	sscanf(verstr, "%d.%d", &maj, &min);
 
+	if ( (maj < 1) || ((maj == 1) && (min < 1)) )
+	{
+		_PostError("OpenGL implementation must be at least version 1.1");
+		return false;
+	}
+
 	pOpenGLDevice->have_GL_ARB_texture_rectangle = false;
 	pOpenGLDevice->have_GL_ARB_texture_non_power_of_two = false;
 
