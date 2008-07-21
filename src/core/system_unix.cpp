@@ -689,6 +689,7 @@ HGE_Impl::HGE_Impl()
 	bHideMouse=true;
 	bDontSuspend=false;
 	hwndParent=0;
+	keymods=KMOD_NONE;
 
 	nPowerStatus=HGEPWR_UNSUPPORTED;
 
@@ -737,45 +738,45 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 			return false;
 
 		case SDL_ACTIVEEVENT:
+			const bool bActivating = (e.active.gain != 0);
 			if (e.active.state & SDL_APPINPUTFOCUS) {
-				const bool bActivating = (e.active.gain != 0);
 				if(pHGE->bActive != bActivating) pHGE->_FocusChange(bActivating);
+			}
+			if (e.active.state & SDL_APPMOUSEFOCUS) {
+				bMouseOver = bActivating;
 			}
 			break;
 
 		case SDL_KEYDOWN:
+			keymods = e.key.keysym.mod;
 			#if PLATFORM_MACOSX  // handle Apple-Q hotkey.
-			if ((e.key.keysym.mod & KMOD_META) && (e.key.keysym.sym == SDLK_q)) {
+			if ((keymods & KMOD_META) && (e.key.keysym.sym == SDLK_q)) {
 				if(pHGE->procExitFunc && !pHGE->procExitFunc()) break;
 				return false;
 			}
 			#endif
-			STUBBED("key down event");
-			//pHGE->_BuildEvent(INPUT_KEYDOWN, wparam, HIWORD(lparam) & 0xFF, (lparam & 0x40000000) ? HGEINP_REPEAT:0, -1, -1);
+			pHGE->_BuildEvent(INPUT_KEYDOWN, e.key.keysym.sym, 0, 0 /*(lparam & 0x40000000) ? HGEINP_REPEAT:0*/, -1, -1);
 			break;
 
 		case SDL_KEYUP:
-			STUBBED("key up event");
-			//pHGE->_BuildEvent(INPUT_KEYUP, wparam, HIWORD(lparam) & 0xFF, 0, -1, -1);
+			keymods = e.key.keysym.mod;
+			pHGE->_BuildEvent(INPUT_KEYUP, e.key.keysym.sym, 0, 0, -1, -1);
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
-			STUBBED("mouse button down event");
+			if (e.button.button == SDL_BUTTON_LEFT)
+				pHGE->_BuildEvent(INPUT_MBUTTONDOWN, HGEK_LBUTTON, 0, 0, e.button.x, e.button.y);
+			else if (e.button.button == SDL_BUTTON_RIGHT)
+				pHGE->_BuildEvent(INPUT_MBUTTONDOWN, HGEK_RBUTTON, 0, 0, e.button.x, e.button.y);
+			else if (e.button.button == SDL_BUTTON_MIDDLE)
+				pHGE->_BuildEvent(INPUT_MBUTTONDOWN, HGEK_MBUTTON, 0, 0, e.button.x, e.button.y);
+			else if (e.button.button == SDL_BUTTON_WHEELUP)
+				pHGE->_BuildEvent(INPUT_MOUSEWHEEL, 1, 0, 0, e.button.x, e.button.y);
+			else if (e.button.button == SDL_BUTTON_WHEELDOWN)
+				pHGE->_BuildEvent(INPUT_MOUSEWHEEL, -1, 0, 0, e.button.x, e.button.y);
 			break;
 
 #if 0
-			SetFocus(hwnd);
-			pHGE->_BuildEvent(INPUT_MBUTTONDOWN, HGEK_LBUTTON, 0, 0, LOWORDINT(lparam), HIWORDINT(lparam));
-			return FALSE;
-		case WM_MBUTTONDOWN:
-			SetFocus(hwnd);
-			pHGE->_BuildEvent(INPUT_MBUTTONDOWN, HGEK_MBUTTON, 0, 0, LOWORDINT(lparam), HIWORDINT(lparam));
-			return FALSE;
-		case WM_RBUTTONDOWN:
-			SetFocus(hwnd);
-			pHGE->_BuildEvent(INPUT_MBUTTONDOWN, HGEK_RBUTTON, 0, 0, LOWORDINT(lparam), HIWORDINT(lparam));
-			return FALSE;
-
 		case WM_LBUTTONDBLCLK:
 			pHGE->_BuildEvent(INPUT_MBUTTONDOWN, HGEK_LBUTTON, 0, HGEINP_REPEAT, LOWORDINT(lparam), HIWORDINT(lparam));
 			return FALSE;
@@ -788,46 +789,23 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 #endif
 
 		case SDL_MOUSEBUTTONUP:
-			STUBBED("mouse button up");
+			if (e.button.button == SDL_BUTTON_LEFT)
+				pHGE->_BuildEvent(INPUT_MBUTTONUP, HGEK_LBUTTON, 0, 0, e.button.x, e.button.y);
+			else if (e.button.button == SDL_BUTTON_RIGHT)
+				pHGE->_BuildEvent(INPUT_MBUTTONUP, HGEK_RBUTTON, 0, 0, e.button.x, e.button.y);
+			else if (e.button.button == SDL_BUTTON_MIDDLE)
+				pHGE->_BuildEvent(INPUT_MBUTTONUP, HGEK_MBUTTON, 0, 0, e.button.x, e.button.y);
 			break;
-			
-#if 0
-		case WM_LBUTTONUP:
-			pHGE->_BuildEvent(INPUT_MBUTTONUP, HGEK_LBUTTON, 0, 0, LOWORDINT(lparam), HIWORDINT(lparam));
-			return FALSE;
-		case WM_MBUTTONUP:
-			pHGE->_BuildEvent(INPUT_MBUTTONUP, HGEK_MBUTTON, 0, 0, LOWORDINT(lparam), HIWORDINT(lparam));
-			return FALSE;
-		case WM_RBUTTONUP:
-			pHGE->_BuildEvent(INPUT_MBUTTONUP, HGEK_RBUTTON, 0, 0, LOWORDINT(lparam), HIWORDINT(lparam));
-			return FALSE;
-#endif
 
 		case SDL_MOUSEMOTION:
-			STUBBED("mouse motion event");
+			pHGE->_BuildEvent(INPUT_MOUSEMOVE, 0, 0, 0, e.motion.x, e.motion.y);
 			break;
 			
-#if 0
-			pHGE->_BuildEvent(INPUT_MOUSEMOVE, 0, 0, 0, LOWORDINT(lparam), HIWORDINT(lparam));
-			return FALSE;
-		case 0x020A: // WM_MOUSEWHEEL, GET_WHEEL_DELTA_WPARAM(wparam);
-			pHGE->_BuildEvent(INPUT_MOUSEWHEEL, short(HIWORD(wparam))/120, 0, 0, LOWORDINT(lparam), HIWORDINT(lparam));
-			return FALSE;
-#endif
 
 #if 0  // !!! FIXME
 		case WM_SIZE:
 			if(pHGE->pD3D && wparam==SIZE_RESTORED) pHGE->_Resize(LOWORD(lparam), HIWORD(lparam));
 			//return FALSE;
-			break;
-
-		case WM_SYSCOMMAND:
-			if(wparam==SC_CLOSE)
-			{
-				if(pHGE->procExitFunc && !pHGE->procExitFunc()) return FALSE;
-				pHGE->bActive=false;
-				return DefWindowProc(hwnd, msg, wparam, lparam);
-			}
 			break;
 #endif
 	}

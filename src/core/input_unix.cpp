@@ -73,13 +73,7 @@ void CALL HGE_Impl::Input_GetMousePos(float *x, float *y)
 
 void CALL HGE_Impl::Input_SetMousePos(float x, float y)
 {
-STUBBED("write me");
-#if 0
-	POINT pt;
-	pt.x=(long)x; pt.y=(long)y;
-	ClientToScreen(hwnd, &pt);
-	SetCursorPos(pt.x,pt.y);
-#endif
+	SDL_WarpMouse(x, y);
 }
 
 int CALL HGE_Impl::Input_GetMouseWheel()
@@ -94,11 +88,8 @@ bool CALL HGE_Impl::Input_IsMouseOver()
 
 bool CALL HGE_Impl::Input_GetKeyState(int key)
 {
-STUBBED("write me");
-return false;
-#if 0
-	return ((GetKeyState(key) & 0x8000) != 0);
-#endif
+	const Uint8 *keys = SDL_GetKeyState(NULL);
+	return (keys[key] != 0);
 }
 
 bool CALL HGE_Impl::Input_KeyDown(int key)
@@ -132,99 +123,74 @@ int CALL HGE_Impl::Input_GetChar()
 
 void HGE_Impl::_InputInit()
 {
-STUBBED("write me");
-#if 0
-	POINT	pt;
-	GetCursorPos(&pt);
-	ScreenToClient(hwnd, &pt);
-	Xpos = (float)pt.x;
-	Ypos = (float)pt.y;
-
+	Xpos = 0;  // eh.
+	Ypos = 0;
 	memset(&keyz, 0, sizeof(keyz));
-#endif
 }
 
 void HGE_Impl::_UpdateMouse()
 {
-STUBBED("write me");
-#if 0
-	POINT	pt;
-	RECT	rc;
-
-	GetCursorPos(&pt);
-	GetClientRect(hwnd, &rc);
-	MapWindowPoints(hwnd, NULL, (LPPOINT)&rc, 2);
-
-	if(bCaptured || (PtInRect(&rc, pt) && WindowFromPoint(pt)==hwnd))
-		bMouseOver=true;
-	else
-		bMouseOver=false;
-#endif
+	// no-op.
 }
 
 void HGE_Impl::_BuildEvent(int type, int key, int scan, int flags, int x, int y)
 {
-STUBBED("write me");
-#if 0
 	CInputEventList *last, *eptr=new CInputEventList;
-	unsigned char kbstate[256];
-	POINT pt;
 
 	eptr->event.type=type;
 	eptr->event.chr=0;
-	pt.x=x; pt.y=y;
+	int ptx=x;
+	int pty=y;
 
-	GetKeyboardState(kbstate);
 	if(type==INPUT_KEYDOWN)
 	{
 		if((flags & HGEINP_REPEAT) == 0) keyz[key] |= 1;
-		ToAscii(key, scan, kbstate, (unsigned short *)&eptr->event.chr, 0);
+		eptr->event.chr = (char) ((key >= 32) && (key <= 127)) ? key : 0;  // these map to ASCII in sdl.
 	}
 	if(type==INPUT_KEYUP)
 	{
 		keyz[key] |= 2;
-		ToAscii(key, scan, kbstate, (unsigned short *)&eptr->event.chr, 0);
+		eptr->event.chr = (char) ((key >= 32) && (key <= 127)) ? key : 0;  // these map to ASCII in sdl.
 	}
 	if(type==INPUT_MOUSEWHEEL)
 	{
 		eptr->event.key=0; eptr->event.wheel=key;
-		ScreenToClient(hwnd,&pt);
 	}
 	else { eptr->event.key=key; eptr->event.wheel=0; }
 
 	if(type==INPUT_MBUTTONDOWN)
 	{
 		keyz[key] |= 1;
-		SetCapture(hwnd);
-		bCaptured=true;
+		//SetCapture(hwnd);
+		//bCaptured=true;
 	}
 	if(type==INPUT_MBUTTONUP)
 	{
 		keyz[key] |= 2;
-		ReleaseCapture();
-		Input_SetMousePos(Xpos, Ypos);
-		pt.x=(int)Xpos; pt.y=(int)Ypos;
+		//ReleaseCapture();
+		//Input_SetMousePos(Xpos, Ypos);
+		ptx=(int)Xpos; pty=(int)Ypos;
 		bCaptured=false;
 	}
 	
-	if(kbstate[VK_SHIFT] & 0x80) flags|=HGEINP_SHIFT;
-	if(kbstate[VK_CONTROL] & 0x80) flags|=HGEINP_CTRL;
-	if(kbstate[VK_MENU] & 0x80) flags|=HGEINP_ALT;
-	if(kbstate[VK_CAPITAL] & 0x1) flags|=HGEINP_CAPSLOCK;
-	if(kbstate[VK_SCROLL] & 0x1) flags|=HGEINP_SCROLLLOCK;
-	if(kbstate[VK_NUMLOCK] & 0x1) flags|=HGEINP_NUMLOCK;
+	if(keymods & KMOD_SHIFT) flags|=HGEINP_SHIFT;
+	if(keymods & KMOD_CTRL)  flags|=HGEINP_CTRL;
+	if(keymods & KMOD_ALT)  flags|=HGEINP_ALT;
+	if(keymods & KMOD_CAPS)  flags|=HGEINP_CAPSLOCK;
+	if(keymods & KMOD_MODE) flags|=HGEINP_SCROLLLOCK;
+	if(keymods & KMOD_NUM) flags|=HGEINP_NUMLOCK;
 	eptr->event.flags=flags;
 
-	if(pt.x==-1) { eptr->event.x=Xpos;eptr->event.y=Ypos; }
+	if(ptx==-1) { eptr->event.x=Xpos;eptr->event.y=Ypos; }
 	else
 	{
-		if(pt.x<0) pt.x=0;
-		if(pt.y<0) pt.y=0;
-		if(pt.x>=nScreenWidth) pt.x=nScreenWidth-1;
-		if(pt.y>=nScreenHeight) pt.y=nScreenHeight-1;
+		if(ptx<0) ptx=0;
+		if(pty<0) pty=0;
+		if(ptx>=nScreenWidth) ptx=nScreenWidth-1;
+		if(pty>=nScreenHeight) pty=nScreenHeight-1;
 
-		eptr->event.x=(float)pt.x;
-		eptr->event.y=(float)pt.y;
+		eptr->event.x=(float)ptx;
+		eptr->event.y=(float)pty;
 	}
 
 	eptr->next=0; 
@@ -249,7 +215,6 @@ STUBBED("write me");
 	{
 		Zpos+=eptr->event.wheel;
 	}
-#endif
 }
 
 void HGE_Impl::_ClearQueue()

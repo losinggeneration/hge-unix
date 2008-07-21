@@ -335,9 +335,10 @@ public:
 	int					Zpos;
 	float				Xpos;
 	float				Ypos;
+	SDLMod				keymods;
 	bool				bMouseOver;
 	bool				bCaptured;
-	char				keyz[256];
+	char				keyz[SDLK_LAST];
 	CInputEventList*	queue;
 	void				_UpdateMouse();
 	void				_InputInit();
