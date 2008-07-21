@@ -755,7 +755,6 @@ bool HGE_Impl::_GfxInit()
 	System_Log("GL_VERSION: %s", (const char *) pOpenGLDevice->glGetString(GL_VERSION));
 
 	const char *verstr = (const char *) pOpenGLDevice->glGetString(GL_VERSION);
-	System_Log("GL_VERSION: %s", verstr);
 	int maj = 0;
 	int min = 0;
 	sscanf(verstr, "%d.%d", &maj, &min);
