@@ -39,6 +39,10 @@ public:
     #define GL_PROC(fn,call,ret,params) _HGE_PFN_##fn fn;
 	#include "hge_glfuncs.h"
 	#undef GL_PROC
+
+	GLenum TextureTarget;
+	bool have_GL_ARB_texture_rectangle;
+	bool have_GL_ARB_texture_non_power_of_two;
 };
 
 

@@ -20,6 +20,10 @@
 #include "CxImage/CxImage/ximage.h"
 #endif
 
+#ifndef GL_TEXTURE_RECTANGLE_ARB
+#define GL_TEXTURE_RECTANGLE_ARB 0x84F5
+#endif
+
 struct gltexture
 {
 	GLuint name;
@@ -178,19 +182,20 @@ void CALL HGE_Impl::Gfx_EndScene()
 	const GLenum err = pOpenGLDevice->glGetError();
 	if (err != GL_NO_ERROR) printf("GL error! 0x%X\n", (int) err);
 	//Gfx_Clear(0xFF | (0xFF<<24) | (random() & 0xFF << 16) | (random() & 0xFF << 8));
+	//Gfx_Clear(0xFF000000);
 }
 
 void HGE_Impl::_SetTextureFilter()
 {
 	const GLenum filter = (bTextureFilter) ? GL_LINEAR : GL_NEAREST;
-	pOpenGLDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-	pOpenGLDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_MIN_FILTER, filter);
+	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_MAG_FILTER, filter);
 
 	// !!! FIXME: this isn't what HGE's Direct3D code does, but the game I'm working with
 	// !!! FIXME:  forces clamping outside of HGE, so I just wedged it in here.
-	pOpenGLDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	pOpenGLDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	pOpenGLDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
+	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_WRAP_R, GL_CLAMP);
 }
 
 void CALL HGE_Impl::Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD color, float z)
@@ -203,7 +208,7 @@ void CALL HGE_Impl::Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD
 
 			CurPrimType=HGEPRIM_LINES;
 			if(CurBlendMode != BLEND_DEFAULT) _SetBlendMode(BLEND_DEFAULT);
-			if(CurTexture) { pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, 0); CurTexture=0; }
+			if(CurTexture) { pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, 0); CurTexture=0; }
 		}
 
 		int i=nPrim*HGEPRIM_LINES;
@@ -229,7 +234,7 @@ void CALL HGE_Impl::Gfx_RenderTriple(const hgeTriple *triple)
 			CurPrimType=HGEPRIM_TRIPLES;
 			if(CurBlendMode != triple->blend) _SetBlendMode(triple->blend);
 			if(triple->tex != CurTexture) {
-				pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, triple->tex ? ((gltexture*)triple->tex)->name : 0);
+				pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, triple->tex ? ((gltexture*)triple->tex)->name : 0);
 				CurTexture = triple->tex;
 				_SetTextureFilter();
 			}
@@ -252,7 +257,7 @@ void CALL HGE_Impl::Gfx_RenderQuad(const hgeQuad *quad)
 			if(CurBlendMode != quad->blend) _SetBlendMode(quad->blend);
 			if(quad->tex != CurTexture)
 			{
-				pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, quad->tex ? ((gltexture*)quad->tex)->name : 0);
+				pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, quad->tex ? ((gltexture*)quad->tex)->name : 0);
 				CurTexture = quad->tex;
 				_SetTextureFilter();
 			}
@@ -273,7 +278,7 @@ hgeVertex* CALL HGE_Impl::Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend,
 		if(CurBlendMode != blend) _SetBlendMode(blend);
 		if(tex != CurTexture)
 		{
-			pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, tex ? ((gltexture*)tex)->name : 0);
+			pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, tex ? ((gltexture*)tex)->name : 0);
 			CurTexture = tex;
 			_SetTextureFilter();
 		}
@@ -381,12 +386,15 @@ HTEXTURE HGE_Impl::_BuildTexture(int width, int height, DWORD *pixels)
 	retval->height = height;
 	retval->pixels = pixels;
 
-	pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, tex);
-	pOpenGLDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-	pOpenGLDevice->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+	pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, tex);
+	if (pOpenGLDevice->TextureTarget != GL_TEXTURE_RECTANGLE_ARB)
+	{
+		pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_BASE_LEVEL, 0);
+		pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_MAX_LEVEL, 0);
+	}
 	_SetTextureFilter();
-	pOpenGLDevice->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-	pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
+	pOpenGLDevice->glTexImage2D(pOpenGLDevice->TextureTarget, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
 
 	return (HTEXTURE)retval;
 }
@@ -580,11 +588,11 @@ void CALL HGE_Impl::Texture_Unlock(HTEXTURE tex)
 
 	if (!pTex->lock_readonly)  // have to reupload to the hardware.
 	{
-		pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, pTex->name);
-		pOpenGLDevice->glTexSubImage2D(GL_TEXTURE_2D, 0, pTex->lock_x, pTex->lock_y,
+		pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, pTex->name);
+		pOpenGLDevice->glTexSubImage2D(pOpenGLDevice->TextureTarget, 0, pTex->lock_x, pTex->lock_y,
 		                               pTex->lock_width, pTex->lock_height, GL_RGBA,
 		                               GL_UNSIGNED_BYTE, pTex->lock_pixels);
-		pOpenGLDevice->glBindTexture(GL_TEXTURE_2D, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
+		pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
 	}
 
 	delete[] pTex->lock_pixels;
@@ -612,13 +620,24 @@ void HGE_Impl::_render_batch(bool bEndScene)
 	{
 		if(nPrim)
 		{
-			// !!! FIXME: just correct the transformation matrix instead.
+			// !!! FIXME: just correct the transformation matrix instead (except the texture rectangle stuff?)
 			const float h = (float) (((SDL_Surface *) this->hwnd)->h);
+
+			// texture rectangles range from 0 to size, not 0 to 1.  :/
+			float texwmult = 1.0f;
+			float texhmult = 1.0f;
+			if ((CurTexture) && (pOpenGLDevice->TextureTarget == GL_TEXTURE_RECTANGLE_ARB))
+			{
+				texwmult = ((gltexture *)CurTexture)->width;
+				texhmult = ((gltexture *)CurTexture)->height;
+			}
+
 			for (int i = 0; i < nPrim*CurPrimType; i++)
 			{
 				VertArray[i].y = h - VertArray[i].y;
 				VertArray[i].z *= -1.0f;
-				VertArray[i].ty = 1.0f - VertArray[i].ty;
+				VertArray[i].tx = VertArray[i].tx * texwmult;
+				VertArray[i].ty = (1.0f - VertArray[i].ty) * texhmult;
 			}
 
 			switch(CurPrimType)
@@ -709,6 +728,19 @@ bool HGE_Impl::_LoadOpenGLEntryPoints()
 	return ok;
 }
 
+static bool _HaveOpenGLExtension(const char *extlist, const char *ext)
+{
+    const char *ptr = strstr(extlist, ext);
+    if (ptr == NULL)
+        return false;
+
+    const char endchar = ptr[strlen(ext)];
+    if ((endchar == '\0') || (endchar == ' '))
+        return true;  // extension is in the list.
+
+    return false;  // just not supported, fail.
+}
+
 bool HGE_Impl::_GfxInit()
 {
 // Init OpenGL ... SDL should have created a context at this point.
@@ -718,8 +750,49 @@ bool HGE_Impl::_GfxInit()
 		return false;   // already called _PostError().
 
 	System_Log("GL_RENDERER: %s", (const char *) pOpenGLDevice->glGetString(GL_RENDERER));
-	System_Log("GL_VERSION: %s", (const char *) pOpenGLDevice->glGetString(GL_VERSION));
 	System_Log("GL_VENDOR: %s", (const char *) pOpenGLDevice->glGetString(GL_VENDOR));
+	System_Log("GL_VERSION: %s", (const char *) pOpenGLDevice->glGetString(GL_VERSION));
+
+	const char *verstr = (const char *) pOpenGLDevice->glGetString(GL_VERSION);
+	System_Log("GL_VERSION: %s", verstr);
+	int maj = 0;
+	int min = 0;
+	sscanf(verstr, "%d.%d", maj, min);
+
+	pOpenGLDevice->have_GL_ARB_texture_rectangle = false;
+	pOpenGLDevice->have_GL_ARB_texture_non_power_of_two = false;
+
+	const char *exts = (const char *) pOpenGLDevice->glGetString(GL_EXTENSIONS);
+	if (_HaveOpenGLExtension(exts, "GL_ARB_texture_rectangle"))
+		pOpenGLDevice->have_GL_ARB_texture_rectangle = true;
+	else if (_HaveOpenGLExtension(exts, "GL_EXT_texture_rectangle"))
+		pOpenGLDevice->have_GL_ARB_texture_rectangle = true;
+	else if (_HaveOpenGLExtension(exts, "GL_NV_texture_rectangle"))
+		pOpenGLDevice->have_GL_ARB_texture_rectangle = true;
+	else if (_HaveOpenGLExtension(exts, "GL_NV_texture_rectangle"))
+		pOpenGLDevice->have_GL_ARB_texture_rectangle = true;
+
+	if (maj >= 2)
+		pOpenGLDevice->have_GL_ARB_texture_non_power_of_two = true;
+	else if (_HaveOpenGLExtension(exts, "GL_ARB_texture_non_power_of_two"))
+		pOpenGLDevice->have_GL_ARB_texture_non_power_of_two = true;
+
+	if (pOpenGLDevice->have_GL_ARB_texture_rectangle)
+	{
+		System_Log("OpenGL: Using GL_ARB_texture_rectangle");
+		pOpenGLDevice->TextureTarget = GL_TEXTURE_RECTANGLE_ARB;
+	}
+	else if (pOpenGLDevice->have_GL_ARB_texture_non_power_of_two)
+	{
+		System_Log("OpenGL: Using GL_ARB_texture_non_power_of_two");
+		pOpenGLDevice->TextureTarget = GL_TEXTURE_2D;
+	}
+	else
+	{
+		_PostError("No non-power-of-two texture support in this OpenGL.");
+		pOpenGLDevice->TextureTarget = GL_NONE;
+		return false;
+	}
 
 	nScreenBPP=SDL_GetVideoSurface()->format->BitsPerPixel;
 
@@ -909,7 +982,9 @@ STUBBED("(re)create render targets");
 	pOpenGLDevice->glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
 	//pD3DDevice->SetRenderState( D3DRS_LASTPIXEL, FALSE );
-	pOpenGLDevice->glEnable(GL_TEXTURE_2D);
+	pOpenGLDevice->glDisable(GL_TEXTURE_2D);
+	pOpenGLDevice->glDisable(GL_TEXTURE_RECTANGLE_ARB);
+	pOpenGLDevice->glEnable(pOpenGLDevice->TextureTarget);
 	pOpenGLDevice->glDisable(GL_CULL_FACE);
 	pOpenGLDevice->glDisable(GL_LIGHTING);
 	pOpenGLDevice->glDisable(GL_DEPTH_TEST);
