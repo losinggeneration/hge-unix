@@ -820,9 +820,9 @@ bool HGE_Impl::_GfxInit()
 	if(!_init_lost()) return false;
 
 	// make sure the framebuffers are cleared and force to screen
-	Gfx_Clear(0);
+	pOpenGLDevice->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	SDL_GL_SwapBuffers();
-	Gfx_Clear(0);
+	pOpenGLDevice->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	SDL_GL_SwapBuffers();
 
 	return true;
@@ -994,7 +994,12 @@ STUBBED("(re)create render targets");
 	pOpenGLDevice->glEnable(pOpenGLDevice->TextureTarget);
 	pOpenGLDevice->glDisable(GL_CULL_FACE);
 	pOpenGLDevice->glDisable(GL_LIGHTING);
-	pOpenGLDevice->glDisable(GL_DEPTH_TEST);
+	pOpenGLDevice->glDepthFunc(GL_GEQUAL);
+
+	if (bZBuffer)
+		pOpenGLDevice->glEnable(GL_DEPTH_TEST);
+	else
+		pOpenGLDevice->glDisable(GL_DEPTH_TEST);
 
 	pOpenGLDevice->glEnable(GL_BLEND);
 	pOpenGLDevice->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
