@@ -20,8 +20,24 @@
 #include "CxImage/CxImage/ximage.h"
 #endif
 
+// avoiding glext.h here ...
 #ifndef GL_TEXTURE_RECTANGLE_ARB
 #define GL_TEXTURE_RECTANGLE_ARB 0x84F5
+#endif
+#ifndef GL_FRAMEBUFFER_EXT
+#define GL_FRAMEBUFFER_EXT 0x8D40
+#endif
+#ifndef GL_RENDERBUFFER_EXT
+#define GL_RENDERBUFFER_EXT 0x8D41
+#endif
+#ifndef GL_COLOR_ATTACHMENT0_EXT
+#define GL_COLOR_ATTACHMENT0_EXT 0x8CE0
+#endif
+#ifndef GL_DEPTH_ATTACHMENT_EXT
+#define GL_DEPTH_ATTACHMENT_EXT 0x8D00
+#endif
+#ifndef GL_FRAMEBUFFER_COMPLETE_EXT
+#define GL_FRAMEBUFFER_COMPLETE_EXT 0x8CD5
 #endif
 
 struct gltexture
@@ -31,6 +47,7 @@ struct gltexture
 	GLuint height;
 	DWORD *pixels;  // copy in main memory
 	DWORD *lock_pixels;  // for locked texture
+	bool is_render_target;
 	bool lock_readonly;
 	GLint lock_x;
 	GLint lock_y;
@@ -41,18 +58,16 @@ struct gltexture
 void CALL HGE_Impl::Gfx_Clear(DWORD color)
 {
 	GLbitfield flags = GL_COLOR_BUFFER_BIT;
-	if ( ((pCurTarget) && (pCurTarget->pDepth)) || bZBuffer )
+	if ( ((pCurTarget) && (pCurTarget->depth)) || bZBuffer )
 		flags |= GL_DEPTH_BUFFER_BIT;
 
+	// !!! FIXME: possibly wrong.
 	const GLfloat a = ((GLfloat) ((color >> 24) & 0xFF)) / 255.0f;
 	const GLfloat r = ((GLfloat) ((color >> 16) & 0xFF)) / 255.0f;
 	const GLfloat g = ((GLfloat) ((color >>  8) & 0xFF)) / 255.0f;
 	const GLfloat b = ((GLfloat) ((color >>  0) & 0xFF)) / 255.0f;
 	pOpenGLDevice->glClearColor(r, g, b, a);
 	pOpenGLDevice->glClear(flags);
-
-	// !!! FIXME: clear FBOs/pBuffers, etc.
-	STUBBED("FBOs");
 }
 
 void CALL HGE_Impl::Gfx_SetClipping(int x, int y, int w, int h)
@@ -65,8 +80,8 @@ void CALL HGE_Impl::Gfx_SetClipping(int x, int y, int w, int h)
 		scr_height=pHGE->System_GetStateInt(HGE_SCREENHEIGHT);
 	}
 	else {
-		scr_width=Texture_GetWidth((HTEXTURE)pCurTarget->pTex);
-		scr_height=Texture_GetHeight((HTEXTURE)pCurTarget->pTex);
+		scr_width=Texture_GetWidth(pCurTarget->tex);
+		scr_height=Texture_GetHeight(pCurTarget->tex);
 	}
 
 	if(!w) {
@@ -119,8 +134,6 @@ void CALL HGE_Impl::Gfx_SetTransform(float x, float y, float dx, float dy, float
 
 bool CALL HGE_Impl::Gfx_BeginScene(HTARGET targ)
 {
-//	LPDIRECT3DSURFACE8 pSurf=0, pDepth=0;
-//	D3DDISPLAYMODE Mode;
 	CRenderTargetList *target=(CRenderTargetList *)targ;
 
 	if(VertArray)
@@ -131,44 +144,23 @@ bool CALL HGE_Impl::Gfx_BeginScene(HTARGET targ)
 
 	if(target != pCurTarget)
 	{
-        STUBBED("render target");
-#if 0
-		if(target)
-		{
-			target->pTex->GetSurfaceLevel(0, &pSurf);
-			pDepth=target->pDepth;
-		}
-		else
-		{
-			pSurf=pScreenSurf;
-			pDepth=pScreenDepth;
-		}
-		if(FAILED(pD3DDevice->SetRenderTarget(pSurf, pDepth)))
-		{
-			if(target) pSurf->Release();
-			_PostError("Gfx_BeginScene: Can't set render target");
-			return false;
-		}
-		if(target)
-		{
-			pSurf->Release();
-			if(target->pDepth) pD3DDevice->SetRenderState( D3DRS_ZENABLE, D3DZB_TRUE ); 
-			else pD3DDevice->SetRenderState( D3DRS_ZENABLE, D3DZB_FALSE ); 
-			_SetProjectionMatrix(target->width, target->height);
-		}
-		else
-		{
-			if(bZBuffer) pD3DDevice->SetRenderState( D3DRS_ZENABLE, D3DZB_TRUE );
-			else pD3DDevice->SetRenderState( D3DRS_ZENABLE, D3DZB_FALSE );
-			_SetProjectionMatrix(nScreenWidth, nScreenHeight);
-		}
+		if (pOpenGLDevice->have_GL_EXT_framebuffer_object)
+			pOpenGLDevice->glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, (target) ? target->frame : 0);
 
-		pD3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
-		D3DXMatrixIdentity(&matView);
-		pD3DDevice->SetTransform(D3DTS_VIEW, &matView);
+		if ( ((target) && (target->depth)) || (bZBuffer) )
+			pOpenGLDevice->glEnable(GL_DEPTH_TEST);
+		else
+			pOpenGLDevice->glDisable(GL_DEPTH_TEST);
+
+		if (target)
+			_SetProjectionMatrix(target->width, target->height);
+		else
+			_SetProjectionMatrix(nScreenWidth, nScreenHeight);
+
+		pOpenGLDevice->glMatrixMode(GL_MODELVIEW);
+		pOpenGLDevice->glLoadIdentity();
 
 		pCurTarget=target;
-#endif
 	}
 
 	VertArray = pVB;
@@ -297,52 +289,61 @@ void CALL HGE_Impl::Gfx_FinishBatch(int nprim)
 
 HTARGET CALL HGE_Impl::Target_Create(int width, int height, bool zbuffer)
 {
-STUBBED("render target");
-return 0;
-#if 0
-	CRenderTargetList *pTarget;
-	D3DSURFACE_DESC TDesc;
+	bool okay = false;
+	CRenderTargetList *pTarget = new CRenderTargetList;
+	memset(pTarget, '\0', sizeof (CRenderTargetList));
+	pTarget->tex = Texture_Create(width, height);
+	gltexture *gltex = (gltexture *) pTarget->tex;
+	gltex->is_render_target = true;
 
-	pTarget = new CRenderTargetList;
-	pTarget->pTex=0;
-	pTarget->pDepth=0;
+	pTarget->width = width;
+	pTarget->height = height;
 
-	if(FAILED(D3DXCreateTexture(pD3DDevice, width, height, 1, D3DUSAGE_RENDERTARGET,
-						d3dpp->BackBufferFormat, D3DPOOL_DEFAULT, &pTarget->pTex)))
+	if (pOpenGLDevice->have_GL_EXT_framebuffer_object)
 	{
-		_PostError("Can't create render target texture");
-		delete pTarget;
-		return 0;
+		pOpenGLDevice->glGenFramebuffersEXT(1, &pTarget->frame);
+		if (zbuffer)
+			pOpenGLDevice->glGenRenderbuffersEXT(1, &pTarget->depth);
+		pOpenGLDevice->glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pTarget->frame);
+		pOpenGLDevice->glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, pOpenGLDevice->TextureTarget, gltex->name, 0);
+		if (zbuffer)
+		{
+			pOpenGLDevice->glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, pTarget->depth);
+			pOpenGLDevice->glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, width, height);
+			pOpenGLDevice->glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, pTarget->depth);
+		}
+
+		GLenum rc = pOpenGLDevice->glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+		if ((rc == GL_FRAMEBUFFER_COMPLETE_EXT) && (pOpenGLDevice->glGetError() == GL_NO_ERROR))
+		{
+			pOpenGLDevice->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			okay = true;
+		}
+		else
+		{
+			pOpenGLDevice->glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+			pOpenGLDevice->glDeleteRenderbuffersEXT(1, &pTarget->depth);
+			pOpenGLDevice->glDeleteFramebuffersEXT(1, &pTarget->frame);
+		}
+		pOpenGLDevice->glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pCurTarget ? pCurTarget->frame : 0);
 	}
 
-	pTarget->pTex->GetLevelDesc(0, &TDesc);
-	pTarget->width=TDesc.Width;
-	pTarget->height=TDesc.Height;
-
-	if(zbuffer)
+	if (!okay)
 	{
-		if(FAILED(pD3DDevice->CreateDepthStencilSurface(pTarget->width, pTarget->height,
-						D3DFMT_D16, D3DMULTISAMPLE_NONE, &pTarget->pDepth)))
-		{   
-			pTarget->pTex->Release();
-			_PostError("Can't create render target depth buffer");
-			delete pTarget;
-			return 0;
-		}
+		System_Log("OpenGL: Failed to create render target!");
+		Texture_Free(pTarget->tex);
+		delete pTarget;
+		return 0;
 	}
 
 	pTarget->next=pTargets;
 	pTargets=pTarget;
 
 	return (HTARGET)pTarget;
-#endif
 }
 
 void CALL HGE_Impl::Target_Free(HTARGET target)
 {
-STUBBED("render target");
-return;
-#if 0
 	CRenderTargetList *pTarget=pTargets, *pPrevTarget=NULL;
 
 	while(pTarget)
@@ -354,9 +355,19 @@ return;
 			else
 				pTargets = pTarget->next;
 
-			if(pTarget->pTex) pTarget->pTex->Release();
-			if(pTarget->pDepth) pTarget->pDepth->Release();
+			if (pOpenGLDevice->have_GL_EXT_framebuffer_object)
+			{
+				if (pCurTarget == (CRenderTargetList *)target)
+				{
+					pCurTarget = 0;
+					pOpenGLDevice->glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+				}
+				if (pTarget->depth)
+					pOpenGLDevice->glDeleteRenderbuffersEXT(1, &pTarget->depth);
+				pOpenGLDevice->glDeleteFramebuffersEXT(1, &pTarget->frame);
+			}
 
+			Texture_Free(pTarget->tex);
 			delete pTarget;
 			return;
 		}
@@ -364,13 +375,12 @@ return;
 		pPrevTarget = pTarget;
 		pTarget = pTarget->next;
 	}
-#endif
 }
 
 HTEXTURE CALL HGE_Impl::Target_GetTexture(HTARGET target)
 {
 	CRenderTargetList *targ=(CRenderTargetList *)target;
-	if(target) return (HTEXTURE)targ->pTex;
+	if(target) return targ->tex;
 	else return 0;
 }
 
@@ -537,6 +547,8 @@ int CALL HGE_Impl::Texture_GetHeight(HTEXTURE tex, bool bOriginal)
 DWORD * CALL HGE_Impl::Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int top, int width, int height)
 {
 	gltexture *pTex=(gltexture*)tex;
+
+	assert(!pTex->is_render_target);  // !!! FIXME: does this ever happen? We'll need to glReadPixels here...
 
 	if (pTex->lock_pixels)
 	{
@@ -767,8 +779,13 @@ bool HGE_Impl::_GfxInit()
 
 	pOpenGLDevice->have_GL_ARB_texture_rectangle = false;
 	pOpenGLDevice->have_GL_ARB_texture_non_power_of_two = false;
+	pOpenGLDevice->have_GL_EXT_framebuffer_object = false;
 
 	const char *exts = (const char *) pOpenGLDevice->glGetString(GL_EXTENSIONS);
+
+
+	// NPOT texture support ...
+
 	if (_HaveOpenGLExtension(exts, "GL_ARB_texture_rectangle"))
 		pOpenGLDevice->have_GL_ARB_texture_rectangle = true;
 	else if (_HaveOpenGLExtension(exts, "GL_EXT_texture_rectangle"))
@@ -799,6 +816,21 @@ bool HGE_Impl::_GfxInit()
 		pOpenGLDevice->TextureTarget = GL_NONE;
 		return false;
 	}
+
+
+	// render-to-texture support ...
+
+	if (_HaveOpenGLExtension(exts, "GL_EXT_framebuffer_object"))
+		pOpenGLDevice->have_GL_EXT_framebuffer_object = true;
+
+	if (pOpenGLDevice->have_GL_EXT_framebuffer_object)
+		System_Log("OpenGL: Using GL_EXT_framebuffer_object");
+	else
+	{
+		_PostError("No render-to-texture support in this OpenGL.");
+		return false;
+	}
+
 
 	nScreenBPP=SDL_GetVideoSurface()->format->BitsPerPixel;
 
@@ -855,25 +887,12 @@ void HGE_Impl::_Resize(int width, int height)
 
 void HGE_Impl::_GfxDone()
 {
-	CRenderTargetList *target=pTargets, *next_target;
+	CRenderTargetList *target=pTargets;
 	
 	while(textures)	Texture_Free(textures->tex);
-
-	STUBBED("cleanup stuff");
-	#if 0
-	if(pScreenSurf) { pScreenSurf->Release(); pScreenSurf=0; }
-	if(pScreenDepth) { pScreenDepth->Release(); pScreenDepth=0; }
-
-	while(target)
-	{
-		if(target->pTex) target->pTex->Release();
-		if(target->pDepth) target->pDepth->Release();
-		next_target=target->next;
-		delete target;
-		target=next_target;
-	}
+	while(pTargets)	Target_Free((HTARGET) pTargets);
+	textures=0;
 	pTargets=0;
-#endif
 
 	VertArray = 0;
 	delete[] pVB;
@@ -893,23 +912,10 @@ bool HGE_Impl::_GfxRestore()
 {
 	CRenderTargetList *target=pTargets;
 
-	//if(!pD3DDevice) return false;
+	if(!pOpenGLDevice) return false;
 	//if(pD3DDevice->TestCooperativeLevel() == D3DERR_DEVICELOST) return;
 
-STUBBED("render target stuff");
-#if 0
-	if(pScreenSurf) pScreenSurf->Release();
-	if(pScreenDepth) pScreenDepth->Release();
-
-	while(target)
-	{
-		if(target->pTex) target->pTex->Release();
-		if(target->pDepth) target->pDepth->Release();
-		target=target->next;
-	}
-#endif
-
-    delete[] pVB;
+	delete[] pVB;
 	pVB=0;
 
 	delete[] pIB;
@@ -929,30 +935,6 @@ STUBBED("render target stuff");
 
 bool HGE_Impl::_init_lost()
 {
-STUBBED("(re)create render targets");
-#if 0
-	CRenderTargetList *target=pTargets;
-
-// Store render target
-
-	pScreenSurf=0;
-	pScreenDepth=0;
-
-	pD3DDevice->GetRenderTarget(&pScreenSurf);
-	pD3DDevice->GetDepthStencilSurface(&pScreenDepth);
-	
-	while(target)
-	{
-		if(target->pTex)
-			D3DXCreateTexture(pD3DDevice, target->width, target->height, 1, D3DUSAGE_RENDERTARGET,
-							  d3dpp->BackBufferFormat, D3DPOOL_DEFAULT, &target->pTex);
-		if(target->pDepth)
-			pD3DDevice->CreateDepthStencilSurface(target->width, target->height,
-												  D3DFMT_D16, D3DMULTISAMPLE_NONE, &target->pDepth);
-		target=target->next;
-	}
-#endif
-
 // Create Vertex buffer
 	// We just use a client-side array, since you can reasonably count on support
 	//  existing in any GL, and it basically offers the same functionality that

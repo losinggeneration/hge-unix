@@ -40,9 +40,10 @@ public:
 	#include "hge_glfuncs.h"
 	#undef GL_PROC
 
-	GLenum TextureTarget;
+	GLenum TextureTarget;  // texture rectangle vs (npot) 2D.
 	bool have_GL_ARB_texture_rectangle;
 	bool have_GL_ARB_texture_non_power_of_two;
+	bool have_GL_EXT_framebuffer_object;
 };
 
 
@@ -60,8 +61,9 @@ struct CRenderTargetList
 {
 	int					width;
 	int					height;
-	gltexture*			pTex;
-	void*				pDepth;
+	HTEXTURE			tex;
+	GLuint				depth;
+	GLuint				frame;
 	CRenderTargetList*	next;
 };
 

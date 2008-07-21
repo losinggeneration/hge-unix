@@ -9,6 +9,7 @@
 // don't put #pragma once wrappers in this file, it gets #included
 //  several times with different #defines for GL_PROC.
 
+// base GL functionality...
 GL_PROC(glEnable,WINGDIAPI,void,(GLenum cap));
 GL_PROC(glDisable,WINGDIAPI,void,(GLenum cap));
 GL_PROC(glGetIntegerv,WINGDIAPI,void,(GLenum pname, GLint *params));
@@ -18,6 +19,7 @@ GL_PROC(glDepthMask,WINGDIAPI,void,(GLboolean flag));
 GL_PROC(glDepthRange,WINGDIAPI,void,(GLclampd zNear, GLclampd zFar));
 GL_PROC(glBlendFunc,WINGDIAPI,void,(GLenum sfactor, GLenum dfactor));
 GL_PROC(glAlphaFunc,WINGDIAPI,void,(GLenum func, GLclampf ref));
+GL_PROC(glDepthFunc,WINGDIAPI,void,(GLenum func));
 GL_PROC(glMatrixMode,WINGDIAPI,void,(GLenum mode));
 GL_PROC(glLoadIdentity,WINGDIAPI,void,(void));
 GL_PROC(glScalef,WINGDIAPI,void,(GLfloat x, GLfloat y, GLfloat z));
@@ -43,6 +45,18 @@ GL_PROC(glDrawElements,WINGDIAPI,void,(GLenum mode, GLsizei count, GLenum type, 
 GL_PROC(glEnableClientState,WINGDIAPI,void,(GLenum array));
 GL_PROC(glFinish,WINGDIAPI,void,(void));
 GL_PROC(glReadPixels,WINGDIAPI,void,(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels));
+
+// GL_EXT_framebuffer_object ...
+GL_PROC(glBindRenderbufferEXT,,void,(GLenum target, GLuint name));
+GL_PROC(glDeleteRenderbuffersEXT,,void,(GLsizei, const GLuint *));
+GL_PROC(glGenRenderbuffersEXT,,void,(GLsizei, GLuint *));
+GL_PROC(glRenderbufferStorageEXT,,void,(GLenum, GLenum, GLsizei, GLsizei));
+GL_PROC(glBindFramebufferEXT,,void,(GLenum, GLuint));
+GL_PROC(glDeleteFramebuffersEXT,,void,(GLsizei, const GLuint *));
+GL_PROC(glGenFramebuffersEXT,,void,(GLsizei, GLuint *));
+GL_PROC(glCheckFramebufferStatusEXT,,GLenum,(GLenum));
+GL_PROC(glFramebufferRenderbufferEXT,,void,(GLenum, GLenum, GLenum, GLuint));
+GL_PROC(glFramebufferTexture2DEXT,,void,(GLenum, GLenum, GLenum, GLuint, GLint));
 
 // end of hge_glfuncs.h ...
 
