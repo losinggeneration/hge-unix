@@ -983,7 +983,8 @@ STUBBED("(re)create render targets");
 
 	//pD3DDevice->SetRenderState( D3DRS_LASTPIXEL, FALSE );
 	pOpenGLDevice->glDisable(GL_TEXTURE_2D);
-	pOpenGLDevice->glDisable(GL_TEXTURE_RECTANGLE_ARB);
+	if (pOpenGLDevice->have_GL_ARB_texture_rectangle)
+		pOpenGLDevice->glDisable(GL_TEXTURE_RECTANGLE_ARB);
 	pOpenGLDevice->glEnable(pOpenGLDevice->TextureTarget);
 	pOpenGLDevice->glDisable(GL_CULL_FACE);
 	pOpenGLDevice->glDisable(GL_LIGHTING);
