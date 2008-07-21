@@ -757,7 +757,7 @@ bool HGE_Impl::_GfxInit()
 	System_Log("GL_VERSION: %s", verstr);
 	int maj = 0;
 	int min = 0;
-	sscanf(verstr, "%d.%d", maj, min);
+	sscanf(verstr, "%d.%d", &maj, &min);
 
 	pOpenGLDevice->have_GL_ARB_texture_rectangle = false;
 	pOpenGLDevice->have_GL_ARB_texture_non_power_of_two = false;
