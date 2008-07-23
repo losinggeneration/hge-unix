@@ -848,10 +848,7 @@ bool HGE_Impl::_GfxInit()
 	if (pOpenGLDevice->have_GL_EXT_framebuffer_object)
 		System_Log("OpenGL: Using GL_EXT_framebuffer_object");
 	else
-	{
-		_PostError("No render-to-texture support in this OpenGL.");
-		return false;
-	}
+		System_Log("OpenGL: WARNING! No render-to-texture support. Things may render badly.");
 
 
 	nScreenBPP=SDL_GetVideoSurface()->format->BitsPerPixel;
