@@ -152,10 +152,17 @@ bool CALL HGE_Impl::Gfx_BeginScene(HTARGET targ)
 		else
 			pOpenGLDevice->glDisable(GL_DEPTH_TEST);
 
+		// d3d's SetRenderTarget() forces the viewport to surface size...
 		if (target)
+		{
+			pOpenGLDevice->glViewport(0, 0, target->width, target->height);
 			_SetProjectionMatrix(target->width, target->height);
+		}
 		else
+		{
+			pOpenGLDevice->glViewport(0, 0, nScreenWidth, nScreenHeight);
 			_SetProjectionMatrix(nScreenWidth, nScreenHeight);
+		}
 
 		pOpenGLDevice->glMatrixMode(GL_MODELVIEW);
 		pOpenGLDevice->glLoadIdentity();
