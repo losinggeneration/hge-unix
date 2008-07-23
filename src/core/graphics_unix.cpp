@@ -109,7 +109,7 @@ void CALL HGE_Impl::Gfx_SetClipping(int x, int y, int w, int h)
 
 	_render_batch();
 
-	pOpenGLDevice->glViewport(vp.X, vp.Y, vp.Width, vp.Height);
+	pOpenGLDevice->glViewport(vp.X, scr_height-vp.Y, vp.Width, vp.Height);
 	pOpenGLDevice->glDepthRange(vp.MinZ, vp.MaxZ);
 	pOpenGLDevice->glMatrixMode(GL_PROJECTION);
 	pOpenGLDevice->glLoadIdentity();
