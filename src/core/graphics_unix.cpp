@@ -666,11 +666,11 @@ void HGE_Impl::_render_batch(bool bEndScene)
 
 				// Colors are RGBA in OpenGL, ARGB in Direct3D.
 				const DWORD color = VertArray[i].col;
-				uint8_t *col = (uint8_t *) &VertArray[i].col;
-				const uint8_t a = ((color >> 24) & 0xFF);
-				const uint8_t r = ((color >> 16) & 0xFF);
-				const uint8_t g = ((color >>  8) & 0xFF);
-				const uint8_t b = ((color >>  0) & 0xFF);
+				BYTE *col = (BYTE *) &VertArray[i].col;
+				const BYTE a = ((color >> 24) & 0xFF);
+				const BYTE r = ((color >> 16) & 0xFF);
+				const BYTE g = ((color >>  8) & 0xFF);
+				const BYTE b = ((color >>  0) & 0xFF);
 				col[0] = r;
 				col[1] = g;
 				col[2] = b;
