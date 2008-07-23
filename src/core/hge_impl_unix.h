@@ -47,7 +47,7 @@ public:
 };
 
 
-#define DEMO
+//#define DEMO
 
 #define VERTEX_BUFFER_SIZE 4000
 
