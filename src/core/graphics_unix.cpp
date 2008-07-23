@@ -450,6 +450,7 @@ HTEXTURE CALL HGE_Impl::Texture_Load(const char *filename, DWORD size, bool bMip
 		height = img.GetHeight();
 		DWORD *pixels = new DWORD[width * height];
 		BYTE *wptr = (BYTE *) pixels;
+		const bool hasalpha = img.AlphaIsValid();
 		for (int y = 0; y < height; y++)
 		{
 			for (int x = 0; x < width; x++)
@@ -458,7 +459,7 @@ HTEXTURE CALL HGE_Impl::Texture_Load(const char *filename, DWORD size, bool bMip
 				*(wptr++) = rgb.rgbRed;
 				*(wptr++) = rgb.rgbGreen;
 				*(wptr++) = rgb.rgbBlue;
-				*(wptr++) = rgb.rgbReserved;  // alpha.
+				*(wptr++) = hasalpha ? rgb.rgbReserved : 0xFF;  // alpha.
 			}
 		}
 		retval = _BuildTexture(width, height, pixels);
