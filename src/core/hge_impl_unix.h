@@ -336,7 +336,7 @@ public:
 	SDLMod				keymods;
 	bool				bMouseOver;
 	bool				bCaptured;
-	char				keyz[SDLK_LAST];
+	char				keyz[256];
 	CInputEventList*	queue;
 	void				_UpdateMouse();
 	void				_InputInit();
