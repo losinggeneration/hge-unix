@@ -606,7 +606,8 @@ void CALL HGE_Impl::Texture_Unlock(HTEXTURE tex)
 	if (!pTex->lock_readonly)  // have to reupload to the hardware.
 	{
 		pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, pTex->name);
-		pOpenGLDevice->glTexSubImage2D(pOpenGLDevice->TextureTarget, 0, pTex->lock_x, pTex->lock_y,
+		pOpenGLDevice->glTexSubImage2D(pOpenGLDevice->TextureTarget, 0, pTex->lock_x,
+		                               (pTex->height-pTex->lock_y)-pTex->lock_height,
 		                               pTex->lock_width, pTex->lock_height, GL_RGBA,
 		                               GL_UNSIGNED_BYTE, pTex->lock_pixels);
 		pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
