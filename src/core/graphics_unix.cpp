@@ -793,9 +793,9 @@ bool HGE_Impl::_GfxInit()
 	int min = 0;
 	sscanf(verstr, "%d.%d", &maj, &min);
 
-	if ( (maj < 1) || ((maj == 1) && (min < 1)) )
+	if ( (maj < 1) || ((maj == 1) && (min < 2)) )
 	{
-		_PostError("OpenGL implementation must be at least version 1.1");
+		_PostError("OpenGL implementation must be at least version 1.2");
 		return false;
 	}
 
