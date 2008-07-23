@@ -61,7 +61,6 @@ void CALL HGE_Impl::Gfx_Clear(DWORD color)
 	if ( ((pCurTarget) && (pCurTarget->depth)) || bZBuffer )
 		flags |= GL_DEPTH_BUFFER_BIT;
 
-	// !!! FIXME: possibly wrong.
 	const GLfloat a = ((GLfloat) ((color >> 24) & 0xFF)) / 255.0f;
 	const GLfloat r = ((GLfloat) ((color >> 16) & 0xFF)) / 255.0f;
 	const GLfloat g = ((GLfloat) ((color >>  8) & 0xFF)) / 255.0f;
