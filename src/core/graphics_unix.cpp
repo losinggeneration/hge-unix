@@ -640,7 +640,6 @@ void HGE_Impl::_render_batch(bool bEndScene)
 	{
 		if(nPrim)
 		{
-			// !!! FIXME: just correct the transformation matrix instead (except the texture rectangle stuff?)
 			const float h = (float) (((SDL_Surface *) this->hwnd)->h);
 
 			// texture rectangles range from 0 to size, not 0 to 1.  :/
@@ -654,10 +653,28 @@ void HGE_Impl::_render_batch(bool bEndScene)
 
 			for (int i = 0; i < nPrim*CurPrimType; i++)
 			{
+				// (0, 0) is the lower left in OpenGL, upper left in D3D.
 				VertArray[i].y = h - VertArray[i].y;
-				VertArray[i].z *= -1.0f;
+
+				// Z axis is inverted in OpenGL from D3D.
+				VertArray[i].z = -VertArray[i].z;
+
+				// (0, 0) is lower left texcoord in OpenGL, upper left in D3D.
+				// Also, scale for texture rectangles vs. 2D textures.
 				VertArray[i].tx = VertArray[i].tx * texwmult;
 				VertArray[i].ty = (1.0f - VertArray[i].ty) * texhmult;
+
+				// Colors are RGBA in OpenGL, ARGB in Direct3D.
+				const DWORD color = VertArray[i].col;
+				uint8_t *col = (uint8_t *) &VertArray[i].col;
+				const uint8_t a = ((color >> 24) & 0xFF);
+				const uint8_t r = ((color >> 16) & 0xFF);
+				const uint8_t g = ((color >>  8) & 0xFF);
+				const uint8_t b = ((color >>  0) & 0xFF);
+				col[0] = r;
+				col[1] = g;
+				col[2] = b;
+				col[3] = a;
 			}
 
 			switch(CurPrimType)
