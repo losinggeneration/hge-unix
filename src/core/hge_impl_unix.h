@@ -52,8 +52,6 @@ public:
 #define VERTEX_BUFFER_SIZE 4000
 
 
-//typedef BOOL (WINAPI *GetSystemPowerStatusFunc)(LPSYSTEM_POWER_STATUS);
-
 struct gltexture;  // used internally.
 
 struct CRenderTargetList
