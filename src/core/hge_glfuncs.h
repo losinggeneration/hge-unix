@@ -27,6 +27,7 @@ GL_PROC(glViewport,WINGDIAPI,void,(GLint x, GLint y, GLsizei width, GLsizei heig
 GL_PROC(glTranslatef,WINGDIAPI,void,(GLfloat x, GLfloat y, GLfloat z));
 GL_PROC(glRotatef,WINGDIAPI,void,(GLfloat angle, GLfloat x, GLfloat y, GLfloat z));
 GL_PROC(glOrtho,WINGDIAPI,void,(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar));
+GL_PROC(glScissor,WINGDIAPI,void,(GLint x, GLint y, GLsizei width, GLsizei height));
 GL_PROC(glClearColor,WINGDIAPI,void,(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha));
 GL_PROC(glClear,WINGDIAPI,void,(GLbitfield mask));
 GL_PROC(glPixelStorei,WINGDIAPI,void,(GLenum pname, GLint param));

@@ -108,12 +108,7 @@ void CALL HGE_Impl::Gfx_SetClipping(int x, int y, int w, int h)
 
 	_render_batch();
 
-	pOpenGLDevice->glViewport(vp.X, scr_height-vp.Y, vp.Width, vp.Height);
-	pOpenGLDevice->glDepthRange(vp.MinZ, vp.MaxZ);
-	pOpenGLDevice->glMatrixMode(GL_PROJECTION);
-	pOpenGLDevice->glLoadIdentity();
-	pOpenGLDevice->glOrtho((float)vp.X, (float)(vp.X+vp.Width), -((float)(vp.Y+vp.Height)), -((float)vp.Y), vp.MinZ, vp.MaxZ);
-	pOpenGLDevice->glRotatef(0.0f, 0.0f, 0.0f, 1.0f);
+	pOpenGLDevice->glScissor(vp.X, (scr_height-vp.Y)-vp.Height, vp.Width, vp.Height);
 }
 
 void CALL HGE_Impl::Gfx_SetTransform(float x, float y, float dx, float dy, float rot, float hscale, float vscale)
@@ -154,11 +149,13 @@ bool CALL HGE_Impl::Gfx_BeginScene(HTARGET targ)
 		// d3d's SetRenderTarget() forces the viewport to surface size...
 		if (target)
 		{
+			pOpenGLDevice->glScissor(0, 0, target->width, target->height);
 			pOpenGLDevice->glViewport(0, 0, target->width, target->height);
 			_SetProjectionMatrix(target->width, target->height);
 		}
 		else
 		{
+			pOpenGLDevice->glScissor(0, 0, nScreenWidth, nScreenHeight);
 			pOpenGLDevice->glViewport(0, 0, nScreenWidth, nScreenHeight);
 			_SetProjectionMatrix(nScreenWidth, nScreenHeight);
 		}
@@ -998,6 +995,7 @@ bool HGE_Impl::_init_lost()
 	if (pOpenGLDevice->have_GL_ARB_texture_rectangle)
 		pOpenGLDevice->glDisable(GL_TEXTURE_RECTANGLE_ARB);
 	pOpenGLDevice->glEnable(pOpenGLDevice->TextureTarget);
+	pOpenGLDevice->glEnable(GL_SCISSOR_TEST);
 	pOpenGLDevice->glDisable(GL_CULL_FACE);
 	pOpenGLDevice->glDisable(GL_LIGHTING);
 	pOpenGLDevice->glDepthFunc(GL_GEQUAL);
