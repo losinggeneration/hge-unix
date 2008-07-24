@@ -228,6 +228,7 @@ public:
 	void				_PostError(char *error);
 
 	// ini ...
+	void				_LoadIniFile(const char *fname);
 	const char*			_BuildProfilePath(const char *section, const char *name, const char *szIniFile);
 	bool				_WritePrivateProfileString(const char *section, const char *name, const char *buf, const char *szIniFile);
 	bool				_GetPrivateProfileString(const char *section, const char *name, const char *deflt, char *buf, size_t bufsize, const char *szIniFile);

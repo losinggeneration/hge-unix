@@ -458,7 +458,7 @@ void CALL HGE_Impl::System_SetStateString(hgeStringState state, const char *valu
 		case HGE_TITLE:			strcpy(szWinTitle,value);
 								if(pHGE->hwnd) SDL_WM_SetCaption(value, value);
 								break;
-		case HGE_INIFILE:		if(value) strcpy(szIniFile,Resource_MakePath(value));
+		case HGE_INIFILE:		if(value) { strcpy(szIniFile,Resource_MakePath(value)); _LoadIniFile(szIniFile); }
 								else szIniFile[0]=0;
 								break;
 		case HGE_LOGFILE:		if(value)

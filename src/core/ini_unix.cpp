@@ -81,6 +81,62 @@ bool HGE_Impl::_GetPrivateProfileString(const char *section, const char *name, c
 	return retval;
 }
 
+// We parse the usual .ini files, and build them into our directory tree when items don't exist.
+void HGE_Impl::_LoadIniFile(const char *fname)
+{
+	char section[128] = { 0 };
+	struct stat statbuf;
+	if (stat(fname, &statbuf) == -1)
+		return;
+	FILE *io = fopen(fname, "rb");
+	char *buf = new char[statbuf.st_size + 1];
+	size_t rc = fread(buf, statbuf.st_size, 1, io);
+	buf[statbuf.st_size] = '\0';
+	fclose(io);
+	if (rc == 1)
+	{
+		char *start = buf;
+		char *ptr = start;
+		while (start <= (buf + statbuf.st_size))
+		{
+			while ((*ptr != '\r') && (*ptr != '\n') && (*ptr != '\0'))
+				ptr++;
+			*ptr = '\0';
+
+			while ((*start == ' ') || (*start == '\t') || (*start == '\r') || (*start == '\n'))
+				start++;
+
+			if ((*start == ';') || (*start == '\0'))  // comment or empty line.
+				;
+			else if (*start == '[')  // section
+			{
+				start++;
+				char *end = strchr(start, ']');
+				if (end != NULL)
+				{
+					*end = '\0';
+					snprintf(section, sizeof (section), "%s", start);
+				}
+			}
+			else if (section[0] != '\0')
+			{
+				char *eq = strchr(start, '=');
+				if (eq != NULL)
+				{
+					*eq = '\0';
+					eq++;
+					char tmpbuf[128];
+					if (!_GetPrivateProfileString(section, start, "", tmpbuf, sizeof (tmpbuf), fname))
+						_WritePrivateProfileString(section, start, eq, fname);
+				}
+			}
+			ptr++;
+			start = ptr;
+		}
+	}
+	delete[] buf;
+}
+
 void CALL HGE_Impl::Ini_SetInt(const char *section, const char *name, int value)
 {
 	char buf[256];
