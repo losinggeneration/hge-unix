@@ -82,6 +82,7 @@ bool HGE_Impl::_GetPrivateProfileString(const char *section, const char *name, c
 }
 
 // We parse the usual .ini files, and build them into our directory tree when items don't exist.
+// !!! FIXME: this code sort of stinks. In fact, the whole directory tree thing could be a mistake...
 void HGE_Impl::_LoadIniFile(const char *fname)
 {
 	char section[128] = { 0 };
