@@ -70,9 +70,9 @@ bool HGE_Impl::_GetPrivateProfileString(const char *section, const char *name, c
 	FILE *io = fopen(path, "rb");
 	if (io != NULL)
 	{
-		const size_t rc = fread(buf, bufsize, 1, io);
+		const size_t rc = fread(buf, 1, bufsize, io);
+		retval = (ferror(io) == 0);
 		fclose(io);
-		retval = (rc == 1);
 	}
 
 	if (!retval)
