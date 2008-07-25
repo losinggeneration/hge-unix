@@ -45,7 +45,6 @@ struct gltexture
 	GLuint name;
 	GLuint width;
 	GLuint height;
-	DWORD *pixels;  // copy in main memory
 	DWORD *lock_pixels;  // for locked texture
 	bool is_render_target;
 	bool lock_readonly;
@@ -398,7 +397,6 @@ HTEXTURE HGE_Impl::_BuildTexture(int width, int height, DWORD *pixels)
 	retval->name = tex;
 	retval->width = width;
 	retval->height = height;
-	retval->pixels = pixels;
 
 	pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, tex);
 	if (pOpenGLDevice->TextureTarget != GL_TEXTURE_RECTANGLE_ARB)
@@ -408,6 +406,7 @@ HTEXTURE HGE_Impl::_BuildTexture(int width, int height, DWORD *pixels)
 	}
 	_SetTextureFilter();
 	pOpenGLDevice->glTexImage2D(pOpenGLDevice->TextureTarget, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	delete[] pixels;
 	pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
 
 	return (HTEXTURE)retval;
@@ -501,7 +500,6 @@ void CALL HGE_Impl::Texture_Free(HTEXTURE tex)
 	if(tex)
 	{
 		gltexture *pTex = (gltexture *) tex;
-		delete[] pTex->pixels;
 		delete[] pTex->lock_pixels;
 		pOpenGLDevice->glDeleteTextures(1, &pTex->name);
 		delete pTex;
@@ -552,8 +550,6 @@ DWORD * CALL HGE_Impl::Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int 
 {
 	gltexture *pTex=(gltexture*)tex;
 
-	assert(!pTex->is_render_target);  // !!! FIXME: does this ever happen? We'll need to glReadPixels here...
-
 	if (pTex->lock_pixels)
 	{
 		assert(false && "multiple lock of texture...");
@@ -582,17 +578,19 @@ DWORD * CALL HGE_Impl::Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int 
 	pTex->lock_y = top;
 	pTex->lock_width = width;
 	pTex->lock_height = height;
-
 	pTex->lock_pixels = new DWORD[width * height];
-	DWORD *src = pTex->pixels + left;
+
+	DWORD *upsideDown = new DWORD[width * height];
 	DWORD *dst = pTex->lock_pixels;
+	DWORD *src = upsideDown + (height-1 * width);
+	pOpenGLDevice->glReadPixels(left, (pTex->height-top)-height, width, height, GL_RGBA, GL_UNSIGNED_BYTE, upsideDown);
 	for (int i = 0; i < height; i++)
 	{
 		memcpy(dst, src, width * sizeof (DWORD));
 		dst += width;
-		src += pTex->width;
+		src -= width;
 	}
-
+	delete[] upsideDown;
 	return pTex->lock_pixels;
 }
 
