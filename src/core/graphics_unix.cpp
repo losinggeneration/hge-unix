@@ -582,7 +582,7 @@ DWORD * CALL HGE_Impl::Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int 
 
 	DWORD *upsideDown = new DWORD[width * height];
 	DWORD *dst = pTex->lock_pixels;
-	DWORD *src = upsideDown + (height-1 * width);
+	DWORD *src = upsideDown + ((height-1) * width);
 	pOpenGLDevice->glReadPixels(left, (pTex->height-top)-height, width, height, GL_RGBA, GL_UNSIGNED_BYTE, upsideDown);
 	for (int i = 0; i < height; i++)
 	{
