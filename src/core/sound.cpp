@@ -9,11 +9,14 @@
 
 #include "hge_impl.h"
 
-
+#if PLATFORM_UNIX
+#define BASSDEF(f) (*f)	// define the functions as pointers
+#define LOADBASSFUNCTION(f) *((void**)&f)=(void*)SDL_LoadFunction(hBass,#f)
+#else
 #define BASSDEF(f) (WINAPI *f)	// define the functions as pointers
-#include "BASS/bass.h"
-
 #define LOADBASSFUNCTION(f) *((void**)&f)=(void*)GetProcAddress(hBass,#f)
+#endif
+#include "BASS/bass.h"
 
 
 HEFFECT CALL HGE_Impl::Effect_Load(const char *filename, DWORD size)
@@ -434,7 +437,14 @@ bool HGE_Impl::_SoundInit()
 {
 	if(!bUseSound || hBass) return true;
 
+	#if PLATFORM_MACOSX
+	hBass=SDL_LoadObject("libbass.dylib");
+	#elif PLATFORM_UNIX
+	hBass=SDL_LoadObject("libbass.so");
+	#else
 	hBass=LoadLibrary("bass.dll");
+	#endif
+
 	if (!hBass)
 	{
 		_PostError("Can't load BASS.DLL");
@@ -526,7 +536,11 @@ void HGE_Impl::_SoundDone()
 
 		//int err = BASS_ErrorGetCode(); 
 
+		#if PLATFORM_UNIX
+		SDL_UnloadObject(hBass);
+		#else
 		FreeLibrary(hBass);
+		#endif
 		hBass=0;
 
 		while(stmItem)
