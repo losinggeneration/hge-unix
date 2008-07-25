@@ -98,7 +98,18 @@ bool CALL HGE_Impl::System_Initiate()
 	int mib[2] = { CTL_HW, HW_PHYSMEM };
 	if ((sysctl(mib, 2, &phys, &len, NULL, 0) != 0) || (len != sizeof (phys)))
 		phys = 0;  // oh well.
-	System_Log("Memory: %ldK total",phys/1024);
+	phys /= 1024;
+	System_Log("Memory: %ldK total",phys);
+
+	// !!! FIXME: we shouldn't force this here, really, but the game I'm working
+	// !!! FIXME:  on eats _hundreds_ of megabytes of texture memory. You'll basically
+	// !!! FIXME:  lock the system up, swapping, if you don't force s3tc on low-memory boxes...
+	bForceTextureCompression = (phys <= 1024);
+	if (bForceTextureCompression)
+	{
+		System_Log("WARNING: we'll have to force texture compression for this system.");
+		System_Log("WARNING:  adding more memory will make the game look better!");
+	}
 
 #else
 	System_Log("OS: Unix");
@@ -696,6 +707,8 @@ HGE_Impl::HGE_Impl()
 #ifdef DEMO
 	bDMO=true;
 #endif
+
+	bForceTextureCompression = false;
 
 	STUBBED("get basedir");
 //	GetModuleFileName(GetModuleHandle(NULL), szAppPath, sizeof(szAppPath));

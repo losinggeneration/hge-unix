@@ -39,6 +39,9 @@
 #ifndef GL_FRAMEBUFFER_COMPLETE_EXT
 #define GL_FRAMEBUFFER_COMPLETE_EXT 0x8CD5
 #endif
+#ifndef GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
+#define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT 0x83F3
+#endif
 
 struct gltexture
 {
@@ -405,7 +408,8 @@ HTEXTURE HGE_Impl::_BuildTexture(int width, int height, DWORD *pixels)
 		pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_MAX_LEVEL, 0);
 	}
 	_SetTextureFilter();
-	pOpenGLDevice->glTexImage2D(pOpenGLDevice->TextureTarget, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	const GLenum intfmt = pOpenGLDevice->have_GL_EXT_texture_compression_s3tc ? GL_COMPRESSED_RGBA_S3TC_DXT5_EXT : GL_RGBA;
+	pOpenGLDevice->glTexImage2D(pOpenGLDevice->TextureTarget, 0, intfmt, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	delete[] pixels;
 	pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
 
@@ -800,6 +804,7 @@ bool HGE_Impl::_GfxInit()
 	pOpenGLDevice->have_GL_ARB_texture_rectangle = false;
 	pOpenGLDevice->have_GL_ARB_texture_non_power_of_two = false;
 	pOpenGLDevice->have_GL_EXT_framebuffer_object = false;
+	pOpenGLDevice->have_GL_EXT_texture_compression_s3tc = false;
 
 	const char *exts = (const char *) pOpenGLDevice->glGetString(GL_EXTENSIONS);
 
@@ -848,6 +853,19 @@ bool HGE_Impl::_GfxInit()
 	else
 		System_Log("OpenGL: WARNING! No render-to-texture support. Things may render badly.");
 
+	if (bForceTextureCompression &&
+	    _HaveOpenGLExtension(exts, "GL_ARB_texture_compression") &&
+	    _HaveOpenGLExtension(exts, "GL_EXT_texture_compression_s3tc"))
+		pOpenGLDevice->have_GL_EXT_texture_compression_s3tc = true;
+	
+	if (pOpenGLDevice->have_GL_EXT_texture_compression_s3tc)
+		System_Log("OpenGL: Using GL_EXT_texture_compression_s3tc");
+	else if (bForceTextureCompression)
+	{
+		bForceTextureCompression = false;  // oh well.
+		System_Log("OpenGL: WARNING: no texture compression support, in a low-memory system.");
+		System_Log("OpenGL:  Performance may be very bad!");
+	}
 
 	nScreenBPP=SDL_GetVideoSurface()->format->BitsPerPixel;
 

@@ -44,6 +44,7 @@ public:
 	bool have_GL_ARB_texture_rectangle;
 	bool have_GL_ARB_texture_non_power_of_two;
 	bool have_GL_EXT_framebuffer_object;
+	bool have_GL_EXT_texture_compression_s3tc;
 };
 
 
@@ -267,6 +268,7 @@ public:
 	bool				bHideMouse;
 	bool				bDontSuspend;
 	HWND				hwndParent;
+	bool				bForceTextureCompression;
 
 	#ifdef DEMO
 	bool				bDMO;
