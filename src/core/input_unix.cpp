@@ -201,7 +201,7 @@ bool CALL HGE_Impl::Input_IsMouseOver()
 
 bool CALL HGE_Impl::Input_GetKeyState(int key)
 {
-	return Input_KeyDown(key);
+	return (keyz[key] & 4) != 0;
 }
 
 bool CALL HGE_Impl::Input_KeyDown(int key)
@@ -259,6 +259,7 @@ void HGE_Impl::_BuildEvent(int type, int key, int scan, int flags, int x, int y)
 	{
 		key = SDLKeyToHGEKey(key);
 		if ( (key < 0) || (key > (sizeof (keyz) / sizeof (keyz[0]))) ) return;
+		keyz[key] |= 4;
 		if((flags & HGEINP_REPEAT) == 0) keyz[key] |= 1;
 		eptr->event.chr = (char) ((key >= 32) && (key <= 127)) ? key : 0;  // these map to ASCII in sdl.
 	}
@@ -266,6 +267,7 @@ void HGE_Impl::_BuildEvent(int type, int key, int scan, int flags, int x, int y)
 	{
 		key = SDLKeyToHGEKey(key);
 		if ( (key < 0) || (key > (sizeof (keyz) / sizeof (keyz[0]))) ) return;
+		keyz[key] &= ~4;
 		keyz[key] |= 2;
 		eptr->event.chr = (char) ((key >= 32) && (key <= 127)) ? key : 0;  // these map to ASCII in sdl.
 	}
@@ -278,12 +280,14 @@ void HGE_Impl::_BuildEvent(int type, int key, int scan, int flags, int x, int y)
 	if(type==INPUT_MBUTTONDOWN)
 	{
 		keyz[key] |= 1;
+		keyz[key] |= 4;
 		//SetCapture(hwnd);
 		bCaptured=true;
 	}
 	if(type==INPUT_MBUTTONUP)
 	{
 		keyz[key] |= 2;
+		keyz[key] &= ~4;
 		//ReleaseCapture();
 		//Input_SetMousePos(Xpos, Ypos);
 		ptx=(int)Xpos; pty=(int)Ypos;
@@ -338,8 +342,10 @@ void HGE_Impl::_ClearQueue()
 {
 	CInputEventList *nexteptr, *eptr=queue;
 
-	memset(&keyz, 0, sizeof(keyz));
-	
+	//memset(&keyz, 0, sizeof(keyz));
+	for (int i = 0; i < sizeof (keyz) / sizeof (keyz[0]); i++)
+		keyz[i] &= ~3;  // only reset some of the bits.
+
 	while(eptr)
 	{
 		nexteptr=eptr->next;
