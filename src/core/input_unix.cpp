@@ -279,7 +279,7 @@ void HGE_Impl::_BuildEvent(int type, int key, int scan, int flags, int x, int y)
 	{
 		keyz[key] |= 1;
 		//SetCapture(hwnd);
-		//bCaptured=true;
+		bCaptured=true;
 	}
 	if(type==INPUT_MBUTTONUP)
 	{
