@@ -741,7 +741,7 @@ void HGE_Impl::_SetProjectionMatrix(int width, int height)
 
 void HGE_Impl::_UnloadOpenGLEntryPoints()
 {
-    #define GL_PROC(fn,call,ret,params) pOpenGLDevice->fn = NULL;
+	#define GL_PROC(fn,call,ret,params) pOpenGLDevice->fn = NULL;
 	#include "hge_glfuncs.h"
 	#undef GL_PROC
 }
@@ -750,13 +750,13 @@ bool HGE_Impl::_LoadOpenGLEntryPoints()
 {
 	bool ok = true;
 
-    #define GL_PROC(fn,call,ret,params) \
-        if (ok) { \
-            if ((pOpenGLDevice->fn = (_HGE_PFN_##fn) SDL_GL_GetProcAddress(#fn)) == NULL) { \
-                 _PostError("Failed to load OpenGL entry point '" #fn "'"); \
-                 ok = false; \
-            } \
-        } else {}
+	#define GL_PROC(fn,call,ret,params) \
+		if (ok) { \
+			if ((pOpenGLDevice->fn = (_HGE_PFN_##fn) SDL_GL_GetProcAddress(#fn)) == NULL) { \
+				_PostError("Failed to load OpenGL entry point '" #fn "'"); \
+				ok = false; \
+			} \
+		} else {}
 	#include "hge_glfuncs.h"
 	#undef GL_PROC
 
@@ -767,15 +767,15 @@ bool HGE_Impl::_LoadOpenGLEntryPoints()
 
 static bool _HaveOpenGLExtension(const char *extlist, const char *ext)
 {
-    const char *ptr = strstr(extlist, ext);
-    if (ptr == NULL)
-        return false;
+	const char *ptr = strstr(extlist, ext);
+	if (ptr == NULL)
+		return false;
 
-    const char endchar = ptr[strlen(ext)];
-    if ((endchar == '\0') || (endchar == ' '))
-        return true;  // extension is in the list.
+	const char endchar = ptr[strlen(ext)];
+	if ((endchar == '\0') || (endchar == ' '))
+		return true;  // extension is in the list.
 
-    return false;  // just not supported, fail.
+	return false;  // just not supported, fail.
 }
 
 bool HGE_Impl::_GfxInit()
