@@ -12,6 +12,40 @@
 
 HGE	*hgeParticleSystem::hge=0;
 
+static inline void byteswapParticleInfo(hgeParticleSystemInfo *info)
+{
+	BYTESWAP(info->nEmission);
+	BYTESWAP(info->fLifetime);
+	BYTESWAP(info->fParticleLifeMin);
+	BYTESWAP(info->fParticleLifeMax);
+	BYTESWAP(info->fDirection);
+	BYTESWAP(info->fSpread);
+	BYTESWAP(info->bRelative);
+	BYTESWAP(info->fSpeedMin);
+	BYTESWAP(info->fSpeedMax);
+	BYTESWAP(info->fGravityMin);
+	BYTESWAP(info->fGravityMax);
+	BYTESWAP(info->fRadialAccelMin);
+	BYTESWAP(info->fRadialAccelMax);
+	BYTESWAP(info->fTangentialAccelMin);
+	BYTESWAP(info->fTangentialAccelMax);
+	BYTESWAP(info->fSizeStart);
+	BYTESWAP(info->fSizeEnd);
+	BYTESWAP(info->fSizeVar);
+	BYTESWAP(info->fSpinStart);
+	BYTESWAP(info->fSpinEnd);
+	BYTESWAP(info->fSpinVar);
+	BYTESWAP(info->colColorStart.r);
+	BYTESWAP(info->colColorStart.g);
+	BYTESWAP(info->colColorStart.b);
+	BYTESWAP(info->colColorStart.a);
+	BYTESWAP(info->colColorEnd.r);
+	BYTESWAP(info->colColorEnd.g);
+	BYTESWAP(info->colColorEnd.b);
+	BYTESWAP(info->colColorEnd.a);
+	BYTESWAP(info->fColorVar);
+	BYTESWAP(info->fAlphaVar);
+}
 
 hgeParticleSystem::hgeParticleSystem(const char *filename, hgeSprite *sprite)
 {
@@ -22,6 +56,7 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, hgeSprite *sprite)
 	psi=hge->Resource_Load(filename);
 	if(!psi) return;
 	memcpy(&info, psi, sizeof(hgeParticleSystemInfo));
+	byteswapParticleInfo(&info);
 	hge->Resource_Free(psi);
 	info.sprite=sprite;
 
