@@ -243,10 +243,11 @@ bool CALL HGE_Impl::System_Start()
 
 		if(bActive || bDontSuspend)
 		{
+			Uint32 sdlticks;
 			// Ensure we have at least 1ms time step
 			// to not confuse user's code with 0
 
-			do { dt=SDL_GetTicks() - t0; } while(dt < 1);
+			do { sdlticks=SDL_GetTicks(); dt = sdlticks - t0; } while(dt < 1);
 
 			// If we reached the time for the next frame
 			// or we just run in unlimited FPS mode, then
@@ -272,7 +273,7 @@ bool CALL HGE_Impl::System_Start()
 				// Store current time for the next frame
 				// and count FPS
 
-				t0=SDL_GetTicks();
+				t0=sdlticks;
 				if(t0-t0fps <= 1000) cfps++;
 				else
 				{
