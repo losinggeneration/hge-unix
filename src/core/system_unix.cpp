@@ -134,9 +134,8 @@ bool CALL HGE_Impl::System_Initiate()
 	// Create window
 	SDL_WM_SetCaption(szWinTitle, szWinTitle);
 	Uint32 flags = SDL_OPENGL;
-STUBBED("windowed/fullscreen mode");
-//	if (!bWindowed)
-//		flags |= SDL_FULLSCREEN;
+	if (!bWindowed)
+		flags |= SDL_FULLSCREEN;
 	hwnd = SDL_SetVideoMode(nScreenWidth, nScreenHeight, nScreenBPP, flags);
 	if (!hwnd)
 	{
