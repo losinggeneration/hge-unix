@@ -775,11 +775,13 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 			}
 			#endif
 
+			#if 0  // (my app handles this, actually.)
 			// hotkey to toggle fullscreen/windowed mode.
 			if ( (keymods & KMOD_ALT) && ((e.key.keysym.sym == SDLK_RETURN) || (e.key.keysym.sym == SDLK_KP_ENTER)) ) {
 				System_SetStateBool(HGE_WINDOWED, !bWindowed);
 				break;
 			}
+			#endif
 
 			pHGE->_BuildEvent(INPUT_KEYDOWN, e.key.keysym.sym, 0, 0 /*(lparam & 0x40000000) ? HGEINP_REPEAT:0*/, -1, -1);
 			break;
