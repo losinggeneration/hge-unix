@@ -16,7 +16,7 @@ static inline DWORD _hge_timeGetTime()
 {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    return (DWORD) ( (((uint64_t)tv.tv_sec) * 1000) + (((uint64_t)tv.tv_sec) / 1000) );
+    return (DWORD) ( (((uint64_t)tv.tv_sec) * 1000) + (((uint64_t)tv.tv_usec) / 1000) );
 }
 #else
 #define _hge_timeGetTime() timeGetTime()
