@@ -48,14 +48,31 @@ struct gltexture
 	GLuint name;
 	GLuint width;
 	GLuint height;
+	DWORD *pixels;  // original rgba data.
 	DWORD *lock_pixels;  // for locked texture
 	bool is_render_target;
+	bool lost;
 	bool lock_readonly;
 	GLint lock_x;
 	GLint lock_y;
 	GLint lock_width;
 	GLint lock_height;
 };
+
+void HGE_Impl::_BindTexture(gltexture *t)
+{
+	// The Direct3D renderer is using managed textures, so they aren't every
+	//  actually "lost" ... we may have to rebuild them here, though.
+	if ((t != NULL) && (t->lost))
+		_ConfigureTexture(t, t->width, t->height, t->pixels);
+
+	if ( ((HTEXTURE)t) != CurTexture )
+	{
+		pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, t ? t->name : 0);
+		CurTexture = (HTEXTURE) t;
+		_SetTextureFilter();
+	}
+}
 
 void CALL HGE_Impl::Gfx_Clear(DWORD color)
 {
@@ -177,7 +194,7 @@ void CALL HGE_Impl::Gfx_EndScene()
 	_render_batch(true);
 	if(!pCurTarget) SDL_GL_SwapBuffers();
 	const GLenum err = pOpenGLDevice->glGetError();
-	if (err != GL_NO_ERROR) printf("GL error! 0x%X\n", (int) err);
+	//if (err != GL_NO_ERROR) printf("GL error! 0x%X\n", (int) err);
 	//Gfx_Clear(0xFF | (0xFF<<24) | (random() & 0xFF << 16) | (random() & 0xFF << 8));
 	//Gfx_Clear(0xFF000000);
 }
@@ -206,7 +223,7 @@ void CALL HGE_Impl::Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD
 
 			CurPrimType=HGEPRIM_LINES;
 			if(CurBlendMode != BLEND_DEFAULT) _SetBlendMode(BLEND_DEFAULT);
-			if(CurTexture) { pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, 0); CurTexture=0; }
+			_BindTexture(NULL);
 		}
 
 		int i=nPrim*HGEPRIM_LINES;
@@ -231,11 +248,7 @@ void CALL HGE_Impl::Gfx_RenderTriple(const hgeTriple *triple)
 
 			CurPrimType=HGEPRIM_TRIPLES;
 			if(CurBlendMode != triple->blend) _SetBlendMode(triple->blend);
-			if(triple->tex != CurTexture) {
-				pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, triple->tex ? ((gltexture*)triple->tex)->name : 0);
-				CurTexture = triple->tex;
-				_SetTextureFilter();
-			}
+			_BindTexture((gltexture *) triple->tex);
 		}
 
 		memcpy(&VertArray[nPrim*HGEPRIM_TRIPLES], triple->v, sizeof(hgeVertex)*HGEPRIM_TRIPLES);
@@ -253,12 +266,7 @@ void CALL HGE_Impl::Gfx_RenderQuad(const hgeQuad *quad)
 
 			CurPrimType=HGEPRIM_QUADS;
 			if(CurBlendMode != quad->blend) _SetBlendMode(quad->blend);
-			if(quad->tex != CurTexture)
-			{
-				pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, quad->tex ? ((gltexture*)quad->tex)->name : 0);
-				CurTexture = quad->tex;
-				_SetTextureFilter();
-			}
+			_BindTexture((gltexture *) quad->tex);
 		}
 
 		memcpy(&VertArray[nPrim*HGEPRIM_QUADS], quad->v, sizeof(hgeVertex)*HGEPRIM_QUADS);
@@ -274,13 +282,7 @@ hgeVertex* CALL HGE_Impl::Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend,
 
 		CurPrimType=prim_type;
 		if(CurBlendMode != blend) _SetBlendMode(blend);
-		if(tex != CurTexture)
-		{
-			pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, tex ? ((gltexture*)tex)->name : 0);
-			CurTexture = tex;
-			_SetTextureFilter();
-		}
-
+		_BindTexture((gltexture *) tex);
 		*max_prim=VERTEX_BUFFER_SIZE / prim_type;
 		return VertArray;
 	}
@@ -292,25 +294,16 @@ void CALL HGE_Impl::Gfx_FinishBatch(int nprim)
 	nPrim=nprim;
 }
 
-HTARGET CALL HGE_Impl::Target_Create(int width, int height, bool zbuffer)
+bool HGE_Impl::_BuildTarget(CRenderTargetList *pTarget, GLuint texname, int width, int height, bool zbuffer)
 {
 	bool okay = false;
-	CRenderTargetList *pTarget = new CRenderTargetList;
-	memset(pTarget, '\0', sizeof (CRenderTargetList));
-	pTarget->tex = Texture_Create(width, height);
-	gltexture *gltex = (gltexture *) pTarget->tex;
-	gltex->is_render_target = true;
-
-	pTarget->width = width;
-	pTarget->height = height;
-
 	if (pOpenGLDevice->have_GL_EXT_framebuffer_object)
 	{
 		pOpenGLDevice->glGenFramebuffersEXT(1, &pTarget->frame);
 		if (zbuffer)
 			pOpenGLDevice->glGenRenderbuffersEXT(1, &pTarget->depth);
 		pOpenGLDevice->glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pTarget->frame);
-		pOpenGLDevice->glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, pOpenGLDevice->TextureTarget, gltex->name, 0);
+		pOpenGLDevice->glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, pOpenGLDevice->TextureTarget, texname, 0);
 		if (zbuffer)
 		{
 			pOpenGLDevice->glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, pTarget->depth);
@@ -333,6 +326,25 @@ HTARGET CALL HGE_Impl::Target_Create(int width, int height, bool zbuffer)
 		pOpenGLDevice->glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pCurTarget ? pCurTarget->frame : 0);
 	}
 
+	return okay;
+}
+
+HTARGET CALL HGE_Impl::Target_Create(int width, int height, bool zbuffer)
+{
+	bool okay = false;
+	CRenderTargetList *pTarget = new CRenderTargetList;
+	memset(pTarget, '\0', sizeof (CRenderTargetList));
+
+	pTarget->tex = _BuildTexture(width, height, NULL);
+	gltexture *gltex = (gltexture *) pTarget->tex;
+	gltex->is_render_target = true;
+	gltex->lost = false;
+	_ConfigureTexture(gltex, width, height, NULL);
+
+	pTarget->width = width;
+	pTarget->height = height;
+
+	okay = _BuildTarget(pTarget, gltex->name, width, height, zbuffer);
 	if (!okay)
 	{
 		System_Log("OpenGL: Failed to create render target!");
@@ -389,17 +401,16 @@ HTEXTURE CALL HGE_Impl::Target_GetTexture(HTARGET target)
 	else return 0;
 }
 
-HTEXTURE HGE_Impl::_BuildTexture(int width, int height, DWORD *pixels)
+void HGE_Impl::_ConfigureTexture(gltexture *t, int width, int height, DWORD *pixels)
 {
-	gltexture *retval = new gltexture;
-	memset(retval, '\0', sizeof (gltexture));
-
 	GLuint tex = 0;
 	pOpenGLDevice->glGenTextures(1, &tex);
 
-	retval->name = tex;
-	retval->width = width;
-	retval->height = height;
+	t->lost = false;
+	t->name = tex;
+	t->width = width;
+	t->height = height;
+	t->pixels = pixels;
 
 	pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, tex);
 	if (pOpenGLDevice->TextureTarget != GL_TEXTURE_RECTANGLE_ARB)
@@ -410,9 +421,17 @@ HTEXTURE HGE_Impl::_BuildTexture(int width, int height, DWORD *pixels)
 	_SetTextureFilter();
 	const GLenum intfmt = pOpenGLDevice->have_GL_EXT_texture_compression_s3tc ? GL_COMPRESSED_RGBA_S3TC_DXT5_EXT : GL_RGBA;
 	pOpenGLDevice->glTexImage2D(pOpenGLDevice->TextureTarget, 0, intfmt, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-	delete[] pixels;
 	pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
+}
 
+HTEXTURE HGE_Impl::_BuildTexture(int width, int height, DWORD *pixels)
+{
+	gltexture *retval = new gltexture;
+	memset(retval, '\0', sizeof (gltexture));
+	retval->lost = true;  // we'll actually generate a texture and upload when forced.
+	retval->width = width;
+	retval->height = height;
+	retval->pixels = pixels;
 	return (HTEXTURE)retval;
 }
 
@@ -420,7 +439,20 @@ HTEXTURE CALL HGE_Impl::Texture_Create(int width, int height)
 {
 	DWORD *pixels = new DWORD[width * height];
 	memset(pixels, '\0', sizeof (DWORD) * width * height);
-	return _BuildTexture(width, height, pixels);
+	HTEXTURE retval = _BuildTexture(width, height, pixels);
+
+	// the Direct3D renderer doesn't add these to the (textures) list, but we need them for when we "lose" the GL context.
+	if (retval != 0)
+	{
+		CTextureList *texItem=new CTextureList;
+		texItem->tex=retval;
+		texItem->width=width;
+		texItem->height=height;
+		texItem->next=textures;
+		textures=texItem;
+	}
+
+	return retval;
 }
 
 HTEXTURE CALL HGE_Impl::Texture_Load(const char *filename, DWORD size, bool bMipmap)
@@ -505,6 +537,7 @@ void CALL HGE_Impl::Texture_Free(HTEXTURE tex)
 	{
 		gltexture *pTex = (gltexture *) tex;
 		delete[] pTex->lock_pixels;
+		delete[] pTex->pixels;
 		pOpenGLDevice->glDeleteTextures(1, &pTex->name);
 		delete pTex;
 	}
@@ -560,6 +593,9 @@ DWORD * CALL HGE_Impl::Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int 
 		return 0;
 	}
 
+	if ((pTex->pixels == NULL) && (!pTex->is_render_target))  // can't lock this texture...?!
+		return 0;
+
 	// !!! FIXME: is this right?
 	if((width == 0) && (height == 0))
 	{
@@ -584,17 +620,33 @@ DWORD * CALL HGE_Impl::Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int 
 	pTex->lock_height = height;
 	pTex->lock_pixels = new DWORD[width * height];
 
-	DWORD *upsideDown = new DWORD[width * height];
 	DWORD *dst = pTex->lock_pixels;
-	DWORD *src = upsideDown + ((height-1) * width);
-	pOpenGLDevice->glReadPixels(left, (pTex->height-top)-height, width, height, GL_RGBA, GL_UNSIGNED_BYTE, upsideDown);
-	for (int i = 0; i < height; i++)
+
+	if (pTex->is_render_target)
 	{
-		memcpy(dst, src, width * sizeof (DWORD));
-		dst += width;
-		src -= width;
+		assert(false && "need to bind fbo before glReadPixels...");
+		DWORD *upsideDown = new DWORD[width * height];
+		DWORD *src = upsideDown + ((height-1) * width);
+		pOpenGLDevice->glReadPixels(left, (pTex->height-top)-height, width, height, GL_RGBA, GL_UNSIGNED_BYTE, upsideDown);
+		for (int i = 0; i < height; i++)
+		{
+			memcpy(dst, src, width * sizeof (DWORD));
+			dst += width;
+			src -= width;
+		}
+		delete[] upsideDown;
 	}
-	delete[] upsideDown;
+	else
+	{
+		DWORD *src = pTex->pixels + ((top*pTex->width) + left);
+		for (int i = 0; i < height; i++)
+		{
+			memcpy(dst, src, width * sizeof (DWORD));
+			dst += width;
+			src += pTex->width;
+		}
+	}
+
 	return pTex->lock_pixels;
 }
 
@@ -607,12 +659,27 @@ void CALL HGE_Impl::Texture_Unlock(HTEXTURE tex)
 
 	if (!pTex->lock_readonly)  // have to reupload to the hardware.
 	{
-		pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, pTex->name);
-		pOpenGLDevice->glTexSubImage2D(pOpenGLDevice->TextureTarget, 0, pTex->lock_x,
-		                               (pTex->height-pTex->lock_y)-pTex->lock_height,
-		                               pTex->lock_width, pTex->lock_height, GL_RGBA,
-		                               GL_UNSIGNED_BYTE, pTex->lock_pixels);
-		pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
+		// need to update pTex->pixels ...
+		const DWORD *src = pTex->lock_pixels;
+		DWORD *dst = pTex->pixels + ((pTex->lock_y*pTex->width) + pTex->lock_x);
+		for (int i = 0; i < pTex->lock_height; i++)
+		{
+			memcpy(dst, src, pTex->lock_width * sizeof (DWORD));
+			dst += pTex->width;
+			src += pTex->lock_width;
+		}
+
+		if (pTex->lost)  // just reupload the whole thing.
+			_ConfigureTexture(pTex, pTex->width, pTex->height, pTex->pixels);
+		else
+		{
+			pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, pTex->name);
+			pOpenGLDevice->glTexSubImage2D(pOpenGLDevice->TextureTarget, 0, pTex->lock_x,
+			                               (pTex->height-pTex->lock_y)-pTex->lock_height,
+			                               pTex->lock_width, pTex->lock_height, GL_RGBA,
+			                               GL_UNSIGNED_BYTE, pTex->lock_pixels);
+			pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
+		}
 	}
 
 	delete[] pTex->lock_pixels;
@@ -780,6 +847,8 @@ static bool _HaveOpenGLExtension(const char *extlist, const char *ext)
 
 bool HGE_Impl::_GfxInit()
 {
+	CurTexture = 0;
+
 // Init OpenGL ... SDL should have created a context at this point.
 	assert(pOpenGLDevice == NULL);
 	pOpenGLDevice = new COpenGLDevice;
@@ -880,10 +949,6 @@ bool HGE_Impl::_GfxInit()
 
 // Init all stuff that can be lost
 
-	_SetProjectionMatrix(nScreenWidth, nScreenHeight);
-	pOpenGLDevice->glMatrixMode(GL_MODELVIEW);
-	pOpenGLDevice->glLoadIdentity();
-
 	if(!_init_lost()) return false;
 
 	// make sure the framebuffers are cleared and force to screen
@@ -945,10 +1010,7 @@ void HGE_Impl::_GfxDone()
 
 bool HGE_Impl::_GfxRestore()
 {
-	CRenderTargetList *target=pTargets;
-
 	if(!pOpenGLDevice) return false;
-	//if(pD3DDevice->TestCooperativeLevel() == D3DERR_DEVICELOST) return;
 
 	delete[] pVB;
 	pVB=0;
@@ -970,6 +1032,27 @@ bool HGE_Impl::_GfxRestore()
 
 bool HGE_Impl::_init_lost()
 {
+	_BindTexture(NULL);  // make sure nothing is bound, so everything that we do bind regenerates.
+
+	for (CTextureList *item = textures; item != NULL; item = item->next)
+	{
+		gltexture *t = (gltexture *) item->tex;
+		if (t == NULL) continue;
+		if (t->pixels == NULL) continue;  // nothing to do?
+		t->lost = true;
+		t->name = 0;
+	}
+
+	CRenderTargetList *target=pTargets;
+	while(target)
+	{
+		gltexture *tex = (gltexture *) target->tex;
+		_BindTexture(tex);  // force texture recreation.
+		_BindTexture(NULL);
+		_BuildTarget(target, tex ? tex->name : 0, target->width, target->height, target->depth != 0);
+		target=target->next;
+	}
+
 // Create Vertex buffer
 	// We just use a client-side array, since you can reasonably count on support
 	//  existing in any GL, and it basically offers the same functionality that
@@ -1030,11 +1113,17 @@ bool HGE_Impl::_init_lost()
 	nPrim=0;
 	CurPrimType=HGEPRIM_QUADS;
 	CurBlendMode = BLEND_DEFAULT;
-	CurTexture = NULL;
+	CurTexture = 0;
 
-	// currently done elsewhere.
-	//pD3DDevice->SetTransform(D3DTS_VIEW, &matView);
-	//pD3DDevice->SetTransform(D3DTS_PROJECTION, &matProj);
+	pOpenGLDevice->glScissor(0, 0, nScreenWidth, nScreenHeight);
+	pOpenGLDevice->glViewport(0, 0, nScreenWidth, nScreenHeight);
+
+	// make sure the framebuffer is cleared and force to screen
+	pOpenGLDevice->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	_SetProjectionMatrix(nScreenWidth, nScreenHeight);
+	pOpenGLDevice->glMatrixMode(GL_MODELVIEW);
+	pOpenGLDevice->glLoadIdentity();
 
 	return true;
 }

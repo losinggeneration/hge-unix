@@ -313,6 +313,9 @@ public:
 	bool				_init_lost();
 	void				_render_batch(bool bEndScene=false);
 	void				_SetTextureFilter();
+	void				_ConfigureTexture(gltexture *t, int width, int height, DWORD *pixels);
+	void				_BindTexture(gltexture *t);
+	bool				_BuildTarget(CRenderTargetList *pTarget, GLuint texname, int width, int height, bool zbuffer);
 	HTEXTURE			_BuildTexture(int width, int height, DWORD *pixels);
 	//int					_format_id(D3DFORMAT fmt);
 	void				_SetBlendMode(int blend);

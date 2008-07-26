@@ -104,7 +104,7 @@ bool CALL HGE_Impl::System_Initiate()
 	// !!! FIXME: we shouldn't force this here, really, but the game I'm working
 	// !!! FIXME:  on eats _hundreds_ of megabytes of texture memory. You'll basically
 	// !!! FIXME:  lock the system up, swapping, if you don't force s3tc on low-memory boxes...
-	bForceTextureCompression = ((phys/1024) <= 256);
+	bForceTextureCompression = ((phys/1024) <= 512);
 	if (bForceTextureCompression)
 	{
 		System_Log("WARNING: we'll have to force texture compression for this system.");
@@ -337,6 +337,11 @@ void CALL HGE_Impl::System_SetStateBool(hgeBoolState state, bool value)
 
 									//if(_format_id(d3dpp->BackBufferFormat) < 4) nScreenBPP=16;
 									//else nScreenBPP=32;
+
+									Uint32 flags = SDL_OPENGL;
+									if (!bWindowed)
+										flags |= SDL_FULLSCREEN;
+									hwnd = SDL_SetVideoMode(nScreenWidth, nScreenHeight, nScreenBPP, flags);
 
 									_GfxRestore();
 								}
