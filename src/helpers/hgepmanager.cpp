@@ -10,7 +10,7 @@
 #include "../../include/hgeparticle.h"
 
 
-hgeParticleManager::hgeParticleManager(const int unused)
+hgeParticleManager::hgeParticleManager(const float unused)
 {
 	nPS=0;
 	tX=tY=0.0f;
