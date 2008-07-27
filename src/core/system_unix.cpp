@@ -346,6 +346,7 @@ void CALL HGE_Impl::System_SetStateBool(hgeBoolState state, bool value)
 
 									_GfxRestore();
 								}
+								else bWindowed=value;
 								break;
 
 		case HGE_ZBUFFER:		if(!pOpenGLDevice) bZBuffer=value;
