@@ -1,5 +1,9 @@
+// PLEASE NOTE that this is not the 1.81 version of hgeparticle.cpp ...
+//  the game I'm working on used an older HGE that breaks with the 1.81
+//  particle system. If you want 1.81, add the "byteswap" stuff to it.  --ryan.
+
 /*
-** Haaf's Game Engine 1.7
+** Haaf's Game Engine 1.61
 ** Copyright (C) 2003-2007, Relish Games
 ** hge.relishgames.com
 **
@@ -8,7 +12,6 @@
 
 
 #include "../../include/hgeparticle.h"
-
 
 HGE	*hgeParticleSystem::hge=0;
 
@@ -47,7 +50,7 @@ static inline void byteswapParticleInfo(hgeParticleSystemInfo *info)
 	BYTESWAP(info->fAlphaVar);
 }
 
-hgeParticleSystem::hgeParticleSystem(const char *filename, hgeSprite *sprite)
+hgeParticleSystem::hgeParticleSystem(const char *filename, hgeSprite *sprite, float fps)
 {
 	void *psi;
 
@@ -63,17 +66,19 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, hgeSprite *sprite)
 	vecLocation.x=vecPrevLocation.x=0.0f;
 	vecLocation.y=vecPrevLocation.y=0.0f;
 	fTx=fTy=0;
-	fScale = 1.0f;
 
 	fEmissionResidue=0.0f;
 	nParticlesAlive=0;
 	fAge=-2.0;
+	if(fps!=0.0f) fUpdSpeed=1.0f/fps;
+	else fUpdSpeed=0.0f;
+	fResidue=0.0f;
 
 	rectBoundingBox.Clear();
 	bUpdateBoundingBox=false;
 }
 
-hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi)
+hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi, float fps)
 {
 	hge=hgeCreate(HGE_VERSION);
 
@@ -82,11 +87,13 @@ hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi)
 	vecLocation.x=vecPrevLocation.x=0.0f;
 	vecLocation.y=vecPrevLocation.y=0.0f;
 	fTx=fTy=0;
-	fScale = 1.0f;
 
 	fEmissionResidue=0.0f;
 	nParticlesAlive=0;
 	fAge=-2.0;
+	if(fps!=0.0f) fUpdSpeed=1.0f/fps;
+	else fUpdSpeed=0.0f;
+	fResidue=0.0f;
 
 	rectBoundingBox.Clear();
 	bUpdateBoundingBox=false;
@@ -99,6 +106,20 @@ hgeParticleSystem::hgeParticleSystem(const hgeParticleSystem &ps)
 }
 
 void hgeParticleSystem::Update(float fDeltaTime)
+{
+   if(fUpdSpeed==0.0f) _update(fDeltaTime);
+   else
+   {
+      fResidue+=fDeltaTime;
+      if(fResidue>=fUpdSpeed)
+	  {
+			_update(fUpdSpeed);
+			while(fResidue>=fUpdSpeed) fResidue-=fUpdSpeed;
+	  }
+   }
+}
+
+void hgeParticleSystem::_update(float fDeltaTime)
 {
 	int i;
 	float ang;
@@ -142,7 +163,7 @@ void hgeParticleSystem::Update(float fDeltaTime)
 		par->vecVelocity += (vecAccel+vecAccel2)*fDeltaTime;
 		par->vecVelocity.y += par->fGravity*fDeltaTime;
 
-		par->vecLocation += par->vecVelocity*fDeltaTime;
+		par->vecLocation += par->vecVelocity;
 
 		par->fSpin += par->fSpinDelta*fDeltaTime;
 		par->fSize += par->fSizeDelta*fDeltaTime;
@@ -250,6 +271,7 @@ void hgeParticleSystem::Fire()
 {
 	if(info.fLifetime==-1.0f) fAge=-1.0f;
 	else fAge=0.0f;
+	fResidue=0.0;
 }
 
 void hgeParticleSystem::Stop(bool bKillParticles)
@@ -272,26 +294,11 @@ void hgeParticleSystem::Render()
 
 	for(i=0; i<nParticlesAlive; i++)
 	{
-		if(info.colColorStart.r < 0)
-			info.sprite->SetColor(SETA(info.sprite->GetColor(),par->colColor.a*255));
-		else
-			info.sprite->SetColor(par->colColor.GetHWColor());
-		info.sprite->RenderEx(par->vecLocation.x*fScale+fTx, par->vecLocation.y*fScale+fTy, par->fSpin*par->fAge, par->fSize*fScale);
+		info.sprite->SetColor(par->colColor.GetHWColor());
+		info.sprite->RenderEx(par->vecLocation.x+fTx, par->vecLocation.y+fTy, par->fSpin*par->fAge, par->fSize);
 		par++;
 	}
 
 	info.sprite->SetColor(col);
 }
 
-
-hgeRect *hgeParticleSystem::GetBoundingBox(hgeRect *rect) const
-{
-	*rect = rectBoundingBox;
-
-	rect->x1 *= fScale;
-	rect->y1 *= fScale;
-	rect->x2 *= fScale;
-	rect->y2 *= fScale;
-
-	return rect;
-}

@@ -1,3 +1,7 @@
+// PLEASE NOTE that this is not the 1.81 version of hgeparticle.cpp ...
+//  the game I'm working on used an older HGE that breaks with the 1.81
+//  particle system. If you want 1.81, just overwrite this file.  --ryan.
+
 /*
 ** Haaf's Game Engine 1.7
 ** Copyright (C) 2003-2007, Relish Games
@@ -10,9 +14,10 @@
 #include "../../include/hgeparticle.h"
 
 
-hgeParticleManager::hgeParticleManager(const float unused)
+hgeParticleManager::hgeParticleManager(const float fps)
 {
 	nPS=0;
+	fFPS=fps;
 	tX=tY=0.0f;
 }
 
@@ -47,7 +52,7 @@ void hgeParticleManager::Render()
 hgeParticleSystem* hgeParticleManager::SpawnPS(hgeParticleSystemInfo *psi, float x, float y)
 {
 	if(nPS==MAX_PSYSTEMS) return 0;
-	psList[nPS]=new hgeParticleSystem(psi);
+	psList[nPS]=new hgeParticleSystem(psi,fFPS);
 	psList[nPS]->FireAt(x,y);
 	psList[nPS]->Transpose(tX,tY);
 	nPS++;
