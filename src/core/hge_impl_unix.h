@@ -29,18 +29,19 @@
 #define APIENTRYP APIENTRY *
 #endif
 
-#define GL_PROC(fn,call,ret,params) typedef call ret (APIENTRYP _HGE_PFN_##fn) params;
+#define GL_PROC(ext,fn,call,ret,params) typedef call ret (APIENTRYP _HGE_PFN_##fn) params;
 #include "hge_glfuncs.h"
 #undef GL_PROC
 
 class COpenGLDevice
 {
 public:
-    #define GL_PROC(fn,call,ret,params) _HGE_PFN_##fn fn;
+    #define GL_PROC(ext,fn,call,ret,params) _HGE_PFN_##fn fn;
 	#include "hge_glfuncs.h"
 	#undef GL_PROC
 
 	GLenum TextureTarget;  // texture rectangle vs (npot) 2D.
+	bool have_base_opengl;
 	bool have_GL_ARB_texture_rectangle;
 	bool have_GL_ARB_texture_non_power_of_two;
 	bool have_GL_EXT_framebuffer_object;
@@ -302,6 +303,7 @@ public:
 	int					CurBlendMode;
 	HTEXTURE			CurTexture;
 
+	bool				_HaveOpenGLExtension(const char *extlist, const char *ext);
 	void 				_UnloadOpenGLEntryPoints();
 	bool 				_LoadOpenGLEntryPoints();
 

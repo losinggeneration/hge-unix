@@ -808,31 +808,12 @@ void HGE_Impl::_SetProjectionMatrix(int width, int height)
 
 void HGE_Impl::_UnloadOpenGLEntryPoints()
 {
-	#define GL_PROC(fn,call,ret,params) pOpenGLDevice->fn = NULL;
+	#define GL_PROC(ext,fn,call,ret,params) pOpenGLDevice->fn = NULL;
 	#include "hge_glfuncs.h"
 	#undef GL_PROC
 }
 
-bool HGE_Impl::_LoadOpenGLEntryPoints()
-{
-	bool ok = true;
-
-	#define GL_PROC(fn,call,ret,params) \
-		if (ok) { \
-			if ((pOpenGLDevice->fn = (_HGE_PFN_##fn) SDL_GL_GetProcAddress(#fn)) == NULL) { \
-				_PostError("Failed to load OpenGL entry point '" #fn "'"); \
-				ok = false; \
-			} \
-		} else {}
-	#include "hge_glfuncs.h"
-	#undef GL_PROC
-
-	if (!ok)
-		_UnloadOpenGLEntryPoints();
-	return ok;
-}
-
-static bool _HaveOpenGLExtension(const char *extlist, const char *ext)
+bool HGE_Impl::_HaveOpenGLExtension(const char *extlist, const char *ext)
 {
 	const char *ptr = strstr(extlist, ext);
 	if (ptr == NULL)
@@ -845,15 +826,32 @@ static bool _HaveOpenGLExtension(const char *extlist, const char *ext)
 	return false;  // just not supported, fail.
 }
 
-bool HGE_Impl::_GfxInit()
+bool HGE_Impl::_LoadOpenGLEntryPoints()
 {
-	CurTexture = 0;
+	System_Log("OpenGL: loading entry points and examining extensions...");
 
-// Init OpenGL ... SDL should have created a context at this point.
-	assert(pOpenGLDevice == NULL);
-	pOpenGLDevice = new COpenGLDevice;
-	if (!_LoadOpenGLEntryPoints())
-		return false;   // already called _PostError().
+	// these can be reset to false below...
+	pOpenGLDevice->have_base_opengl = true;
+	pOpenGLDevice->have_GL_ARB_texture_rectangle = true;
+	pOpenGLDevice->have_GL_ARB_texture_non_power_of_two = true;
+	pOpenGLDevice->have_GL_EXT_framebuffer_object = true;
+	pOpenGLDevice->have_GL_EXT_texture_compression_s3tc = true;
+
+	#define GL_PROC(ext,fn,call,ret,params) \
+		if (pOpenGLDevice->have_##ext) { \
+			if ((pOpenGLDevice->fn = (_HGE_PFN_##fn) SDL_GL_GetProcAddress(#fn)) == NULL) { \
+				System_Log("Failed to load OpenGL entry point '" #fn "'"); \
+				pOpenGLDevice->have_##ext = false; \
+			} \
+		} else {}
+	#include "hge_glfuncs.h"
+	#undef GL_PROC
+
+	if (!pOpenGLDevice->have_base_opengl)
+	{
+		_UnloadOpenGLEntryPoints();
+		return false;
+	}
 
 	System_Log("GL_RENDERER: %s", (const char *) pOpenGLDevice->glGetString(GL_RENDERER));
 	System_Log("GL_VENDOR: %s", (const char *) pOpenGLDevice->glGetString(GL_VENDOR));
@@ -867,16 +865,11 @@ bool HGE_Impl::_GfxInit()
 	if ( (maj < 1) || ((maj == 1) && (min < 2)) )
 	{
 		_PostError("OpenGL implementation must be at least version 1.2");
+		_UnloadOpenGLEntryPoints();
 		return false;
 	}
 
-	pOpenGLDevice->have_GL_ARB_texture_rectangle = false;
-	pOpenGLDevice->have_GL_ARB_texture_non_power_of_two = false;
-	pOpenGLDevice->have_GL_EXT_framebuffer_object = false;
-	pOpenGLDevice->have_GL_EXT_texture_compression_s3tc = false;
-
 	const char *exts = (const char *) pOpenGLDevice->glGetString(GL_EXTENSIONS);
-
 
 	// NPOT texture support ...
 
@@ -888,11 +881,15 @@ bool HGE_Impl::_GfxInit()
 		pOpenGLDevice->have_GL_ARB_texture_rectangle = true;
 	else if (_HaveOpenGLExtension(exts, "GL_NV_texture_rectangle"))
 		pOpenGLDevice->have_GL_ARB_texture_rectangle = true;
+	else
+		pOpenGLDevice->have_GL_ARB_texture_rectangle = false;
 
 	if (maj >= 2)
 		pOpenGLDevice->have_GL_ARB_texture_non_power_of_two = true;
 	else if (_HaveOpenGLExtension(exts, "GL_ARB_texture_non_power_of_two"))
 		pOpenGLDevice->have_GL_ARB_texture_non_power_of_two = true;
+	else
+		pOpenGLDevice->have_GL_ARB_texture_non_power_of_two = false;
 
 	if (pOpenGLDevice->have_GL_ARB_texture_rectangle)
 	{
@@ -906,16 +903,24 @@ bool HGE_Impl::_GfxInit()
 	}
 	else
 	{
+		// We COULD fake this with POT textures, but for now we really need this. Get a real OpenGL!
 		_PostError("No non-power-of-two texture support in this OpenGL.");
 		pOpenGLDevice->TextureTarget = GL_NONE;
+		_UnloadOpenGLEntryPoints();
 		return false;
 	}
 
 
 	// render-to-texture support ...
 
-	if (_HaveOpenGLExtension(exts, "GL_EXT_framebuffer_object"))
-		pOpenGLDevice->have_GL_EXT_framebuffer_object = true;
+	// is false if an entry point is missing, but we still need to check for the extension string...
+	if (pOpenGLDevice->have_GL_EXT_framebuffer_object)
+	{
+		if (_HaveOpenGLExtension(exts, "GL_EXT_framebuffer_object"))
+			pOpenGLDevice->have_GL_EXT_framebuffer_object = true;
+		else
+			pOpenGLDevice->have_GL_EXT_framebuffer_object = false;
+	}
 
 	if (pOpenGLDevice->have_GL_EXT_framebuffer_object)
 		System_Log("OpenGL: Using GL_EXT_framebuffer_object");
@@ -926,6 +931,8 @@ bool HGE_Impl::_GfxInit()
 	    _HaveOpenGLExtension(exts, "GL_ARB_texture_compression") &&
 	    _HaveOpenGLExtension(exts, "GL_EXT_texture_compression_s3tc"))
 		pOpenGLDevice->have_GL_EXT_texture_compression_s3tc = true;
+	else
+		pOpenGLDevice->have_GL_EXT_texture_compression_s3tc = false;
 	
 	if (pOpenGLDevice->have_GL_EXT_texture_compression_s3tc)
 		System_Log("OpenGL: Using GL_EXT_texture_compression_s3tc");
@@ -935,6 +942,19 @@ bool HGE_Impl::_GfxInit()
 		System_Log("OpenGL: WARNING: no texture compression support, in a low-memory system.");
 		System_Log("OpenGL:  Performance may be very bad!");
 	}
+
+	return true;
+}
+
+bool HGE_Impl::_GfxInit()
+{
+	CurTexture = 0;
+
+// Init OpenGL ... SDL should have created a context at this point.
+	assert(pOpenGLDevice == NULL);
+	pOpenGLDevice = new COpenGLDevice;
+	if (!_LoadOpenGLEntryPoints())
+		return false;   // already called _PostError().
 
 	nScreenBPP=SDL_GetVideoSurface()->format->BitsPerPixel;
 
