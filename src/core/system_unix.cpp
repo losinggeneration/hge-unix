@@ -146,6 +146,15 @@ bool CALL HGE_Impl::System_Initiate()
 		return false;
 	}
 
+	if (!bWindowed)
+	{
+		bMouseOver = true;
+		if (!pHGE->bActive)
+			pHGE->_FocusChange(true);
+	}
+
+	SDL_ShowCursor(bHideMouse ? SDL_DISABLE : SDL_ENABLE);
+
 	// Init subsystems
 
 	Random_Seed();
@@ -343,8 +352,13 @@ void CALL HGE_Impl::System_SetStateBool(hgeBoolState state, bool value)
 									if (!bWindowed)
 										flags |= SDL_FULLSCREEN;
 									hwnd = SDL_SetVideoMode(nScreenWidth, nScreenHeight, nScreenBPP, flags);
-
 									_GfxRestore();
+									if (!bWindowed)
+									{
+										bMouseOver = true;
+										if (!pHGE->bActive)
+											pHGE->_FocusChange(true);
+									}
 								}
 								else bWindowed=value;
 								break;
@@ -368,7 +382,7 @@ void CALL HGE_Impl::System_SetStateBool(hgeBoolState state, bool value)
 								}
 								break;
 
-		case HGE_HIDEMOUSE:		bHideMouse=value; break;
+		case HGE_HIDEMOUSE:		bHideMouse=value; if (pHGE->hwnd) SDL_ShowCursor(bHideMouse ? SDL_DISABLE : SDL_ENABLE); break;
 
 		case HGE_DONTSUSPEND:	bDontSuspend=value; break;
 
