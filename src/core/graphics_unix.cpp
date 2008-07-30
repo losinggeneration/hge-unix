@@ -197,7 +197,7 @@ void CALL HGE_Impl::Gfx_EndScene()
 {
 	_render_batch(true);
 	if(!pCurTarget) SDL_GL_SwapBuffers();
-	const GLenum err = pOpenGLDevice->glGetError();
+	//const GLenum err = pOpenGLDevice->glGetError();
 	//if (err != GL_NO_ERROR) printf("GL error! 0x%X\n", (int) err);
 	//Gfx_Clear(0xFF | (0xFF<<24) | (random() & 0xFF << 16) | (random() & 0xFF << 8));
 	//Gfx_Clear(0xFF000000);
