@@ -17,6 +17,10 @@
 
 #define SUPPORT_CXIMAGE 1
 #if SUPPORT_CXIMAGE
+// conflict with Mac OS X 10.3.9 SDK...
+#ifdef _T
+#undef _T
+#endif
 #include "CxImage/CxImage/ximage.h"
 #endif
 
