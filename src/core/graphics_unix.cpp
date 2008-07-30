@@ -196,6 +196,28 @@ bool CALL HGE_Impl::Gfx_BeginScene(HTARGET targ)
 void CALL HGE_Impl::Gfx_EndScene()
 {
 	_render_batch(true);
+
+	// no "real" render targets? Push the framebuffer to a texture.
+	// This is not going to work in lots of legitimate scenarios, but it will
+	//  most of the time, so it's better than nothing when you lack FBOs.
+	if ((pCurTarget) && (!pOpenGLDevice->have_GL_EXT_framebuffer_object))
+	{
+		gltexture *pTex = (gltexture *) pCurTarget->tex;
+		if ((pTex != NULL) && (pTex->lost))
+			_ConfigureTexture(pTex, pTex->width, pTex->height, pTex->pixels);
+
+		const int width = pCurTarget->width;
+		const int height = pCurTarget->height;
+		pOpenGLDevice->glFinish();
+		DWORD *pixels = new DWORD[width * height];
+		pOpenGLDevice->glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+		pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, pTex->name);
+		pOpenGLDevice->glTexSubImage2D(pOpenGLDevice->TextureTarget, 0, 0, 0, width, height,
+		                               GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+		pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
+		delete[] pixels;
+	}
+
 	if(!pCurTarget) SDL_GL_SwapBuffers();
 	//const GLenum err = pOpenGLDevice->glGetError();
 	//if (err != GL_NO_ERROR) printf("GL error! 0x%X\n", (int) err);
@@ -300,7 +322,7 @@ void CALL HGE_Impl::Gfx_FinishBatch(int nprim)
 
 bool HGE_Impl::_BuildTarget(CRenderTargetList *pTarget, GLuint texname, int width, int height, bool zbuffer)
 {
-	bool okay = false;
+	bool okay = true;  // no FBOs? Fake success by default.
 	if (pOpenGLDevice->have_GL_EXT_framebuffer_object)
 	{
 		pOpenGLDevice->glGenFramebuffersEXT(1, &pTarget->frame);
@@ -379,14 +401,14 @@ void CALL HGE_Impl::Target_Free(HTARGET target)
 			if (pOpenGLDevice->have_GL_EXT_framebuffer_object)
 			{
 				if (pCurTarget == (CRenderTargetList *)target)
-				{
-					pCurTarget = 0;
 					pOpenGLDevice->glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-				}
 				if (pTarget->depth)
 					pOpenGLDevice->glDeleteRenderbuffersEXT(1, &pTarget->depth);
 				pOpenGLDevice->glDeleteFramebuffersEXT(1, &pTarget->frame);
 			}
+
+			if (pCurTarget == (CRenderTargetList *)target)
+				pCurTarget = 0;
 
 			Texture_Free(pTarget->tex);
 			delete pTarget;
