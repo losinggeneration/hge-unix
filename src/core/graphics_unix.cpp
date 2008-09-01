@@ -1002,7 +1002,10 @@ bool HGE_Impl::_LoadOpenGLEntryPoints()
 	// is false if an entry point is missing, but we still need to check for the extension string...
 	if (pOpenGLDevice->have_GL_EXT_framebuffer_object)
 	{
-		if (_HaveOpenGLExtension(exts, "GL_EXT_framebuffer_object"))
+		// Disable this on Mac OS X Tiger, since some drivers appear to be buggy.
+		if ((pHGE->MacOSXVersion) && (pHGE->MacOSXVersion < 0x1050))
+			pOpenGLDevice->have_GL_EXT_framebuffer_object = false;
+		else if (_HaveOpenGLExtension(exts, "GL_EXT_framebuffer_object"))
 			pOpenGLDevice->have_GL_EXT_framebuffer_object = true;
 		else
 			pOpenGLDevice->have_GL_EXT_framebuffer_object = false;
