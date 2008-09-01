@@ -944,6 +944,9 @@ bool HGE_Impl::_LoadOpenGLEntryPoints()
 	else
 		System_Log("OpenGL: WARNING! No render-to-texture support. Things may render badly.");
 
+
+	// Texture compression ...
+
 	if (bForceTextureCompression &&
 	    _HaveOpenGLExtension(exts, "GL_ARB_texture_compression") &&
 	    _HaveOpenGLExtension(exts, "GL_EXT_texture_compression_s3tc"))
