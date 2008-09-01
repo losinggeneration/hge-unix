@@ -74,7 +74,6 @@ void HGE_Impl::_BindTexture(gltexture *t)
 	{
 		pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, t ? t->name : 0);
 		CurTexture = (HTEXTURE) t;
-		_SetTextureFilter();
 	}
 }
 
@@ -230,13 +229,6 @@ void HGE_Impl::_SetTextureFilter()
 	const GLenum filter = (bTextureFilter) ? GL_LINEAR : GL_NEAREST;
 	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_MIN_FILTER, filter);
 	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_MAG_FILTER, filter);
-
-	// !!! FIXME: this isn't what HGE's Direct3D code does, but the game I'm working with
-	// !!! FIXME:  forces clamping outside of HGE, so I just wedged it in here.
-	// Apple says texture rectangle on ATI X1000 chips only supports CLAMP_TO_EDGE.
-	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
 void CALL HGE_Impl::Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD color, float z)
@@ -444,7 +436,6 @@ void HGE_Impl::_ConfigureTexture(gltexture *t, int width, int height, DWORD *pix
 		pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_BASE_LEVEL, 0);
 		pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_MAX_LEVEL, 0);
 	}
-	_SetTextureFilter();
 	const GLenum intfmt = pOpenGLDevice->have_GL_EXT_texture_compression_s3tc ? GL_COMPRESSED_RGBA_S3TC_DXT5_EXT : GL_RGBA;
 	pOpenGLDevice->glTexImage2D(pOpenGLDevice->TextureTarget, 0, intfmt, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
@@ -1155,6 +1146,15 @@ bool HGE_Impl::_init_lost()
 	pOpenGLDevice->glAlphaFunc(GL_GEQUAL, 1.0f / 255.0f);
 
 	pOpenGLDevice->glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+	_SetTextureFilter();
+
+	// !!! FIXME: this isn't what HGE's Direct3D code does, but the game I'm working with
+	// !!! FIXME:  forces clamping outside of HGE, so I just wedged it in here.
+	// Apple says texture rectangle on ATI X1000 chips only supports CLAMP_TO_EDGE.
+	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 	nPrim=0;
 	CurPrimType=HGEPRIM_QUADS;

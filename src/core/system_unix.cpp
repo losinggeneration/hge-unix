@@ -367,11 +367,10 @@ void CALL HGE_Impl::System_SetStateBool(hgeBoolState state, bool value)
 								break;
 
 		case HGE_TEXTUREFILTER: if (bTextureFilter==value) break;
-								bTextureFilter=value;
 								if(pOpenGLDevice)
 									_render_batch();
-
-								// bTextureFilter is pushed to the GL next time you draw.
+								bTextureFilter=value;
+								_SetTextureFilter();
 								break;
 
 		case HGE_USESOUND:		if(bUseSound!=value)
