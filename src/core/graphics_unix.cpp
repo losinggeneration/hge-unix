@@ -52,6 +52,7 @@ struct gltexture
 	GLuint name;
 	GLuint width;
 	GLuint height;
+	const char *filename;  // if backed by a file, not a managed buffer.
 	DWORD *pixels;  // original rgba data.
 	DWORD *lock_pixels;  // for locked texture
 	bool is_render_target;
@@ -62,6 +63,39 @@ struct gltexture
 	GLint lock_width;
 	GLint lock_height;
 };
+
+
+static DWORD *_DecodeImage(BYTE *data, DWORD _size, int &width, int &height)
+{
+	DWORD *pixels = NULL;
+
+#if SUPPORT_CXIMAGE
+	CxImage img;
+	img.Decode(data, _size, CXIMAGE_FORMAT_UNKNOWN);
+	if (img.IsValid())
+	{
+		width = img.GetWidth();
+		height = img.GetHeight();
+		pixels = new DWORD[width * height];
+		BYTE *wptr = (BYTE *) pixels;
+		const bool hasalpha = img.AlphaIsValid();
+		for (int y = 0; y < height; y++)
+		{
+			for (int x = 0; x < width; x++)
+			{
+				const RGBQUAD rgb = img.GetPixelColor(x, y, true);
+				*(wptr++) = rgb.rgbRed;
+				*(wptr++) = rgb.rgbGreen;
+				*(wptr++) = rgb.rgbBlue;
+				*(wptr++) = hasalpha ? rgb.rgbReserved : 0xFF;  // alpha.
+			}
+		}
+	}
+#endif
+
+	return pixels;
+}
+
 
 void HGE_Impl::_BindTexture(gltexture *t)
 {
@@ -493,6 +527,25 @@ void HGE_Impl::_ConfigureTexture(gltexture *t, int width, int height, DWORD *pix
 	t->height = height;
 	t->pixels = pixels;
 
+	// see if we're backed by a file and not RAM.
+	const bool loadFromFile = ((pixels == NULL) && (t->filename != NULL));
+	if (loadFromFile)
+	{
+		DWORD size = 0;
+		BYTE *data = (BYTE *) pHGE->Resource_Load(t->filename, &size);
+		if (data != NULL)
+		{
+			int w, h;
+			pixels = _DecodeImage(data, size, w, h);
+			if ((w != width) || (h != height))  // yikes, file changed?
+			{
+				delete[] pixels;
+				pixels = NULL;
+			}
+			Resource_Free(data);
+		}
+	}
+
 	pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, tex);
 	if (pOpenGLDevice->TextureTarget != GL_TEXTURE_RECTANGLE_ARB)
 	{
@@ -502,6 +555,9 @@ void HGE_Impl::_ConfigureTexture(gltexture *t, int width, int height, DWORD *pix
 	const GLenum intfmt = pOpenGLDevice->have_GL_EXT_texture_compression_s3tc ? GL_COMPRESSED_RGBA_S3TC_DXT5_EXT : GL_RGBA;
 	pOpenGLDevice->glTexImage2D(pOpenGLDevice->TextureTarget, 0, intfmt, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
+
+	if (loadFromFile)
+		delete[] pixels;
 }
 
 HTEXTURE HGE_Impl::_BuildTexture(int width, int height, DWORD *pixels)
@@ -541,7 +597,6 @@ HTEXTURE CALL HGE_Impl::Texture_Load(const char *filename, DWORD size, bool bMip
 	int width = 0;
 	int height = 0;
 
-#if SUPPORT_CXIMAGE
 	void *data;
 	DWORD _size;
 	CTextureList *texItem;
@@ -553,29 +608,9 @@ HTEXTURE CALL HGE_Impl::Texture_Load(const char *filename, DWORD size, bool bMip
 		if(!data) return NULL;
 	}
 
-	CxImage img;
-	img.Decode((BYTE*)data, _size, CXIMAGE_FORMAT_UNKNOWN);
-	if (img.IsValid())
-	{
-		width = img.GetWidth();
-		height = img.GetHeight();
-		DWORD *pixels = new DWORD[width * height];
-		BYTE *wptr = (BYTE *) pixels;
-		const bool hasalpha = img.AlphaIsValid();
-		for (int y = 0; y < height; y++)
-		{
-			for (int x = 0; x < width; x++)
-			{
-				const RGBQUAD rgb = img.GetPixelColor(x, y, true);
-				*(wptr++) = rgb.rgbRed;
-				*(wptr++) = rgb.rgbGreen;
-				*(wptr++) = rgb.rgbBlue;
-				*(wptr++) = hasalpha ? rgb.rgbReserved : 0xFF;  // alpha.
-			}
-		}
+	DWORD *pixels = _DecodeImage((BYTE *) data, _size, width, height);
+	if (pixels != NULL)
 		retval = _BuildTexture(width, height, pixels);
-	}
-#endif
 
 	if(!size) Resource_Free(data);
 
@@ -592,6 +627,17 @@ HTEXTURE CALL HGE_Impl::Texture_Load(const char *filename, DWORD size, bool bMip
 		texItem->height=height;
 		texItem->next=textures;
 		textures=texItem;
+
+		// force an upload to the GL and lose our copy if it's backed by
+		//  a file. We won't keep it here to conserve system RAM.
+		if (!size)
+		{
+			gltexture *t = (gltexture *) retval;
+			_ConfigureTexture(t, t->width, t->height, t->pixels);
+			delete[] t->pixels;
+			t->pixels = NULL;
+			t->filename = strcpy(new char[strlen(filename) + 1], filename);
+		}
 	}
 
 	return retval;
@@ -616,6 +662,7 @@ void CALL HGE_Impl::Texture_Free(HTEXTURE tex)
 	if(tex)
 	{
 		gltexture *pTex = (gltexture *) tex;
+		delete[] pTex->filename;
 		delete[] pTex->lock_pixels;
 		delete[] pTex->pixels;
 		pOpenGLDevice->glDeleteTextures(1, &pTex->name);
@@ -671,6 +718,34 @@ DWORD * CALL HGE_Impl::Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int 
 	{
 		assert(false && "multiple lock of texture...");
 		return 0;
+	}
+
+	// see if we're backed by a file and not RAM.
+	const bool loadFromFile = ((pTex->pixels == NULL) && (pTex->filename != NULL));
+	if (loadFromFile)
+	{
+		DWORD size = 0;
+		BYTE *data = (BYTE *) pHGE->Resource_Load(pTex->filename, &size);
+		if (data != NULL)
+		{
+			int w, h;
+			pTex->pixels = _DecodeImage(data, size, w, h);
+			if ((w != pTex->width) || (h != pTex->height))  // yikes, file changed?
+			{
+				delete[] pTex->pixels;
+				pTex->pixels = NULL;
+			}
+			Resource_Free(data);
+		}
+		if (pTex->pixels != NULL)
+		{
+			// can't go back to file after we lock, since app might change data.
+			if (!bReadOnly)
+			{
+				delete[] pTex->filename;
+				pTex->filename = NULL;
+			}
+		}
 	}
 
 	if ((pTex->pixels == NULL) && (!pTex->is_render_target))  // can't lock this texture...?!
@@ -760,6 +835,13 @@ void CALL HGE_Impl::Texture_Unlock(HTEXTURE tex)
 			                               GL_UNSIGNED_BYTE, pTex->lock_pixels);
 			pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
 		}
+	}
+
+	// if we were read-only and we're backed by a file, ditch the uncompressed copy in system RAM.
+	if ((pTex->filename != NULL) && (pTex->lock_readonly))
+	{
+		delete[] pTex->pixels;
+		pTex->pixels = NULL;
 	}
 
 	delete[] pTex->lock_pixels;
