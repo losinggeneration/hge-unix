@@ -1128,6 +1128,12 @@ bool HGE_Impl::_init_lost()
 	//  HGE uses in Direct3D: it locks the vertex buffer, unlocks in time to
 	//  draw something, then relocks again immediately...more or less, that method
 	//  offers the same performance metrics as a client-side array.
+	// We _will_ stuff the indices in a buffer object, though, if possible,
+	//  since they never change...this matches the D3D behaviour better, since
+	//  they lock, store, and forget about it, but without a buffer object,
+	//  we'd have to pass the array over the bus every glDrawElements() call.
+	//  It's not worth the tapdance for vertex buffer objects though, due to
+	//  HGE's usage patterns.
 	pVB = new hgeVertex[VERTEX_BUFFER_SIZE];
 
 // Create and setup Index buffer
