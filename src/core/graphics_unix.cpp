@@ -130,12 +130,18 @@ void CALL HGE_Impl::Gfx_SetClipping(int x, int y, int w, int h)
 
 	_render_batch();
 
+	clipX = vp.X;
+	clipY = vp.Y;
+	clipW = vp.Width;
+	clipH = vp.Height;
 	pOpenGLDevice->glScissor(vp.X, (scr_height-vp.Y)-vp.Height, vp.Width, vp.Height);
 }
 
 void CALL HGE_Impl::Gfx_SetTransform(float x, float y, float dx, float dy, float rot, float hscale, float vscale)
 {
 	_render_batch();
+
+	bTransforming = true;
 
 	pOpenGLDevice->glMatrixMode(GL_MODELVIEW);
 	if(vscale==0.0f) pOpenGLDevice->glLoadIdentity();
@@ -231,9 +237,28 @@ void HGE_Impl::_SetTextureFilter()
 	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_MAG_FILTER, filter);
 }
 
+
+bool HGE_Impl::_PrimsOutsideClipping(const hgeVertex *v, const int verts)
+{
+	if (bTransforming)
+		return false;  // screw it, let the GL do the clipping.
+
+	const int maxX = clipX + clipW;
+	const int maxY = clipY + clipH;
+	for (int i = 0; i < verts; i++, v++)
+	{
+		const int x = v->x;
+		const int y = v->y;
+		if ((x >= clipX) && (x < maxX) && (y >= clipY) && (y < maxY))
+			return false;
+	}
+	return true;
+}
+
+
 void CALL HGE_Impl::Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD color, float z)
 {
-	if(VertArray)
+	if (VertArray)
 	{
 		if(CurPrimType!=HGEPRIM_LINES || nPrim>=VERTEX_BUFFER_SIZE/HGEPRIM_LINES || CurTexture || CurBlendMode!=BLEND_DEFAULT)
 		{
@@ -252,13 +277,14 @@ void CALL HGE_Impl::Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD
 		VertArray[i].tx    = VertArray[i+1].tx =
 		VertArray[i].ty    = VertArray[i+1].ty = 0.0f;
 
-		nPrim++;
+		if (!_PrimsOutsideClipping(&VertArray[i], HGEPRIM_LINES))
+			nPrim++;
 	}
 }
     
 void CALL HGE_Impl::Gfx_RenderTriple(const hgeTriple *triple)
 {
-	if(VertArray)
+	if ((VertArray) && (!_PrimsOutsideClipping(triple->v, HGEPRIM_TRIPLES)))
 	{
 		if(CurPrimType!=HGEPRIM_TRIPLES || nPrim>=VERTEX_BUFFER_SIZE/HGEPRIM_TRIPLES || CurTexture!=triple->tex || CurBlendMode!=triple->blend)
 		{
@@ -276,7 +302,7 @@ void CALL HGE_Impl::Gfx_RenderTriple(const hgeTriple *triple)
 
 void CALL HGE_Impl::Gfx_RenderQuad(const hgeQuad *quad)
 {
-	if(VertArray)
+	if ((VertArray) && (!_PrimsOutsideClipping(quad->v, HGEPRIM_QUADS)))
 	{
 		if(CurPrimType!=HGEPRIM_QUADS || nPrim>=VERTEX_BUFFER_SIZE/HGEPRIM_QUADS || CurTexture!=quad->tex || CurBlendMode!=quad->blend)
 		{
@@ -309,7 +335,7 @@ hgeVertex* CALL HGE_Impl::Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend,
 
 void CALL HGE_Impl::Gfx_FinishBatch(int nprim)
 {
-	nPrim=nprim;
+	nPrim = (_PrimsOutsideClipping(VertArray, nprim * CurPrimType)) ? 0 : nprim;
 }
 
 bool HGE_Impl::_BuildTarget(CRenderTargetList *pTarget, GLuint texname, int width, int height, bool zbuffer)
@@ -821,6 +847,11 @@ void HGE_Impl::_SetProjectionMatrix(int width, int height)
 	pOpenGLDevice->glMatrixMode(GL_PROJECTION);
 	pOpenGLDevice->glLoadIdentity();
 	pOpenGLDevice->glOrtho(0, (float)width, 0, (float)height, 0.0f, 1.0f);
+	bTransforming = false;
+	clipX = 0;
+	clipY = 0;
+	clipW = width;
+	clipH = height;
 }
 
 void HGE_Impl::_UnloadOpenGLEntryPoints()

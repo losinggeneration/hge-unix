@@ -281,6 +281,13 @@ public:
 	bool				bForceTextureCompression;
 	GLuint				IndexBufferObject;
 
+	bool				_PrimsOutsideClipping(const hgeVertex *v, const int verts);
+	bool				bTransforming;
+	int					clipX;
+	int					clipY;
+	int					clipW;
+	int					clipH;
+
 	#ifdef DEMO
 	bool				bDMO;
 	#endif
