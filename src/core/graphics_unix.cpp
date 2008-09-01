@@ -853,6 +853,7 @@ bool HGE_Impl::_LoadOpenGLEntryPoints()
 	pOpenGLDevice->have_GL_ARB_texture_non_power_of_two = true;
 	pOpenGLDevice->have_GL_EXT_framebuffer_object = true;
 	pOpenGLDevice->have_GL_EXT_texture_compression_s3tc = true;
+	pOpenGLDevice->have_GL_ARB_vertex_buffer_object = true;
 
 	#define GL_PROC(ext,fn,call,ret,params) \
 		if (pOpenGLDevice->have_##ext) { \
@@ -963,6 +964,23 @@ bool HGE_Impl::_LoadOpenGLEntryPoints()
 		System_Log("OpenGL:  Performance may be very bad!");
 	}
 
+
+	// VBOs...
+
+	// is false if an entry point is missing, but we still need to check for the extension string...
+	if (pOpenGLDevice->have_GL_ARB_vertex_buffer_object)
+	{
+		if (_HaveOpenGLExtension(exts, "GL_ARB_vertex_buffer_object"))
+			pOpenGLDevice->have_GL_ARB_vertex_buffer_object = true;
+		else
+			pOpenGLDevice->have_GL_ARB_vertex_buffer_object = false;
+	}
+
+	if (pOpenGLDevice->have_GL_ARB_vertex_buffer_object)
+		System_Log("OpenGL: Using GL_ARB_vertex_buffer_object");
+	else
+		System_Log("OpenGL: WARNING! No VBO support; performance may suffer.");
+
 	return true;
 }
 
@@ -986,6 +1004,7 @@ bool HGE_Impl::_GfxInit()
 
 	VertArray=0;
 	textures=0;
+	IndexBufferObject=0;
 
 // Init all stuff that can be lost
 
@@ -1042,6 +1061,16 @@ void HGE_Impl::_GfxDone()
 
 	if(pOpenGLDevice)
 	{
+		if (pOpenGLDevice->have_GL_ARB_vertex_buffer_object)
+		{
+			if (IndexBufferObject != 0)
+			{
+				pOpenGLDevice->glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
+				pOpenGLDevice->glDeleteBuffersARB(1, &IndexBufferObject);
+				IndexBufferObject = 0;
+			}
+		}
+
 		delete pOpenGLDevice;
 		pOpenGLDevice=0;
 	}
@@ -1101,13 +1130,6 @@ bool HGE_Impl::_init_lost()
 	//  offers the same performance metrics as a client-side array.
 	pVB = new hgeVertex[VERTEX_BUFFER_SIZE];
 
-	pOpenGLDevice->glVertexPointer(3, GL_FLOAT, sizeof (hgeVertex), &pVB[0].x);
-	pOpenGLDevice->glColorPointer(4, GL_UNSIGNED_BYTE, sizeof (hgeVertex), &pVB[0].col);
-	pOpenGLDevice->glTexCoordPointer(2, GL_FLOAT, sizeof (hgeVertex), &pVB[0].tx);
-	pOpenGLDevice->glEnableClientState(GL_VERTEX_ARRAY);
-	pOpenGLDevice->glEnableClientState(GL_COLOR_ARRAY);
-	pOpenGLDevice->glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
 // Create and setup Index buffer
 	pIB = new GLushort[VERTEX_BUFFER_SIZE*6/4];
 	GLushort *pIndices = pIB;
@@ -1121,6 +1143,24 @@ bool HGE_Impl::_init_lost()
 		*pIndices++=n;
 		n+=4;
 	}
+
+	if (pOpenGLDevice->have_GL_ARB_vertex_buffer_object)
+	{
+		// stay bound forever. The Index Buffer Object never changes.
+		pOpenGLDevice->glGenBuffersARB(1, &IndexBufferObject);
+		pOpenGLDevice->glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, IndexBufferObject);
+		pOpenGLDevice->glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER, sizeof (GLushort) * ((VERTEX_BUFFER_SIZE*6)/4), pIB, GL_STATIC_DRAW);
+		delete[] pIB;
+		pIB=0;
+	}
+
+	// always use client-side arrays; set it up once at startup.
+	pOpenGLDevice->glVertexPointer(3, GL_FLOAT, sizeof (hgeVertex), &pVB[0].x);
+	pOpenGLDevice->glColorPointer(4, GL_UNSIGNED_BYTE, sizeof (hgeVertex), &pVB[0].col);
+	pOpenGLDevice->glTexCoordPointer(2, GL_FLOAT, sizeof (hgeVertex), &pVB[0].tx);
+	pOpenGLDevice->glEnableClientState(GL_VERTEX_ARRAY);
+	pOpenGLDevice->glEnableClientState(GL_COLOR_ARRAY);
+	pOpenGLDevice->glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 // Set common render states
 

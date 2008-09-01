@@ -59,5 +59,13 @@ GL_PROC(GL_EXT_framebuffer_object,glCheckFramebufferStatusEXT,,GLenum,(GLenum));
 GL_PROC(GL_EXT_framebuffer_object,glFramebufferRenderbufferEXT,,void,(GLenum, GLenum, GLenum, GLuint));
 GL_PROC(GL_EXT_framebuffer_object,glFramebufferTexture2DEXT,,void,(GLenum, GLenum, GLenum, GLuint, GLint));
 
+// GL_ARB_vertex_buffer_object ...
+GL_PROC(GL_ARB_vertex_buffer_object,glBindBufferARB,,void,(GLenum, GLuint))
+GL_PROC(GL_ARB_vertex_buffer_object,glDeleteBuffersARB,,void,(GLsizei, const GLuint *))
+GL_PROC(GL_ARB_vertex_buffer_object,glGenBuffersARB,,void,(GLsizei, GLuint *))
+GL_PROC(GL_ARB_vertex_buffer_object,glBufferDataARB,,void,(GLenum, GLsizeiptr, const GLvoid *, GLenum))
+GL_PROC(GL_ARB_vertex_buffer_object,glMapBufferARB,,GLvoid*,(GLenum, GLenum))
+GL_PROC(GL_ARB_vertex_buffer_object,glUnmapBufferARB,,GLboolean,(GLenum))
+
 // end of hge_glfuncs.h ...
 

@@ -25,6 +25,14 @@
 #define GL_GLEXT_LEGACY 1
 #include "gl.h"
 
+#ifndef WINGDIAPI
+#define WINGDIAPI
+#endif
+
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+
 #ifndef APIENTRYP
 #define APIENTRYP APIENTRY *
 #endif
@@ -46,6 +54,7 @@ public:
 	bool have_GL_ARB_texture_non_power_of_two;
 	bool have_GL_EXT_framebuffer_object;
 	bool have_GL_EXT_texture_compression_s3tc;
+	bool have_GL_ARB_vertex_buffer_object;
 };
 
 
@@ -270,6 +279,7 @@ public:
 	bool				bDontSuspend;
 	HWND				hwndParent;
 	bool				bForceTextureCompression;
+	GLuint				IndexBufferObject;
 
 	#ifdef DEMO
 	bool				bDMO;
