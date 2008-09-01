@@ -77,21 +77,28 @@ bool CALL HGE_Impl::System_Initiate()
 
 	System_Log("Application: %s",szWinTitle);
 
-#if PLATFORM_MACOSX
-    // !!! FIXME: this is wrong...it doesn't with with 10.y.xx, where 'xx'
-    // !!! FIXME:  is more than one digit (it appears to clamp to 9 in these
-    // !!! FIXME:  cases inside Gestalt(), for obvious reasons).
-    // !!! FIXME: This is a legacy--and incorrect--way to get this information.
-    long ver = 0x0000;
-    char verbuf[16] = { '\0' };
-	if (Gestalt(gestaltSystemVersion, &ver) == noErr)
-    {
-        char str[16];
-        snprintf(str, sizeof (str), "%X", (int) ver);
-        snprintf(verbuf, sizeof (verbuf), " %c%c.%c.%c", str[0], str[1], str[2], str[3]);
-    } // if
+	MacOSXVersion = 0x0000;
 
-    System_Log("OS: Mac OS X%s", verbuf);
+#if PLATFORM_MACOSX
+	long ver = 0x0000;
+	char verbuf[16] = { '\0' };
+	if (Gestalt(gestaltSystemVersion, &ver) == noErr)
+	{
+		long macver_minor = ((ver & 0xF0) >> 4);
+		long macver_patch = (ver & 0xF);
+		long macver_major = ((ver & 0xFF00) >> 8);
+		macver_major = (((macver_major / 16) * 10) + (macver_major % 16));
+		MacOSXVersion = ver;
+		if (ver >= 0x1030)
+		{
+			Gestalt(gestaltSystemVersionMajor, &macver_major);
+			Gestalt(gestaltSystemVersionMinor, &macver_minor);
+			Gestalt(gestaltSystemVersionBugFix, &macver_patch);
+		}
+		snprintf(verbuf, sizeof (verbuf), "%ld.%ld.%ld", macver_major, macver_minor, macver_patch);
+	}
+
+	System_Log("OS: Mac OS X%s", verbuf);
 
 	unsigned long phys = 0;
 	size_t len = sizeof (phys);

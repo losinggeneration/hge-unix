@@ -244,7 +244,7 @@ public:
 	bool				_WritePrivateProfileString(const char *section, const char *name, const char *buf, const char *szIniFile);
 	bool				_GetPrivateProfileString(const char *section, const char *name, const char *deflt, char *buf, size_t bufsize, const char *szIniFile);
 
-
+	long				MacOSXVersion;
 	HWND				hwnd;
 	bool				bActive;
 	char				szError[256];
