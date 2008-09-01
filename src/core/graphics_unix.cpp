@@ -249,7 +249,7 @@ bool HGE_Impl::_PrimsOutsideClipping(const hgeVertex *v, const int verts)
 	{
 		const int x = v->x;
 		const int y = v->y;
-		if ((x >= clipX) && (x < maxX) && (y >= clipY) && (y < maxY))
+		if ((x > clipX) && (x < maxX) && (y > clipY) && (y < maxY))
 			return false;
 	}
 	return true;
@@ -282,10 +282,30 @@ void CALL HGE_Impl::Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD
 	}
 }
     
+template <class T> static inline const T Min(const T a, const T b) { return a < b ? a : b; }
+template <class T> static inline const T Max(const T a, const T b) { return a > b ? a : b; }
+
 void CALL HGE_Impl::Gfx_RenderTriple(const hgeTriple *triple)
 {
-	if ((VertArray) && (!_PrimsOutsideClipping(triple->v, HGEPRIM_TRIPLES)))
+	if (VertArray)
 	{
+		const hgeVertex *v = triple->v;
+		if (_PrimsOutsideClipping(v, HGEPRIM_TRIPLES))
+		{
+			// check for overlap, despite triangle points being outside clipping...
+			const int maxX = clipX + clipW;
+			const int maxY = clipY + clipH;
+			const int leftmost = Min(Min(v[0].x, v[1].x), v[2].x);
+			const int rightmost = Max(Max(v[0].x, v[1].x), v[2].x);
+			const int topmost = Min(Min(v[0].y, v[1].y), v[2].y);
+			const int bottommost = Max(Max(v[0].y, v[1].y), v[2].y);
+			if ( ((clipX < leftmost) || (clipX > rightmost)) &&
+			     ((maxX < leftmost) || (maxX > rightmost)) &&
+			     ((clipY < topmost) || (clipY > bottommost)) &&
+			     ((maxY < topmost) || (maxY > bottommost)) )
+				return;  // no, this is really totally clipped.
+		}
+
 		if(CurPrimType!=HGEPRIM_TRIPLES || nPrim>=VERTEX_BUFFER_SIZE/HGEPRIM_TRIPLES || CurTexture!=triple->tex || CurBlendMode!=triple->blend)
 		{
 			_render_batch();
@@ -302,8 +322,25 @@ void CALL HGE_Impl::Gfx_RenderTriple(const hgeTriple *triple)
 
 void CALL HGE_Impl::Gfx_RenderQuad(const hgeQuad *quad)
 {
-	if ((VertArray) && (!_PrimsOutsideClipping(quad->v, HGEPRIM_QUADS)))
+	if (VertArray)
 	{
+		const hgeVertex *v = quad->v;
+		if (_PrimsOutsideClipping(v, HGEPRIM_QUADS))
+		{
+			// check for overlap, despite quad points being outside clipping...
+			const int maxX = clipX + clipW;
+			const int maxY = clipY + clipH;
+			const int leftmost = Min(Min(Min(v[0].x, v[1].x), v[2].x), v[3].x);
+			const int rightmost = Max(Max(Max(v[0].x, v[1].x), v[2].x), v[3].x);
+			const int topmost = Min(Min(Min(v[0].y, v[1].y), v[2].y), v[3].y);
+			const int bottommost = Max(Max(Max(v[0].y, v[1].y), v[2].y), v[3].y);
+			if ( ((clipX < leftmost) || (clipX > rightmost)) &&
+			     ((maxX < leftmost) || (maxX > rightmost)) &&
+			     ((clipY < topmost) || (clipY > bottommost)) &&
+			     ((maxY < topmost) || (maxY > bottommost)) )
+				return;  // no, this is really totally clipped.
+		}
+
 		if(CurPrimType!=HGEPRIM_QUADS || nPrim>=VERTEX_BUFFER_SIZE/HGEPRIM_QUADS || CurTexture!=quad->tex || CurBlendMode!=quad->blend)
 		{
 			_render_batch();
@@ -335,7 +372,7 @@ hgeVertex* CALL HGE_Impl::Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend,
 
 void CALL HGE_Impl::Gfx_FinishBatch(int nprim)
 {
-	nPrim = (_PrimsOutsideClipping(VertArray, nprim * CurPrimType)) ? 0 : nprim;
+	nPrim = nprim;
 }
 
 bool HGE_Impl::_BuildTarget(CRenderTargetList *pTarget, GLuint texname, int width, int height, bool zbuffer)
