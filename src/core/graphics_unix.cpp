@@ -1260,7 +1260,6 @@ bool HGE_Impl::_init_lost()
 	{
 		gltexture *t = (gltexture *) item->tex;
 		if (t == NULL) continue;
-		if (t->pixels == NULL) continue;  // nothing to do?
 		t->lost = true;
 		t->name = 0;
 	}
