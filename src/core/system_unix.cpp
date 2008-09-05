@@ -780,7 +780,7 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 		case SDL_ACTIVEEVENT:
 			const bool bActivating = (e.active.gain != 0);
 			if (e.active.state & SDL_APPINPUTFOCUS) {
-//				if(pHGE->bActive != bActivating) pHGE->_FocusChange(bActivating);
+				if(pHGE->bActive != bActivating) pHGE->_FocusChange(bActivating);
 			}
 			if (e.active.state & SDL_APPMOUSEFOCUS) {
 				bMouseOver = bActivating;
