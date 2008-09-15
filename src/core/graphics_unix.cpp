@@ -64,14 +64,32 @@ struct gltexture
 	GLint lock_height;
 };
 
-
-static DWORD *_DecodeImage(BYTE *data, DWORD _size, int &width, int &height)
+static DWORD *_DecodeImage(BYTE *data, const char *fname, DWORD size, int &width, int &height)
 {
+	width = height = 0;
+
 	DWORD *pixels = NULL;
+	const size_t fnamelen = fname ? strlen(fname) : 0;
+	if ( (fnamelen > 5) && (strcasecmp((fname + fnamelen) - 5, ".rgba") == 0) )
+	{
+		DWORD *ptr = (DWORD *) data;
+		DWORD w = ptr[0];
+		DWORD h = ptr[1];
+		BYTESWAP(w);
+		BYTESWAP(h);
+		if ( ((w * h * 4) + 8) == size )  // not truncated?
+		{
+			width = (int) w;
+			height = (int) h;
+			pixels = new DWORD[width * height];
+			memcpy(pixels, ptr + 2, w * h * 4);  // !!! FIXME: ignores pitch.
+		}
+		return pixels;
+	}
 
 #if SUPPORT_CXIMAGE
 	CxImage img;
-	img.Decode(data, _size, CXIMAGE_FORMAT_UNKNOWN);
+	img.Decode(data, size, CXIMAGE_FORMAT_UNKNOWN);
 	if (img.IsValid())
 	{
 		width = img.GetWidth();
@@ -536,7 +554,7 @@ void HGE_Impl::_ConfigureTexture(gltexture *t, int width, int height, DWORD *pix
 		if (data != NULL)
 		{
 			int w, h;
-			pixels = _DecodeImage(data, size, w, h);
+			pixels = _DecodeImage(data, t->filename, size, w, h);
 			if ((w != width) || (h != height))  // yikes, file changed?
 			{
 				delete[] pixels;
@@ -600,15 +618,16 @@ HTEXTURE CALL HGE_Impl::Texture_Load(const char *filename, DWORD size, bool bMip
 	void *data;
 	DWORD _size;
 	CTextureList *texItem;
-
+	const char *fname = NULL;
 	if(size) { data=(void *)filename; _size=size; }
 	else
 	{
+		fname = filename;
 		data=pHGE->Resource_Load(filename, &_size);
 		if(!data) return NULL;
 	}
 
-	DWORD *pixels = _DecodeImage((BYTE *) data, _size, width, height);
+	DWORD *pixels = _DecodeImage((BYTE *) data, fname, _size, width, height);
 	if (pixels != NULL)
 		retval = _BuildTexture(width, height, pixels);
 
@@ -729,7 +748,7 @@ DWORD * CALL HGE_Impl::Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int 
 		if (data != NULL)
 		{
 			int w, h;
-			pTex->pixels = _DecodeImage(data, size, w, h);
+			pTex->pixels = _DecodeImage(data, pTex->filename, size, w, h);
 			if ((w != pTex->width) || (h != pTex->height))  // yikes, file changed?
 			{
 				delete[] pTex->pixels;
