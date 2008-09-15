@@ -393,6 +393,12 @@ public:
 
 private:
 	HGE_Impl();
+
+	#if PLATFORM_MACOSX
+	void				_MacMinimizeWindow();
+	void				_MacHideOtherWindows();
+	void				_MacHideWindow();
+	#endif
 };
 
 extern HGE_Impl*		pHGE;

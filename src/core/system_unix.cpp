@@ -789,10 +789,22 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 
 		case SDL_KEYDOWN:
 			keymods = e.key.keysym.mod;
-			#if PLATFORM_MACOSX  // handle Apple-Q hotkey.
-			if ((keymods & KMOD_META) && (e.key.keysym.sym == SDLK_q)) {
-				if(pHGE->procExitFunc && !pHGE->procExitFunc()) break;
-				return false;
+
+			#if PLATFORM_MACOSX  // handle Apple-Q hotkey, etc.
+			if (keymods & KMOD_META) {
+				if (e.key.keysym.sym == SDLK_q) {
+					if(pHGE->procExitFunc && !pHGE->procExitFunc()) break;
+					return false;
+				} else if (e.key.keysym.sym == SDLK_m) {
+					_MacMinimizeWindow();
+					break;
+				} else if (e.key.keysym.sym == SDLK_h) {
+					if (keymods & KMOD_ALT)
+						_MacHideOtherWindows();
+					else
+						_MacHideWindow();
+					break;
+				}
 			}
 			#endif
 
