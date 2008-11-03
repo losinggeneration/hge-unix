@@ -668,6 +668,8 @@ void CALL HGE_Impl::System_Snapshot(const char *filename)
 
 HGE_Impl::HGE_Impl()
 {
+	CurTexture=0;
+
 	//hInstance=GetModuleHandle(0);
 	hwnd=0;
 	bActive=false;
