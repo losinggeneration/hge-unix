@@ -1066,8 +1066,6 @@ bool HGE_Impl::_LoadOpenGLEntryPoints()
 		pOpenGLDevice->have_GL_ARB_texture_rectangle = true;
 	else if (_HaveOpenGLExtension(exts, "GL_NV_texture_rectangle"))
 		pOpenGLDevice->have_GL_ARB_texture_rectangle = true;
-	else if (_HaveOpenGLExtension(exts, "GL_NV_texture_rectangle"))
-		pOpenGLDevice->have_GL_ARB_texture_rectangle = true;
 	else
 		pOpenGLDevice->have_GL_ARB_texture_rectangle = false;
 
