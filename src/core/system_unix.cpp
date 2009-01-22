@@ -111,7 +111,7 @@ bool CALL HGE_Impl::System_Initiate()
 	// !!! FIXME: we shouldn't force this here, really, but the game I'm working
 	// !!! FIXME:  on eats _hundreds_ of megabytes of texture memory. You'll basically
 	// !!! FIXME:  lock the system up, swapping, if you don't force s3tc on low-memory boxes...
-	bForceTextureCompression = ((phys/1024) <= 512);
+	bForceTextureCompression = false;  //((phys/1024) <= 512);
 	if (bForceTextureCompression)
 	{
 		System_Log("WARNING: we'll have to force texture compression for this system.");
