@@ -206,6 +206,8 @@ void CALL HGE_Impl::Gfx_SetTransform(float x, float y, float dx, float dy, float
 
 	bTransforming = true;
 
+	// !!! FIXME: this math is probably wrong. Re-sync with the Direct3D code.
+
 	pOpenGLDevice->glMatrixMode(GL_MODELVIEW);
 	if(vscale==0.0f) pOpenGLDevice->glLoadIdentity();
 	else
