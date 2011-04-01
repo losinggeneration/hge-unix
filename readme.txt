@@ -1,3 +1,20 @@
+
+This is a Mac and Unix port of HGE. Ryan C. Gordon did the initial porting
+work for Red Marble Games, and it is shipping in the Mac versions of several
+of their games.
+
+Questions about this library on Mac and Linux can be sent to Ryan:
+
+    icculus@icculus.org
+
+I don't know anything about the Windows version of HGE.
+
+The original HGE readme is below.
+
+--ryan.
+
+
+
 Haaf's Game Engine 1.81
 Copyright (C) 2003-2008, Relish Games
 http://hge.relishgames.com
