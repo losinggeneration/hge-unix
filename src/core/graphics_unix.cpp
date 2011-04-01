@@ -179,6 +179,9 @@ void CALL HGE_Impl::Gfx_SetClipping(int x, int y, int w, int h)
 		vp.Height=h;
 	}
 
+	if ((clipX == vp.X) && (clipY == vp.Y) && (clipW == vp.Width) && (clipH == vp.Height))
+		return;   // nothing to do here, don't call into the GL.
+
 	vp.MinZ=0.0f;
 	vp.MaxZ=1.0f;
 
@@ -193,6 +196,12 @@ void CALL HGE_Impl::Gfx_SetClipping(int x, int y, int w, int h)
 
 void CALL HGE_Impl::Gfx_SetTransform(float x, float y, float dx, float dy, float rot, float hscale, float vscale)
 {
+	if (!bTransforming)
+	{
+		if ((x == 0.0f) && (y == 0.0f) && (dx == 0.0f) && (dy == 0.0f) && (rot == 0.0f) && (hscale == 1.0f) && (vscale == 1.0f))
+			return;   // nothing to do here, don't call into the GL.
+	}
+
 	_render_batch();
 
 	bTransforming = true;
