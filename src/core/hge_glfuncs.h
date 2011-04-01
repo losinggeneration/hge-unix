@@ -33,6 +33,7 @@ GL_PROC(base_opengl,glClear,WINGDIAPI,void,(GLbitfield mask));
 GL_PROC(base_opengl,glPixelStorei,WINGDIAPI,void,(GLenum pname, GLint param));
 GL_PROC(base_opengl,glBindTexture,WINGDIAPI,void,(GLenum target, GLuint texture));
 GL_PROC(base_opengl,glTexEnvi,WINGDIAPI,void,(GLenum target, GLenum pname, GLint param));
+GL_PROC(base_opengl,glTexParameterf,WINGDIAPI,void,(GLenum target, GLenum pname, GLfloat param));
 GL_PROC(base_opengl,glTexParameteri,WINGDIAPI,void,(GLenum target, GLenum pname, GLint param));
 GL_PROC(base_opengl,glTexImage2D,WINGDIAPI,void,(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels));
 GL_PROC(base_opengl,glTexSubImage2D,WINGDIAPI,void,(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels));

@@ -567,6 +567,8 @@ void HGE_Impl::_ConfigureTexture(gltexture *t, int width, int height, DWORD *pix
 	pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, tex);
 	if (pOpenGLDevice->TextureTarget != GL_TEXTURE_RECTANGLE_ARB)
 	{
+		pOpenGLDevice->glTexParameterf(pOpenGLDevice->TextureTarget, GL_TEXTURE_MIN_LOD, 0.0f);
+		pOpenGLDevice->glTexParameterf(pOpenGLDevice->TextureTarget, GL_TEXTURE_MAX_LOD, 0.0f);
 		pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_BASE_LEVEL, 0);
 		pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_MAX_LEVEL, 0);
 	}
