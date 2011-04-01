@@ -692,6 +692,9 @@ HTEXTURE CALL HGE_Impl::Texture_Load(const char *filename, DWORD size, bool bMip
 
 void CALL HGE_Impl::Texture_Free(HTEXTURE tex)
 {
+	if (pOpenGLDevice == NULL)
+		return;  // in case we already shut down.
+
 	CTextureList *texItem=textures, *texPrev=0;
 
 	while(texItem)
