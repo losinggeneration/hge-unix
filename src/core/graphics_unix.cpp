@@ -52,6 +52,8 @@ struct gltexture
 	GLuint name;
 	GLuint width;
 	GLuint height;
+	GLuint potw;  // Power-of-two width.
+	GLuint poth;  // Power-of-two height.
 	const char *filename;  // if backed by a file, not a managed buffer.
 	DWORD *pixels;  // original rgba data.
 	DWORD *lock_pixels;  // for locked texture
@@ -534,6 +536,19 @@ HTEXTURE CALL HGE_Impl::Target_GetTexture(HTARGET target)
 	else return 0;
 }
 
+static inline bool _IsPowerOfTwo(const GLuint x)
+{
+	return ((x & (x - 1)) == 0);
+}
+
+static inline GLuint _NextPowerOfTwo(GLuint x)
+{
+	x--;
+	for (int i = 1; i < (sizeof(GLuint) * 8); i *= 2)
+		x |= x >> i;
+	return x + 1;
+}
+
 void HGE_Impl::_ConfigureTexture(gltexture *t, int width, int height, DWORD *pixels)
 {
 	GLuint tex = 0;
@@ -544,6 +559,8 @@ void HGE_Impl::_ConfigureTexture(gltexture *t, int width, int height, DWORD *pix
 	t->width = width;
 	t->height = height;
 	t->pixels = pixels;
+	t->potw = 0;
+	t->poth = 0;
 
 	// see if we're backed by a file and not RAM.
 	const bool loadFromFile = ((pixels == NULL) && (t->filename != NULL));
@@ -573,7 +590,16 @@ void HGE_Impl::_ConfigureTexture(gltexture *t, int width, int height, DWORD *pix
 		pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_MAX_LEVEL, 0);
 	}
 	const GLenum intfmt = pOpenGLDevice->have_GL_EXT_texture_compression_s3tc ? GL_COMPRESSED_RGBA_S3TC_DXT5_EXT : GL_RGBA;
-	pOpenGLDevice->glTexImage2D(pOpenGLDevice->TextureTarget, 0, intfmt, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	if ((pOpenGLDevice->have_GL_ARB_texture_rectangle) || (pOpenGLDevice->have_GL_ARB_texture_non_power_of_two) || (_IsPowerOfTwo(width) && _IsPowerOfTwo(height))
+		pOpenGLDevice->glTexImage2D(pOpenGLDevice->TextureTarget, 0, intfmt, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	else
+	{
+		t->potw = _NextPowerOfTwo(width);
+		t->poth = _NextPowerOfTwo(height);
+		pOpenGLDevice->glTexImage2D(pOpenGLDevice->TextureTarget, 0, intfmt, t->potw, t->poth, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		pOpenGLDevice->glTexSubImage2D(pOpenGLDevice->TextureTarget, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	}
+
 	pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
 
 	if (loadFromFile)
@@ -895,10 +921,21 @@ void HGE_Impl::_render_batch(bool bEndScene)
 			// texture rectangles range from 0 to size, not 0 to 1.  :/
 			float texwmult = 1.0f;
 			float texhmult = 1.0f;
-			if ((CurTexture) && (pOpenGLDevice->TextureTarget == GL_TEXTURE_RECTANGLE_ARB))
+
+			if (CurTexture)
 			{
-				texwmult = ((gltexture *)CurTexture)->width;
-				texhmult = ((gltexture *)CurTexture)->height;
+				_SetTextureFilter();
+				const gltexture *pTex = ((gltexture *)CurTexture);
+				if (pOpenGLDevice->TextureTarget == GL_TEXTURE_RECTANGLE_ARB)
+				{
+					texwmult = pTex->width;
+					texhmult = pTex->height;
+				}
+				else if ((pTex->potw != 0) && (pTex->poth != 0))
+				{
+					texwmult = ( ((float)pTex->width) / ((float)pTex->potw) );
+					texhmult = ( ((float)pTex->height) / ((float)pTex->poth) );
+				}
 			}
 
 			for (int i = 0; i < nPrim*CurPrimType; i++)
@@ -911,7 +948,7 @@ void HGE_Impl::_render_batch(bool bEndScene)
 
 				// (0, 0) is lower left texcoord in OpenGL, upper left in D3D.
 				// Also, scale for texture rectangles vs. 2D textures.
-				VertArray[i].tx = VertArray[i].tx * texwmult;
+				VertArray[i].tx *= texwmult;
 				VertArray[i].ty = (1.0f - VertArray[i].ty) * texhmult;
 
 				// Colors are RGBA in OpenGL, ARGB in Direct3D.
@@ -1090,13 +1127,10 @@ bool HGE_Impl::_LoadOpenGLEntryPoints()
 	}
 	else
 	{
-		// We COULD fake this with POT textures, but for now we really need this. Get a real OpenGL!
-		_PostError("No non-power-of-two texture support in this OpenGL.");
-		pOpenGLDevice->TextureTarget = GL_NONE;
-		_UnloadOpenGLEntryPoints();
-		return false;
+		// We can fake this with POT textures. Get a real OpenGL!
+		System_Log("OpenGL: Using power-of-two textures. This costs more memory!");
+		pOpenGLDevice->TextureTarget = GL_TEXTURE_2D;
 	}
-
 
 	// render-to-texture support ...
 
@@ -1372,6 +1406,7 @@ bool HGE_Impl::_init_lost()
 	// !!! FIXME: this isn't what HGE's Direct3D code does, but the game I'm working with
 	// !!! FIXME:  forces clamping outside of HGE, so I just wedged it in here.
 	// Apple says texture rectangle on ATI X1000 chips only supports CLAMP_TO_EDGE.
+	// Texture rectangle only supports CLAMP* wrap modes anyhow.
 	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
