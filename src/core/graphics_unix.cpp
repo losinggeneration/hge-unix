@@ -1369,6 +1369,7 @@ bool HGE_Impl::_init_lost()
 		n+=4;
 	}
 
+	#if !DEBUG_VERTICES  // need pIB for DEBUG_VERTICES.
 	if (pOpenGLDevice->have_GL_ARB_vertex_buffer_object)
 	{
 		// stay bound forever. The Index Buffer Object never changes.
@@ -1378,6 +1379,7 @@ bool HGE_Impl::_init_lost()
 		delete[] pIB;
 		pIB=0;
 	}
+	#endif
 
 	// always use client-side arrays; set it up once at startup.
 	pOpenGLDevice->glVertexPointer(3, GL_FLOAT, sizeof (hgeVertex), &pVB[0].x);
