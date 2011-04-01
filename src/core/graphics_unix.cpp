@@ -930,7 +930,7 @@ void HGE_Impl::_render_batch(bool bEndScene)
 	{
 		if(nPrim)
 		{
-			const float h = (float) (((SDL_Surface *) this->hwnd)->h);
+			const float h = (float) ((pCurTarget) ? pCurTarget->height : nScreenHeight);
 
 			// texture rectangles range from 0 to size, not 0 to 1.  :/
 			float texwmult = 1.0f;
