@@ -6,6 +6,15 @@
 ** Core functions implementation: graphics
 */
 
+// !!! FIXME: the texture data when locking/unlocking textures is in GL_BGRA format, not GL_RGBA.
+// !!! FIXME:  ...but this mistake wasn't noticed for several games, since most didn't lock outside
+// !!! FIXME:  of a piece of code that was #ifdef'd for Unix anyhow.
+// !!! FIXME: But if you lock textures and the colors are wrong, that's what happened. We need to
+// !!! FIXME:  sort out all the places where we're passing things around in RGBA to fix this.
+// !!! FIXME:  In the mean time, it's usually easier to just change your application to expect
+// !!! FIXME:  locked textures to be RGBA instead of BGRA.
+
+// !!! FIXME: ...apparently we're locking textures upside down, too?
 
 #include "hge_impl_unix.h"
 
