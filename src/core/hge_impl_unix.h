@@ -55,6 +55,7 @@ public:
 	bool have_GL_EXT_framebuffer_object;
 	bool have_GL_EXT_texture_compression_s3tc;
 	bool have_GL_ARB_vertex_buffer_object;
+	bool have_GL_APPLE_ycbcr_422;
 };
 
 
@@ -231,6 +232,8 @@ public:
 	virtual int			CALL	Texture_GetHeight(HTEXTURE tex, bool bOriginal=false);
 	virtual DWORD*		CALL	Texture_Lock(HTEXTURE tex, bool bReadOnly=true, int left=0, int top=0, int width=0, int height=0);
 	virtual void		CALL	Texture_Unlock(HTEXTURE tex);
+
+	bool CALL HGEEXT_Texture_PushYUV422(HTEXTURE tex, const BYTE *yuv);
 
 	//////// Implementation ////////
 

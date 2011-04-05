@@ -55,6 +55,15 @@
 #ifndef GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
 #define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT 0x83F3
 #endif
+#ifndef GL_YCBCR_422_APPLE
+#define GL_YCBCR_422_APPLE 0x85B9
+#endif
+#ifndef GL_UNSIGNED_SHORT_8_8_APPLE
+#define GL_UNSIGNED_SHORT_8_8_APPLE 0x85BA
+#endif
+#ifndef GL_UNSIGNED_SHORT_8_8_REV_APPLE
+#define GL_UNSIGNED_SHORT_8_8_REV_APPLE 0x85BB
+#endif
 
 struct gltexture
 {
@@ -779,6 +788,39 @@ int CALL HGE_Impl::Texture_GetHeight(HTEXTURE tex, bool bOriginal)
 	return 0;
 }
 
+// HGE extension!
+// fast path for pushing YUV video to a texture instead of having to
+//  lock/convert-to-rgba/unlock...current HGE semantics involve a
+//  lot of unnecessary overhead on this, not to mention the conversion
+//  on the CPU is painful on PowerPC chips.
+// This lets us use OpenGL extensions to move data to the hardware
+//  without conversion.
+// Don't taunt this function. Side effects are probably rampant.
+bool CALL HGE_Impl::HGEEXT_Texture_PushYUV422(HTEXTURE tex, const BYTE *yuv)
+{
+	if (!pOpenGLDevice->have_GL_APPLE_ycbcr_422)
+		return false;
+
+	gltexture *pTex=(gltexture*)tex;
+	assert(!pTex->lock_pixels);
+
+	if (pTex->lost)  // just reupload the whole thing.
+		_ConfigureTexture(pTex, pTex->width, pTex->height, pTex->pixels);
+
+	// Any existing pixels aren't valid anymore.
+	if (pTex->pixels)
+	{
+		delete[] pTex->pixels;
+		pTex->pixels = NULL;
+	}
+
+	pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, pTex->name);
+	pOpenGLDevice->glTexSubImage2D(pOpenGLDevice->TextureTarget, 0, 0, 0,
+	                               pTex->width, pTex->height, GL_YCBCR_422_APPLE,
+                                   GL_UNSIGNED_SHORT_8_8_APPLE, yuv);
+	pOpenGLDevice->glBindTexture(pOpenGLDevice->TextureTarget, CurTexture ? (((gltexture *) CurTexture)->name) : 0);
+	return true;
+}
 
 DWORD * CALL HGE_Impl::Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int top, int width, int height)
 {
@@ -1085,6 +1127,7 @@ bool HGE_Impl::_LoadOpenGLEntryPoints()
 	pOpenGLDevice->have_GL_EXT_framebuffer_object = true;
 	pOpenGLDevice->have_GL_EXT_texture_compression_s3tc = true;
 	pOpenGLDevice->have_GL_ARB_vertex_buffer_object = true;
+	pOpenGLDevice->have_GL_APPLE_ycbcr_422 = true;
 
 	#define GL_PROC(ext,fn,call,ret,params) \
 		if (pOpenGLDevice->have_##ext) { \
@@ -1193,6 +1236,17 @@ bool HGE_Impl::_LoadOpenGLEntryPoints()
 		System_Log("OpenGL:  Performance may be very bad!");
 	}
 
+	// YUV textures...
+
+	if (_HaveOpenGLExtension(exts, "GL_APPLE_ycbcr_422"))
+		pOpenGLDevice->have_GL_APPLE_ycbcr_422 = true;
+	else
+		pOpenGLDevice->have_GL_APPLE_ycbcr_422 = false;
+
+	if (pOpenGLDevice->have_GL_APPLE_ycbcr_422)
+		System_Log("OpenGL: Using GL_APPLE_ycbcr_422 to render YUV frames.");
+	else
+		System_Log("OpenGL: WARNING: no YUV texture support; videos may render slowly.");
 
 	// VBOs...
 
