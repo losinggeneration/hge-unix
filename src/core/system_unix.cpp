@@ -444,7 +444,7 @@ void CALL HGE_Impl::System_SetStateInt(hgeIntState state, int value)
 
 		case HGE_SCREENBPP:		if(!pOpenGLDevice) nScreenBPP=value; break;
 
-		case HGE_SAMPLERATE:	if((!hOpenALDevice) && (!hBass)) nSampleRate=value;
+		case HGE_SAMPLERATE:	if((!hOpenAL) && (!hBass)) nSampleRate=value;
 								break;
 
 		case HGE_FXVOLUME:		nFXVolume=value;
@@ -694,7 +694,7 @@ HGE_Impl::HGE_Impl()
 	textures=0;
 
 	hBass=0;
-	hOpenALDevice=0;
+	hOpenAL=0;
 	bSilent=false;
 	streams=0;
 

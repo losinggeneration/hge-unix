@@ -100,7 +100,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit8]
-FileName=sound.cpp
+FileName=sound_libbass.cpp
 CompileCpp=1
 Folder=hge
 Compile=1

@@ -346,7 +346,7 @@ public:
 
 	// Audio
 	void*				hBass;
-	void*				hOpenALDevice;  // this is a placeholder; no OpenAL code has been written yet!
+	void*				hOpenAL;
 	bool				bSilent;
 	CStreamList*		streams;
 	bool				_SoundInit();

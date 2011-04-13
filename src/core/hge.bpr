@@ -6,7 +6,7 @@
     <PROJECT value="bccRelease\hge.dll"/>
     <OBJFILES value="bccRelease\timer.obj bccRelease\graphics.obj bccRelease\ini.obj 
       bccRelease\input.obj bccRelease\random.obj bccRelease\resource.obj 
-      bccRelease\sound.obj bccRelease\system.obj bccRelease\demo.obj 
+      bccRelease\sound_libbass.obj bccRelease\system.obj bccRelease\demo.obj 
       bccRelease\adler32.obj bccRelease\crc32.obj bccRelease\inffast.obj 
       bccRelease\inflate.obj bccRelease\inftrees.obj bccRelease\ioapi.obj 
       bccRelease\trees.obj bccRelease\uncompr.obj bccRelease\unzip.obj 
@@ -65,7 +65,7 @@
       <FILE FILENAME="input.cpp" FORMNAME="" UNITNAME="input.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="random.cpp" FORMNAME="" UNITNAME="random.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="resource.cpp" FORMNAME="" UNITNAME="resource.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="sound.cpp" FORMNAME="" UNITNAME="sound.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="sound_libbass.cpp" FORMNAME="" UNITNAME="sound_libbass.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="system.cpp" FORMNAME="" UNITNAME="system.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="demo.cpp" FORMNAME="" UNITNAME="demo.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="ZLIB\adler32.c" FORMNAME="" UNITNAME="adler32.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>

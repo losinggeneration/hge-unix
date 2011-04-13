@@ -172,7 +172,7 @@ SOURCE=.\resource.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\sound.cpp
+SOURCE=.\sound_libbass.cpp
 # End Source File
 # Begin Source File
 

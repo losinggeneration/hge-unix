@@ -5,8 +5,8 @@ CPP  = g++.exe
 CC   = gcc.exe
 WINDRES = windres.exe
 RES  = 
-OBJ  = gccRelease/timer.o gccRelease/graphics.o gccRelease/ini.o gccRelease/input.o gccRelease/random.o gccRelease/resource.o gccRelease/sound.o gccRelease/system.o gccRelease/demo.o gccRelease/crc32.o gccRelease/inffast.o gccRelease/inflate.o gccRelease/inftrees.o gccRelease/ioapi.o gccRelease/trees.o gccRelease/uncompr.o gccRelease/unzip.o gccRelease/zutil.o gccRelease/adler32.o $(RES)
-LINKOBJ  = gccRelease/timer.o gccRelease/graphics.o gccRelease/ini.o gccRelease/input.o gccRelease/random.o gccRelease/resource.o gccRelease/sound.o gccRelease/system.o gccRelease/demo.o gccRelease/crc32.o gccRelease/inffast.o gccRelease/inflate.o gccRelease/inftrees.o gccRelease/ioapi.o gccRelease/trees.o gccRelease/uncompr.o gccRelease/unzip.o gccRelease/zutil.o gccRelease/adler32.o $(RES)
+OBJ  = gccRelease/timer.o gccRelease/graphics.o gccRelease/ini.o gccRelease/input.o gccRelease/random.o gccRelease/resource.o gccRelease/sound_libbass.o gccRelease/system.o gccRelease/demo.o gccRelease/crc32.o gccRelease/inffast.o gccRelease/inflate.o gccRelease/inftrees.o gccRelease/ioapi.o gccRelease/trees.o gccRelease/uncompr.o gccRelease/unzip.o gccRelease/zutil.o gccRelease/adler32.o $(RES)
+LINKOBJ  = gccRelease/timer.o gccRelease/graphics.o gccRelease/ini.o gccRelease/input.o gccRelease/random.o gccRelease/resource.o gccRelease/sound_libbass.o gccRelease/system.o gccRelease/demo.o gccRelease/crc32.o gccRelease/inffast.o gccRelease/inflate.o gccRelease/inftrees.o gccRelease/ioapi.o gccRelease/trees.o gccRelease/uncompr.o gccRelease/unzip.o gccRelease/zutil.o gccRelease/adler32.o $(RES)
 LIBS =  -L"C:/Dev-Cpp/lib" --no-export-all-symbols --add-stdcall-alias --def hge.def -luser32 -lgdi32 -ladvapi32 -lshell32 -lwinmm -ld3d8 -ld3dx8  
 INCS =  -I"C:/Dev-Cpp/include" 
 CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include" 
@@ -48,8 +48,8 @@ gccRelease/random.o: random.cpp
 gccRelease/resource.o: resource.cpp
 	$(CPP) -c resource.cpp -o gccRelease/resource.o $(CXXFLAGS)
 
-gccRelease/sound.o: sound.cpp
-	$(CPP) -c sound.cpp -o gccRelease/sound.o $(CXXFLAGS)
+gccRelease/sound_libbass.o: sound_libbass.cpp
+	$(CPP) -c sound_libbass.cpp -o gccRelease/sound_libbass.o $(CXXFLAGS)
 
 gccRelease/system.o: system.cpp
 	$(CPP) -c system.cpp -o gccRelease/system.o $(CXXFLAGS)

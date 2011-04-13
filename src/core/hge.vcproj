@@ -341,7 +341,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="sound.cpp"
+				RelativePath="sound_libbass.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
