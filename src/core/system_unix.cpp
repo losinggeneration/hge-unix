@@ -68,9 +68,17 @@ bool CALL HGE_Impl::System_Initiate()
 	int				width, height;
 
 	// Log system info
+	System_Log("");
+	System_Log("-------------------------------------------------------------------");
+	System_Log("       hge-unix can be found at http://icculus.org/hge-unix/");
+	System_Log("  Please don't bother Relish Games about the Unix version of HGE.");
+	System_Log("   They are responsible for the Windows version, not this build.");
+	System_Log("-------------------------------------------------------------------");
+	System_Log("");
+
 	System_Log("HGE Started...");
 
-	System_Log("HGE version: %X.%X", HGE_VERSION>>8, HGE_VERSION & 0xFF);
+	System_Log("hge-unix version: %X.%X", HGE_VERSION>>8, HGE_VERSION & 0xFF);
 
 	time_t t = time(NULL);
 	System_Log("Date: %s", asctime(localtime(&t)));
