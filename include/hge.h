@@ -16,7 +16,7 @@
 #include <windows.h>
 #endif
 
-#define HGE_VERSION 0x180
+#define HGE_VERSION 0x181
 
 #ifndef EXPORT
 #  ifdef HGEDLL
