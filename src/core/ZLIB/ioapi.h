@@ -17,6 +17,14 @@ Copyright (C) 1998-2004 Gilles Vollant
   #define ZLIB_FILEFUNC_MODE_EXISTING (4)
   #define ZLIB_FILEFUNC_MODE_CREATE   (8)
 
+  // begin ryan.
+  #ifndef DWORD
+  #define DWORD uInt
+  #endif
+  #ifndef BYTE
+  #define BYTE Byte
+  #endif
+  // end ryan.
 
   #ifndef ZCALLBACK
 
