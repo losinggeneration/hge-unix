@@ -175,6 +175,16 @@ bool CALL HGE_Impl::System_Initiate()
 
 	SDL_ShowCursor(bHideMouse ? SDL_DISABLE : SDL_ENABLE);
 
+#if !PLATFORM_MACOSX
+	SDL_Surface *icon = SDL_LoadBMP("hgeicon.bmp");  // HACK.
+	if (icon)
+	{
+		SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 255, 0, 255));
+		SDL_WM_SetIcon(icon, NULL);
+		SDL_FreeSurface(icon);
+	}
+#endif
+
 	// Init subsystems
 
 	Random_Seed();
