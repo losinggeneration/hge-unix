@@ -222,6 +222,8 @@ public:
 	char				szWinTitle[256];
 	int					nScreenWidth;
 	int					nScreenHeight;
+	int					nOrigScreenWidth;
+	int					nOrigScreenHeight;
 	int					nScreenBPP;
 	bool				bWindowed;
 	bool				bZBuffer;

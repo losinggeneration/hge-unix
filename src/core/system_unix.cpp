@@ -146,6 +146,11 @@ bool CALL HGE_Impl::System_Initiate()
 		return false;
 	}
 
+	const SDL_VideoInfo *vidinfo = SDL_GetVideoInfo();
+	nOrigScreenWidth = vidinfo->current_w;
+	nOrigScreenHeight = vidinfo->current_h;
+	System_Log("Screen: %dx%d\n", nOrigScreenWidth, nOrigScreenHeight);
+
 	// Create window
 	SDL_WM_SetCaption(szWinTitle, szWinTitle);
 	Uint32 flags = SDL_OPENGL;
@@ -566,6 +571,8 @@ int CALL HGE_Impl::System_GetStateInt(hgeIntState state)
 {
 	switch(state)
 	{
+		case HGE_ORIGSCREENWIDTH:	return nOrigScreenWidth;
+		case HGE_ORIGSCREENHEIGHT:	return nOrigScreenHeight;
 		case HGE_SCREENWIDTH:	return nScreenWidth;
 		case HGE_SCREENHEIGHT:	return nScreenHeight;
 		case HGE_SCREENBPP:		return nScreenBPP;
@@ -720,6 +727,8 @@ HGE_Impl::HGE_Impl()
 	procExitFunc=0;
 	szIcon=0;
 	strcpy(szWinTitle,"HGE");
+	nOrigScreenWidth=800;
+	nOrigScreenHeight=600;
 	nScreenWidth=800;
 	nScreenHeight=600;
 	nScreenBPP=32;

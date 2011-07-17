@@ -176,7 +176,10 @@ enum hgeIntState
 	HGE_FPS				= 24,	// int		fixed fps			(default: HGEFPS_UNLIMITED)
 
 	HGE_POWERSTATUS		= 25,   // int		battery life percent + status
-	
+
+	HGE_ORIGSCREENWIDTH		= 30,   // int		original screen width		(default: 800 ... not valid until hge->System_Initiate()!)
+	HGE_ORIGSCREENHEIGHT	= 31,   // int		original screen height		(default: 600 ... not valid until hge->System_Initiate()!))
+
 	HGEINTSTATE_FORCE_DWORD = 0x7FFFFFF
 };
 

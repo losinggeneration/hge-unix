@@ -87,6 +87,9 @@ bool CALL HGE_Impl::System_Initiate()
 	GlobalMemoryStatus(&mem_st);
 	System_Log("Memory: %ldK total, %ldK free\n",mem_st.dwTotalPhys/1024L,mem_st.dwAvailPhys/1024L);
 
+	nOrigScreenWidth = GetSystemMetrics(SM_CXSCREEN);
+	nOrigScreenHeight = GetSystemMetrics(SM_CYSCREEN);
+	System_Log("Screen: %dx%d\n", nOrigScreenWidth, nOrigScreenHeight);
 
 	// Register window class
 	
@@ -557,6 +560,8 @@ int CALL HGE_Impl::System_GetStateInt(hgeIntState state)
 {
 	switch(state)
 	{
+		case HGE_ORIGSCREENWIDTH:	return nOrigScreenWidth;
+		case HGE_ORIGSCREENHEIGHT:	return nOrigScreenHeight;
 		case HGE_SCREENWIDTH:	return nScreenWidth;
 		case HGE_SCREENHEIGHT:	return nScreenHeight;
 		case HGE_SCREENBPP:		return nScreenBPP;
@@ -689,6 +694,8 @@ HGE_Impl::HGE_Impl()
 	procExitFunc=0;
 	szIcon=0;
 	strcpy(szWinTitle,"HGE");
+	nOrigScreenWidth=800;
+	nOrigScreenHeight=600;
 	nScreenWidth=800;
 	nScreenHeight=600;
 	nScreenBPP=32;
