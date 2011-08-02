@@ -15,41 +15,6 @@
 
 HGE	*hgeParticleSystem::hge=0;
 
-static inline void byteswapParticleInfo(hgeParticleSystemInfo *info)
-{
-	BYTESWAP(info->nEmission);
-	BYTESWAP(info->fLifetime);
-	BYTESWAP(info->fParticleLifeMin);
-	BYTESWAP(info->fParticleLifeMax);
-	BYTESWAP(info->fDirection);
-	BYTESWAP(info->fSpread);
-	BYTESWAP(info->bRelative);
-	BYTESWAP(info->fSpeedMin);
-	BYTESWAP(info->fSpeedMax);
-	BYTESWAP(info->fGravityMin);
-	BYTESWAP(info->fGravityMax);
-	BYTESWAP(info->fRadialAccelMin);
-	BYTESWAP(info->fRadialAccelMax);
-	BYTESWAP(info->fTangentialAccelMin);
-	BYTESWAP(info->fTangentialAccelMax);
-	BYTESWAP(info->fSizeStart);
-	BYTESWAP(info->fSizeEnd);
-	BYTESWAP(info->fSizeVar);
-	BYTESWAP(info->fSpinStart);
-	BYTESWAP(info->fSpinEnd);
-	BYTESWAP(info->fSpinVar);
-	BYTESWAP(info->colColorStart.r);
-	BYTESWAP(info->colColorStart.g);
-	BYTESWAP(info->colColorStart.b);
-	BYTESWAP(info->colColorStart.a);
-	BYTESWAP(info->colColorEnd.r);
-	BYTESWAP(info->colColorEnd.g);
-	BYTESWAP(info->colColorEnd.b);
-	BYTESWAP(info->colColorEnd.a);
-	BYTESWAP(info->fColorVar);
-	BYTESWAP(info->fAlphaVar);
-}
-
 hgeParticleSystem::hgeParticleSystem(const char *filename, hgeSprite *sprite, float fps)
 {
 	void *psi;
@@ -58,10 +23,48 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, hgeSprite *sprite, fl
 
 	psi=hge->Resource_Load(filename);
 	if(!psi) return;
-	memcpy(&info, psi, sizeof(hgeParticleSystemInfo));
-	byteswapParticleInfo(&info);
+
+    char *ptr = (char *) psi;
+	memset(&info, '\0', sizeof (info));
+	info.sprite = sprite;
+	ptr += 4;  // skip these bytes.
+
+	#define SETMEMBER(typ, x) \
+		{ info.x = *((const typ *) ptr); ptr += sizeof (typ); BYTESWAP(info.x); }
+	SETMEMBER(int, nEmission);
+	SETMEMBER(float, fLifetime);
+	SETMEMBER(float, fParticleLifeMin);
+	SETMEMBER(float, fParticleLifeMax);
+	SETMEMBER(float, fDirection);
+	SETMEMBER(float, fSpread);
+	SETMEMBER(BYTE, bRelative);
+	SETMEMBER(float, fSpeedMin);
+	SETMEMBER(float, fSpeedMax);
+	SETMEMBER(float, fGravityMin);
+	SETMEMBER(float, fGravityMax);
+	SETMEMBER(float, fRadialAccelMin);
+	SETMEMBER(float, fRadialAccelMax);
+	SETMEMBER(float, fTangentialAccelMin);
+	SETMEMBER(float, fTangentialAccelMax);
+	SETMEMBER(float, fSizeStart);
+	SETMEMBER(float, fSizeEnd);
+	SETMEMBER(float, fSizeVar);
+	SETMEMBER(float, fSpinStart);
+	SETMEMBER(float, fSpinEnd);
+	SETMEMBER(float, fSpinVar);
+	SETMEMBER(float, colColorStart.r);
+	SETMEMBER(float, colColorStart.g);
+	SETMEMBER(float, colColorStart.b);
+	SETMEMBER(float, colColorStart.a);
+	SETMEMBER(float, colColorEnd.r);
+	SETMEMBER(float, colColorEnd.g);
+	SETMEMBER(float, colColorEnd.b);
+	SETMEMBER(float, colColorEnd.a);
+	SETMEMBER(float, fColorVar);
+	SETMEMBER(float, fAlphaVar);
+	#undef SETMEMBER
+
 	hge->Resource_Free(psi);
-	info.sprite=sprite;
 
 	vecLocation.x=vecPrevLocation.x=0.0f;
 	vecLocation.y=vecPrevLocation.y=0.0f;

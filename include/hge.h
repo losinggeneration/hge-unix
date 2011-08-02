@@ -87,12 +87,12 @@ typedef unsigned char       BYTE;
 /*
 ** HGE Handle types
 */
-typedef DWORD HTEXTURE;
-typedef DWORD HTARGET;
-typedef DWORD HEFFECT;
-typedef DWORD HMUSIC;
-typedef DWORD HSTREAM;
-typedef DWORD HCHANNEL;
+typedef size_t HTEXTURE;
+typedef size_t HTARGET;
+typedef size_t HEFFECT;
+typedef size_t HMUSIC;
+typedef size_t HSTREAM;
+typedef size_t HCHANNEL;
 
 
 /*

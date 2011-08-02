@@ -388,7 +388,7 @@ void RResource::Parse(hgeResourceManager *rm, RScriptParser *sp, const char *nam
 
 DWORD RResource::Get(hgeResourceManager *rm)
 {
-	if(!handle) handle=(DWORD)hge->Resource_Load(filename);
+	if(!handle) handle=(size_t)hge->Resource_Load(filename);
 	return handle;
 }
 
@@ -669,7 +669,7 @@ DWORD RSprite::Get(hgeResourceManager *rm)
 //		spr->SetRotation(rotation);
 //		spr->SetCollisionType(collision);
 
-		handle=(DWORD)spr;
+		handle=(size_t)spr;
 	}
 	return handle;
 }
@@ -734,7 +734,7 @@ DWORD RAnimation::Get(hgeResourceManager *rm)
 //		spr->SetCollisionType(collision);
 		spr->SetMode(mode);
 
-		handle=(DWORD)spr;
+		handle=(size_t)spr;
 	}
 	return handle;
 }
@@ -852,7 +852,7 @@ DWORD RFont::Get(hgeResourceManager *rm)
 		fnt->SetSpacing(spacing);
 		fnt->SetRotation(rotation);
 
-		handle=(DWORD)fnt;
+		handle=(size_t)fnt;
 	}
 	return handle;
 }
@@ -915,7 +915,7 @@ DWORD RParticle::Get(hgeResourceManager *rm)
 	{
 		par = new hgeParticleSystem(filename, rm->GetSprite(spritename));
 
-		handle=(DWORD)par;
+		handle=(size_t)par;
 	}
 	return handle;
 }
@@ -1014,7 +1014,7 @@ DWORD RDistort::Get(hgeResourceManager *rm)
 		dis->SetBlendMode(blend);
 		dis->Clear(color,z);
 
-		handle=(DWORD)dis;
+		handle=(size_t)dis;
 	}
 	return handle;
 }
@@ -1034,7 +1034,7 @@ void RStringTable::Parse(hgeResourceManager *rm, RScriptParser *sp, const char *
 
 DWORD RStringTable::Get(hgeResourceManager *rm)
 {
-	if(!handle)	handle = (DWORD)new hgeStringTable(filename);
+	if(!handle)	handle = (size_t)new hgeStringTable(filename);
 	return handle;
 }
 

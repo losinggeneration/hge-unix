@@ -30,7 +30,7 @@ struct ResDesc
 {
 	char		name[MAXRESCHARS];
 	int			resgroup;
-	DWORD		handle;
+	size_t		handle;
 	ResDesc*	next;
 
 	ResDesc()	{ hge=hgeCreate(HGE_VERSION); }
