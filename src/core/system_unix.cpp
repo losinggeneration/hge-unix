@@ -153,6 +153,13 @@ bool CALL HGE_Impl::System_Initiate()
 
 	// Create window
 	SDL_WM_SetCaption(szWinTitle, szWinTitle);
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, nScreenBPP >= 32 ? 8 : 4);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, nScreenBPP >= 32 ? 8 : 4);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, nScreenBPP >= 32 ? 8 : 4);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, nScreenBPP >= 32 ? 8 : 4);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, bZBuffer ? 16 : 0);
+	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, bVsync ? 1 : 0);
 	Uint32 flags = SDL_OPENGL;
 	if (!bWindowed)
