@@ -270,6 +270,7 @@ public:
 	int					nOrigScreenHeight;
 	int					nScreenBPP;
 	bool				bWindowed;
+	bool				bVsync;
 	bool				bZBuffer;
 	bool				bTextureFilter;
 	char				szIniFile[_MAX_PATH];

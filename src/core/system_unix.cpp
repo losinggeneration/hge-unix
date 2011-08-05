@@ -153,6 +153,7 @@ bool CALL HGE_Impl::System_Initiate()
 
 	// Create window
 	SDL_WM_SetCaption(szWinTitle, szWinTitle);
+	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, bVsync ? 1 : 0);
 	Uint32 flags = SDL_OPENGL;
 	if (!bWindowed)
 		flags |= SDL_FULLSCREEN;
@@ -474,30 +475,8 @@ void CALL HGE_Impl::System_SetStateInt(hgeIntState state, int value)
 								_SetStreamVolume(nStreamVolume);
 								break;
 
-		case HGE_FPS:			if(VertArray) break;
-
-								if(pOpenGLDevice)
-								{
-									if((nHGEFPS>=0 && value <0) || (nHGEFPS<0 && value>=0))
-									{
-										STUBBED("vsync stuff");
-										#if 0
-										if(value==HGEFPS_VSYNC)
-										{
-											d3dppW.SwapEffect = D3DSWAPEFFECT_COPY_VSYNC;
-											d3dppFS.FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_ONE;
-										}
-										else
-										{
-											d3dppW.SwapEffect = D3DSWAPEFFECT_COPY;
-											d3dppFS.FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-										}
-										//if(procFocusLostFunc) procFocusLostFunc();
-										_GfxRestore();
-										//if(procFocusGainFunc) procFocusGainFunc();
-										#endif
-									}
-								}
+		case HGE_FPS:			bVsync = (value==HGEFPS_VSYNC);
+								if(pOpenGLDevice) SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, bVsync ? 1 : 0);
 								nHGEFPS=value;
 								if(nHGEFPS>0) nFixedDelta=int(1000.0f/value);
 								else nFixedDelta=0;
@@ -743,6 +722,7 @@ HGE_Impl::HGE_Impl()
 	nScreenHeight=600;
 	nScreenBPP=32;
 	bWindowed=false;
+	bVsync=false;
 	bZBuffer=false;
 	bTextureFilter=true;
 	szLogFile[0]=0;
