@@ -88,13 +88,13 @@ bool CALL HGE_Impl::System_Initiate()
 	MacOSXVersion = 0x0000;
 
 #if PLATFORM_MACOSX
-	long ver = 0x0000;
+	SInt32 ver = 0x0000;
 	char verbuf[16] = { '\0' };
 	if (Gestalt(gestaltSystemVersion, &ver) == noErr)
 	{
-		long macver_minor = ((ver & 0xF0) >> 4);
-		long macver_patch = (ver & 0xF);
-		long macver_major = ((ver & 0xFF00) >> 8);
+		SInt32 macver_minor = ((ver & 0xF0) >> 4);
+		SInt32 macver_patch = (ver & 0xF);
+		SInt32 macver_major = ((ver & 0xFF00) >> 8);
 		macver_major = (((macver_major / 16) * 10) + (macver_major % 16));
 		MacOSXVersion = ver;
 		if (ver >= 0x1030)
@@ -103,7 +103,8 @@ bool CALL HGE_Impl::System_Initiate()
 			Gestalt(gestaltSystemVersionMinor, &macver_minor);
 			Gestalt(gestaltSystemVersionBugFix, &macver_patch);
 		}
-		snprintf(verbuf, sizeof (verbuf), "%ld.%ld.%ld", macver_major, macver_minor, macver_patch);
+		snprintf(verbuf, sizeof (verbuf), "%d.%d.%d",
+		         (int) macver_major, (int) macver_minor, (int) macver_patch);
 	}
 
 	System_Log("OS: Mac OS X%s", verbuf);
