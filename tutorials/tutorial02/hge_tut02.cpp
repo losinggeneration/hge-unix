@@ -13,7 +13,7 @@
 // to the same folder.
 
 
-#include "..\..\include\hge.h"
+#include "../../include/hge.h"
 
 HGE *hge=0;
 
@@ -55,7 +55,7 @@ bool FrameFunc()
 	if (hge->Input_GetKeyState(HGEK_UP)) dy-=speed*dt;
 	if (hge->Input_GetKeyState(HGEK_DOWN)) dy+=speed*dt;
 
-	// Do some movement calculations and collision detection	
+	// Do some movement calculations and collision detection
 	dx*=friction; dy*=friction; x+=dx; y+=dy;
 	if(x>784) {x=784-(x-784);dx=-dx;boom();}
 	if(x<16) {x=16+16-x;dx=-dx;boom();}
@@ -96,8 +96,11 @@ bool RenderFunc()
 	return false;
 }
 
-
+#ifdef PLATFORM_UNIX
+int main(int argc, char *argv[])
+#else
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+#endif
 {
 	// Get HGE interface
 	hge = hgeCreate(HGE_VERSION);
@@ -117,13 +120,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	if(hge->System_Initiate())
 	{
 		// Load sound and texture
+#ifdef PLATFORM_UNIX
+		snd=hge->Effect_Load("menu.ogg");
+#else
 		snd=hge->Effect_Load("menu.wav");
+#endif
 		quad.tex=hge->Texture_Load("particles.png");
 		if(!snd || !quad.tex)
 		{
 			// If one of the data files is not found, display
 			// an error message and shutdown.
+#ifdef PLATFORM_UNIX
+			fprintf(stderr, "Error: Can't load MENU.WAV or PARTICLES.PNG\n");
+#else
 			MessageBox(NULL, "Can't load MENU.WAV or PARTICLES.PNG", "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
+#endif
 			hge->System_Shutdown();
 			hge->Release();
 			return 0;
@@ -143,10 +154,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		// Set up quad's texture coordinates.
 		// 0,0 means top left corner and 1,1 -
 		// bottom right corner of the texture.
-		quad.v[0].tx=96.0/128.0; quad.v[0].ty=64.0/128.0; 
-		quad.v[1].tx=128.0/128.0; quad.v[1].ty=64.0/128.0; 
-		quad.v[2].tx=128.0/128.0; quad.v[2].ty=96.0/128.0; 
-		quad.v[3].tx=96.0/128.0; quad.v[3].ty=96.0/128.0; 
+		quad.v[0].tx=96.0/128.0; quad.v[0].ty=64.0/128.0;
+		quad.v[1].tx=128.0/128.0; quad.v[1].ty=64.0/128.0;
+		quad.v[2].tx=128.0/128.0; quad.v[2].ty=96.0/128.0;
+		quad.v[3].tx=96.0/128.0; quad.v[3].ty=96.0/128.0;
 
 		// Let's rock now!
 		hge->System_Start();
@@ -155,7 +166,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		hge->Texture_Free(quad.tex);
 		hge->Effect_Free(snd);
 	}
-	else MessageBox(NULL, hge->System_GetErrorMessage(), "Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+	else {
+#ifdef PLATFORM_UNIX
+		fprintf(stderr, "Error: %s\n", hge->System_GetErrorMessage());
+#else
+		MessageBox(NULL, hge->System_GetErrorMessage(), "Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+#endif
+	}
 
 	// Clean up and shutdown
 	hge->System_Shutdown();

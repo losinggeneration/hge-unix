@@ -13,9 +13,9 @@
 // and bass.dll to the same folder.
 
 
-#include "..\..\include\hge.h"
-#include "..\..\include\hgefont.h"
-#include "..\..\include\hgegui.h"
+#include "../../include/hge.h"
+#include "../../include/hgefont.h"
+#include "../../include/hgegui.h"
 
 #include "menuitem.h"
 
@@ -47,7 +47,7 @@ bool FrameFunc()
 
 	// If ESCAPE was pressed, tell the GUI to finish
 	if(hge->Input_GetKeyState(HGEK_ESCAPE)) { lastid=5; gui->Leave(); }
-	
+
 	// We update the GUI and take an action if
 	// one of the menu items was selected
 	id=gui->Update(dt);
@@ -96,7 +96,11 @@ bool RenderFunc()
 }
 
 
+#ifdef PLATFORM_UNIX
+int main(int argc, char *argv[])
+#else
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+#endif
 {
 	hge = hgeCreate(HGE_VERSION);
 
@@ -115,12 +119,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		// Load sound and textures
 		quad.tex=hge->Texture_Load("bg.png");
 		tex=hge->Texture_Load("cursor.png");
+#ifdef PLATFORM_UNIX
+		snd=hge->Effect_Load("menu.ogg");
+#else
 		snd=hge->Effect_Load("menu.wav");
+#endif
 		if(!quad.tex || !tex || !snd)
 		{
 			// If one of the data files is not found, display
 			// an error message and shutdown.
+#ifdef PLATFORM_UNIX
+			fprintf(stderr,  "Error: Can't load BG.PNG, CURSOR.PNG or MENU.WAV\n");
+#else
 			MessageBox(NULL, "Can't load BG.PNG, CURSOR.PNG or MENU.WAV", "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
+#endif
 			hge->System_Shutdown();
 			hge->Release();
 			return 0;
@@ -137,10 +149,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			quad.v[i].col=0xFFFFFFFF;
 		}
 
-		quad.v[0].x=0; quad.v[0].y=0; 
-		quad.v[1].x=800; quad.v[1].y=0; 
-		quad.v[2].x=800; quad.v[2].y=600; 
-		quad.v[3].x=0; quad.v[3].y=600; 
+		quad.v[0].x=0; quad.v[0].y=0;
+		quad.v[1].x=800; quad.v[1].y=0;
+		quad.v[2].x=800; quad.v[2].y=600;
+		quad.v[3].x=0; quad.v[3].y=600;
 
 
 		// Load the font, create the cursor sprite

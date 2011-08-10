@@ -7,7 +7,7 @@
 */
 
 
-#include "..\..\include\hge.h"
+#include "../../include/hge.h"
 
 HGE *hge = 0;
 
@@ -24,7 +24,11 @@ bool FrameFunc()
 	return false;
 }
 
+#ifdef PLATFORM_UNIX
+int main(int argc, char *argv[])
+#else
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+#endif
 {
 	// Here we use global pointer to HGE interface.
 	// Instead you may use hgeCreate() every
@@ -60,7 +64,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	else
 	{	
 		// If HGE initialization failed show error message
+#ifdef PLATFORM_UNIX
+		fprintf(stderr, "Error: %s\n", hge->System_GetErrorMessage());
+#else
 		MessageBox(NULL, hge->System_GetErrorMessage(), "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
+#endif
 	}
 
 	// Now ESC has been pressed or the user

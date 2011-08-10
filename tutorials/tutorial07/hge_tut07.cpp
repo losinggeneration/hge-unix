@@ -13,8 +13,8 @@
 // to the same folder.
 
 
-#include "..\..\include\hge.h"
-#include "..\..\include\hgefont.h"
+#include "../../include/hge.h"
+#include "../../include/hgefont.h"
 
 
 #define SCREEN_WIDTH  800
@@ -97,7 +97,7 @@ bool FrameFunc()
 	}
 
 	// Update the scene
-	
+
 	for(i=0;i<nObjects;i++)
 	{
 		pObjects[i].x+=pObjects[i].dx*dt;
@@ -116,15 +116,15 @@ bool FrameFunc()
 bool RenderFunc()
 {
 	int i;
-	
+
 	// Render the scene
-	
+
 	hge->Gfx_BeginScene();
 	bgspr->Render(0,0);
-	
+
 	for(i=0;i<nObjects;i++)
 	{
-		spr->SetColor(pObjects[i].color); 
+		spr->SetColor(pObjects[i].color);
 		spr->RenderEx(pObjects[i].x, pObjects[i].y, pObjects[i].rot, pObjects[i].scale);
 	}
 
@@ -134,7 +134,11 @@ bool RenderFunc()
 	return false;
 }
 
+#ifdef PLATFORM_UNIX
+int main(int argc, char *argv[])
+#else
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+#endif
 {
 	int i;
 
@@ -163,7 +167,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		{
 			// If one of the data files is not found,
 			// display an error message and shutdown
+#ifdef PLATFORM_UNIX
+			fprintf(stderr, "Error: Can't load BG2.PNG or ZAZAKA.PNG\n");
+#else
 			MessageBox(NULL, "Can't load BG2.PNG or ZAZAKA.PNG", "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
+#endif
 			hge->System_Shutdown();
 			hge->Release();
 			return 0;
@@ -198,7 +206,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			pObjects[i].rot=hge->Random_Float(0,M_PI*2);
 			pObjects[i].drot=hge->Random_Float(-1.0f,1.0f);
 		}
-		
+
 		SetBlend(0);
 
 		// Let's rock now!

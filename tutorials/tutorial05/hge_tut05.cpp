@@ -14,9 +14,9 @@
 // to the same folder.
 
 
-#include "..\..\include\hge.h"
-#include "..\..\include\hgefont.h"
-#include "..\..\include\hgedistort.h"
+#include "../../include/hge.h"
+#include "../../include/hgefont.h"
+#include "../../include/hgedistort.h"
 
 #include <math.h>
 
@@ -63,7 +63,7 @@ bool FrameFunc()
 			dis->Clear(0xFF000000);
 			break;
 	}
-	
+
 	// Calculate new displacements and coloring for one of the three effects
 	switch(trans)
 	{
@@ -114,7 +114,11 @@ bool RenderFunc()
 }
 
 
+#ifdef PLATFORM_UNIX
+int main(int argc, char *argv[])
+#else
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+#endif
 {
 	hge = hgeCreate(HGE_VERSION);
 
@@ -136,7 +140,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		{
 			// If one of the data files is not found, display
 			// an error message and shutdown.
+#ifdef PLATFORM_UNIX
+			fprintf(stderr, "Error: Can't load TEXTURE.JPG\n");
+#else
 			MessageBox(NULL, "Can't load TEXTURE.JPG", "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
+#endif
 			hge->System_Shutdown();
 			hge->Release();
 			return 0;

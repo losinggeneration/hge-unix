@@ -9,10 +9,10 @@
 // In menuitem.cpp/h we define the
 // behaviour of our custom GUI control
 
-#include "..\..\include\hge.h"
-#include "..\..\include\hgegui.h"
-#include "..\..\include\hgefont.h"
-#include "..\..\include\hgecolor.h"
+#include "../../include/hge.h"
+#include "../../include/hgegui.h"
+#include "../../include/hgefont.h"
+#include "../../include/hgecolor.h"
 
 
 class hgeGUIMenuItem : public hgeGUIObject
