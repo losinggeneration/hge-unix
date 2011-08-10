@@ -13,6 +13,7 @@ if(UNIX OR APPLE)
 	find_package(Vorbis REQUIRED)
 	find_package(ZLIB REQUIRED)
 	find_package(JPEG REQUIRED)
+	find_package(PNG REQUIRED)
 
 	if(USE_CXIMAGE)
 		add_definitions(-DSUPPORT_CXIMAGE)
@@ -27,7 +28,8 @@ if(UNIX OR APPLE)
 		${VORBIS_INCLUDE_DIR}
 		${IL_INCLUDE_DIR}
 		${ZLIB_INCLUDE_DIR}
-		${JPEG_INCLUD_DIR}
+		${JPEG_INCLUDE_DIR}
+		${PNG_INCLUDE_DIR}
 		${CMAKE_SOURCE_DIR}/include
 # 		${CMAKE_SOURCE_DIR}/include/png
 		${CMAKE_SOURCE_DIR}/core
@@ -47,6 +49,7 @@ if(UNIX OR APPLE)
 		${ILU_LIBRARIES}
 		${ZLIB_LIBRARY}
 		${JPEG_LIBRARY}
+		${PNG_LIBRARY}
 	)
 endif(UNIX OR APPLE)
 
