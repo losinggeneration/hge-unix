@@ -89,7 +89,7 @@ void CALL HGE_Impl::Resource_RemoveAllPacks()
 
 void* CALL HGE_Impl::Resource_Load(const char *filename, DWORD *size)
 {
-	static char *res_err="Can't load resource: %s";
+	static const char *res_err="Can't load resource: %s";
 
 	CResourceList *resItem=res;
 	char szName[_MAX_PATH];
