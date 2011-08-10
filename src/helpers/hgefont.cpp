@@ -31,7 +31,7 @@ hgeFont::hgeFont(const char *szFont, bool bMipmap)
 	int		i, x, y, w, h, a, c;
 
 	// Setup variables
-	
+
 	hge=hgeCreate(HGE_VERSION);
 
 	fHeight=0.0f;
@@ -49,7 +49,7 @@ hgeFont::hgeFont(const char *szFont, bool bMipmap)
 	ZeroMemory( &letters, sizeof(letters) );
 	ZeroMemory( &pre, sizeof(pre) );
 	ZeroMemory( &post, sizeof(post) );
-	
+
 	// Load font description
 
 	data=hge->Resource_Load(szFont, &size);
@@ -64,7 +64,7 @@ hgeFont::hgeFont(const char *szFont, bool bMipmap)
 	if(strcmp(linebuf, FNTHEADERTAG))
 	{
 		hge->System_Log("Font %s has incorrect format.", szFont);
-		delete[] desc;	
+		delete[] desc;
 		return;
 	}
 
@@ -84,7 +84,7 @@ hgeFont::hgeFont(const char *szFont, bool bMipmap)
 			hTexture=hge->Texture_Load(buf, 0, bMipmap);
 			if(!hTexture)
 			{
-				delete[] desc;	
+				delete[] desc;
 				return;
 			}
 		}
@@ -125,7 +125,7 @@ hgeFont::hgeFont(const char *szFont, bool bMipmap)
 		}
 	}
 
-	delete[] desc;	
+	delete[] desc;
 }
 
 
@@ -174,7 +174,7 @@ void hgeFont::printf(float x, float y, int align, const char *format, ...)
 {
 	char	*pArg=(char *) &format+sizeof(format);
 
-	_vsnprintf(buffer, sizeof(buffer)-1, format, pArg);
+// 	vsnprintf(buffer, sizeof(buffer)-1, format, pArg);
 	buffer[sizeof(buffer)-1]=0;
 	//vsprintf(buffer, format, pArg);
 
@@ -188,7 +188,7 @@ void hgeFont::printfb(float x, float y, float w, float h, int align, const char 
 	float	tx, ty, hh, ww;
 	char	*pArg=(char *) &format+sizeof(format);
 
-	_vsnprintf(buffer, sizeof(buffer)-1, format, pArg);
+// 	vsnprintf(buffer, sizeof(buffer)-1, format, pArg);
 	buffer[sizeof(buffer)-1]=0;
 	//vsprintf(buffer, format, pArg);
 
@@ -236,7 +236,7 @@ void hgeFont::printfb(float x, float y, float w, float h, int align, const char 
 		prevword=&pbuf[i];
 		pbuf=&pbuf[i+1];
 	}
-	
+
 	tx=x;
 	ty=y;
 	hh=fHeight*fSpacing*fScale*lines;

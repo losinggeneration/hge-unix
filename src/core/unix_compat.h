@@ -28,6 +28,7 @@
 #include <limits.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <time.h>
 
 #include "SDL.h"
 
@@ -162,4 +163,3 @@ template <class T> inline const T &min(const T &a, const T &b) { return (a < b) 
 #endif  // PLATFORM_UNIX
 
 #endif  // include-once blocker.
-

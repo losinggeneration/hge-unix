@@ -9,12 +9,6 @@
 
 #include "hge_impl_unix.h"
 
-#if !PLATFORM_UNIX
-#error This source file is for Unix and Mac OS X. Use power.cpp for Windows.
-#endif
-
-#if PLATFORM_UNIX
-
 void HGE_Impl::_InitPowerStatus()
 {
 	nPowerStatus = HGEPWR_UNSUPPORTED;
@@ -29,6 +23,3 @@ void HGE_Impl::_DonePowerStatus()
 {
 	nPowerStatus = HGEPWR_UNSUPPORTED;
 }
-
-#endif
-
