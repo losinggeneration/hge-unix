@@ -9,25 +9,11 @@
 
 #include "hge_impl.h"
 
-#if PLATFORM_UNIX
-#include <stdint.h>
-#include <sys/time.h>
-static inline DWORD _hge_timeGetTime()
-{
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return (DWORD) ( (((uint64_t)tv.tv_sec) * 1000) + (((uint64_t)tv.tv_usec) / 1000) );
-}
-#else
-#define _hge_timeGetTime() timeGetTime()
-#endif
-
-
 unsigned int g_seed=0;
 
 void CALL HGE_Impl::Random_Seed(int seed)
 {
-	if(!seed) g_seed=_hge_timeGetTime();
+	if(!seed) g_seed=timeGetTime();
 	else g_seed=seed;
 }
 
