@@ -8,11 +8,14 @@
 
 #include "hge_impl_unix.h"
 
-#if !PLATFORM_UNIX
-#error This source file is for Unix and Mac OS X. Use resource.cpp for Windows.
+#ifndef strupr
+void strupr(char *s) {
+	while(*s) {
+		*s = toupper(*s);
+		s++;
+	}
+}
 #endif
-
-#if PLATFORM_UNIX
 
 #include <zlib.h>  // the system version is better here. HGE's is out of date.
 
@@ -35,7 +38,7 @@ bool CALL HGE_Impl::Resource_AttachPack(const char *filename, const char *passwo
 		if(!strcmp(szName,resItem->filename)) return false;
 		resItem=resItem->next;
 	}
-	
+
 	zip=unzOpen(szName);
 	if(!zip) return false;
 	unzClose(zip);
@@ -89,7 +92,7 @@ void CALL HGE_Impl::Resource_RemoveAllPacks()
 
 void* CALL HGE_Impl::Resource_Load(const char *filename, DWORD *size)
 {
-	static char *res_err="Can't load resource: %s";
+	const char *res_err="Can't load resource: %s";
 
 	CResourceList *resItem=res;
 	char szName[_MAX_PATH];
@@ -103,7 +106,7 @@ void* CALL HGE_Impl::Resource_Load(const char *filename, DWORD *size)
 	if(filename[0]=='\\' || filename[0]=='/' || filename[1]==':') goto _fromfile; // skip absolute paths
 
 	// Load from pack
- 
+
 	strcpy(szName,filename);
 	strupr(szName);
 	for(i=0; szName[i]; i++) { if(szName[i]=='/') szName[i]='\\'; }
@@ -151,10 +154,10 @@ void* CALL HGE_Impl::Resource_Load(const char *filename, DWORD *size)
 				if(size) *size=file_info.uncompressed_size;
 				return ptr;
 			}
-			
+
 			done=unzGoToNextFile(zip);
 		}
-		
+
 		unzClose(zip);
 		resItem=resItem->next;
 	}
@@ -196,7 +199,7 @@ _fromfile:
 		_PostError(szName);
 		return 0;
 	}
-	
+
 	fclose(hF);
 
 	if(size) *size=file_info.uncompressed_size;
@@ -338,6 +341,3 @@ char* CALL HGE_Impl::Resource_EnumFolders(const char *wildcard)
 	}
 	return _DoEnumIteration(true);
 }
-
-#endif  // PLATFORM_UNIX
-

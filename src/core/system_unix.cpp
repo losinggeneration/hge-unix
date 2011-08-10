@@ -9,12 +9,6 @@
 
 #include "hge_impl_unix.h"
 
-#if !PLATFORM_UNIX
-#error This source file is for Unix and Mac OS X. Use system.cpp for Windows.
-#endif
-
-#if PLATFORM_UNIX
-
 #if PLATFORM_MACOSX
 #include <Carbon/Carbon.h>
 #include <sys/types.h>
@@ -24,11 +18,8 @@
 #define LOWORDINT(n) ((int)((signed short)(LOWORD(n))))
 #define HIWORDINT(n) ((int)((signed short)(HIWORD(n))))
 
-
 int			nRef=0;
 HGE_Impl*	pHGE=0;
-
-
 
 HGE* CALL hgeCreate(int ver)
 {
@@ -333,7 +324,7 @@ bool CALL HGE_Impl::System_Start()
 
 				if(procFrameFunc()) break;
 				if(procRenderFunc) procRenderFunc();
-				
+
 				// If if "child mode" - return after processing single frame
 
 				if(hwndParent) break;
@@ -495,7 +486,7 @@ void CALL HGE_Impl::System_SetStateInt(hgeIntState state, int value)
 void CALL HGE_Impl::System_SetStateString(hgeStringState state, const char *value)
 {
 	FILE *hf;
-	
+
 	switch(state)
 	{
 		case HGE_ICON:			szIcon=value;
@@ -606,7 +597,7 @@ void CALL HGE_Impl::System_Log(const char *szFormat, ...)
 {
 	FILE *hf = NULL;
 	va_list ap;
-	
+
 	if(!szLogFile[0]) return;
 
 	hf = fopen(szLogFile, "a");
@@ -715,7 +706,7 @@ HGE_Impl::HGE_Impl()
 	fTime=0.0f;
 	fDeltaTime=0.0f;
 	nFPS=0;
-	
+
 	procFrameFunc=0;
 	procRenderFunc=0;
 	procFocusLostFunc=0;
@@ -794,7 +785,7 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 			if(pHGE->procExitFunc && !pHGE->procExitFunc()) break;
 			return false;
 
-		case SDL_ACTIVEEVENT:
+		case SDL_ACTIVEEVENT: {
 			const bool bActivating = (e.active.gain != 0);
 			if (e.active.state & SDL_APPINPUTFOCUS) {
 				if(pHGE->bActive != bActivating) pHGE->_FocusChange(bActivating);
@@ -803,6 +794,7 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 				bMouseOver = bActivating;
 			}
 			break;
+		}
 
 		case SDL_KEYDOWN:
 			keymods = e.key.keysym.mod;
@@ -878,7 +870,7 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 		case SDL_MOUSEMOTION:
 			pHGE->_BuildEvent(INPUT_MOUSEMOVE, 0, 0, 0, e.motion.x, e.motion.y);
 			break;
-			
+
 
 #if 0  // !!! FIXME
 		case WM_SIZE:
@@ -891,7 +883,4 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 	return true;
 }
 
-#endif  // PLATFORM_UNIX
-
 // end of system_unix.cpp ...
-

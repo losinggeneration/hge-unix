@@ -18,19 +18,17 @@
 
 #include "hge_impl_unix.h"
 
-#if !PLATFORM_UNIX
-#error This source file is for Unix and Mac OS X. Use graphics.cpp for Windows.
-#endif
-
-#if PLATFORM_UNIX
-
-#define SUPPORT_CXIMAGE 1
+//#define SUPPORT_CXIMAGE 1
 #if SUPPORT_CXIMAGE
 // conflict with Mac OS X 10.3.9 SDK...
 #ifdef _T
 #undef _T
 #endif
-#include "CxImage/CxImage/ximage.h"
+#include "CxImage/ximage.h"
+#else
+/* Use DevIL instead of CXImage */
+#include <IL/il.h>
+#include <IL/ilu.h>
 #endif
 
 // avoiding glext.h here ...
@@ -128,6 +126,24 @@ static DWORD *_DecodeImage(BYTE *data, const char *fname, DWORD size, int &width
 				*(wptr++) = hasalpha ? rgb.rgbReserved : 0xFF;  // alpha.
 			}
 		}
+	}
+#else
+	ilInit();
+	iluInit();
+
+	ILuint id;
+	ilGenImages(1, &id);
+
+	if(ilLoadImage(fname)) {
+		printf("success: %s\n", fname);
+		ILinfo info;
+		iluGetImageInfo(&info);
+		width = info.Width;
+		height = info.Height;
+		size = info.SizeOfData;
+		pixels = new DWORD[width * height];
+		ilCopyPixels(0, 0, 0, width, height, 0, IL_RGBA, IL_UNSIGNED_INT, pixels);
+		ilShutDown();
 	}
 #endif
 
@@ -364,7 +380,7 @@ void CALL HGE_Impl::Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD
 			nPrim++;
 	}
 }
-    
+
 template <class T> static inline const T Min(const T a, const T b) { return a < b ? a : b; }
 template <class T> static inline const T Max(const T a, const T b) { return a > b ? a : b; }
 
@@ -619,8 +635,9 @@ void HGE_Impl::_ConfigureTexture(gltexture *t, int width, int height, DWORD *pix
 		pOpenGLDevice->glTexParameteri(pOpenGLDevice->TextureTarget, GL_TEXTURE_MAX_LEVEL, 0);
 	}
 	const GLenum intfmt = pOpenGLDevice->have_GL_EXT_texture_compression_s3tc ? GL_COMPRESSED_RGBA_S3TC_DXT5_EXT : GL_RGBA;
-	if ((pOpenGLDevice->have_GL_ARB_texture_rectangle) || (pOpenGLDevice->have_GL_ARB_texture_non_power_of_two) || (_IsPowerOfTwo(width) && _IsPowerOfTwo(height))
+	if ((pOpenGLDevice->have_GL_ARB_texture_rectangle) || (pOpenGLDevice->have_GL_ARB_texture_non_power_of_two) || (_IsPowerOfTwo(width) && _IsPowerOfTwo(height))) {
 		pOpenGLDevice->glTexImage2D(pOpenGLDevice->TextureTarget, 0, intfmt, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	}
 	else
 	{
 		t->potw = _NextPowerOfTwo(width);
@@ -1074,7 +1091,7 @@ void HGE_Impl::_SetBlendMode(int blend)
 		if(blend & BLEND_ZWRITE) pOpenGLDevice->glDepthMask(GL_TRUE);
 		else pOpenGLDevice->glDepthMask(GL_FALSE);
 	}
-	
+
 	if((blend & BLEND_COLORADD) != (CurBlendMode & BLEND_COLORADD))
 	{
 		if(blend & BLEND_COLORADD) pOpenGLDevice->glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
@@ -1226,7 +1243,7 @@ bool HGE_Impl::_LoadOpenGLEntryPoints()
 		pOpenGLDevice->have_GL_EXT_texture_compression_s3tc = true;
 	else
 		pOpenGLDevice->have_GL_EXT_texture_compression_s3tc = false;
-	
+
 	if (pOpenGLDevice->have_GL_EXT_texture_compression_s3tc)
 		System_Log("OpenGL: Using GL_EXT_texture_compression_s3tc");
 	else if (bForceTextureCompression)
@@ -1330,7 +1347,7 @@ void HGE_Impl::_Resize(int width, int height)
 void HGE_Impl::_GfxDone()
 {
 	CRenderTargetList *target=pTargets;
-	
+
 	while(textures)	Texture_Free(textures->tex);
 	while(pTargets)	Target_Free((HTARGET) pTargets);
 	textures=0;
@@ -1507,6 +1524,3 @@ bool HGE_Impl::_init_lost()
 
 	return true;
 }
-
-#endif  // PLATFORM_UNIX
-

@@ -495,7 +495,7 @@ bool HGE_Impl::_SoundInit()
 void HGE_Impl::_SoundDone()
 {
 	CStreamList *stmItem=streams, *stmNext;
-	
+
 	if(hOpenAL)
 	{
 		for (int i = 0; i < sidcount; i++)
@@ -541,4 +541,3 @@ void HGE_Impl::_SetFXVolume(int vol)
 		alListenerf(AL_GAIN, ((ALfloat) vol) / 100.0f);
 	}
 }
-

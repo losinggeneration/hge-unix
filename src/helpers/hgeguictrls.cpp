@@ -47,7 +47,7 @@ void hgeGUIText::SetText(const char *_text)
 
 void hgeGUIText::printf(const char *format, ...)
 {
-	vsprintf(text, format, (char *)&format+sizeof(format));
+// 	vsprintf(text, format, (char *)&format+sizeof(format));
 }
 
 void hgeGUIText::Render()
@@ -98,7 +98,7 @@ bool hgeGUIButton::MouseLButton(bool bDown)
 	{
 		if(bTrigger) bPressed=!bOldState;
 		else bPressed=false;
-		return true; 
+		return true;
 	}
 }
 
@@ -142,7 +142,7 @@ void hgeGUISlider::Render()
 
 	xx=rect.x1+(rect.x2-rect.x1)*(fVal-fMin)/(fMax-fMin);
 	yy=rect.y1+(rect.y2-rect.y1)*(fVal-fMin)/(fMax-fMin);
-	
+
 	if(bVertical)
 		switch(mode)
 		{
@@ -277,7 +277,7 @@ void hgeGUIListbox::Clear()
 		delete pItem;
 		pItem=pNext;
 	}
-	
+
 	pItems=0;
 	nItems=0;
 }

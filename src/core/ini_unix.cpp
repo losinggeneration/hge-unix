@@ -8,12 +8,6 @@
 
 #include "hge_impl_unix.h"
 
-#if !PLATFORM_UNIX
-#error This source file is for Unix and Mac OS X. Use ini.cpp for Windows.
-#endif
-
-#if PLATFORM_UNIX
-
 const char *HGE_Impl::_BuildProfilePath(const char *section, const char *name, const char *szIniFile)
 {
 	// !!! FIXME: not efficient.
@@ -200,7 +194,3 @@ char* CALL HGE_Impl::Ini_GetString(const char *section, const char *name, const 
 	else strcpy(szIniString, def_val);
 	return szIniString;
 }
-
-#endif  // PLATFORM_UNIX
-
-

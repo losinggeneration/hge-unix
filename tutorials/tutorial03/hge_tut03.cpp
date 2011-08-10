@@ -14,10 +14,10 @@
 // to the same folder.
 
 
-#include "..\..\include\hge.h"
-#include "..\..\include\hgesprite.h"
-#include "..\..\include\hgefont.h"
-#include "..\..\include\hgeparticle.h"
+#include "../../include/hge.h"
+#include "../../include/hgesprite.h"
+#include "../../include/hgefont.h"
+#include "../../include/hgeparticle.h"
 
 
 // Pointer to the HGE interface.
@@ -60,7 +60,7 @@ bool FrameFunc()
 	if (hge->Input_GetKeyState(HGEK_UP)) dy-=speed*dt;
 	if (hge->Input_GetKeyState(HGEK_DOWN)) dy+=speed*dt;
 
-	// Do some movement calculations and collision detection	
+	// Do some movement calculations and collision detection
 	dx*=friction; dy*=friction; x+=dx; y+=dy;
 	if(x>784) {x=784-(x-784);dx=-dx;boom();}
 	if(x<16) {x=16+16-x;dx=-dx;boom();}
@@ -90,7 +90,11 @@ bool RenderFunc()
 }
 
 
+#ifdef PLATFORM_UNIX
+int main(int argc, char *argv[])
+#else
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+#endif
 {
 	hge = hgeCreate(HGE_VERSION);
 
@@ -107,13 +111,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	if(hge->System_Initiate()) {
 
 		// Load sound and texture
+#ifdef PLATFORM_UNIX
+		snd=hge->Effect_Load("menu.ogg");
+#else
 		snd=hge->Effect_Load("menu.wav");
+#endif
 		tex=hge->Texture_Load("particles.png");
 		if(!snd || !tex)
 		{
 			// If one of the data files is not found, display
 			// an error message and shutdown.
+#ifdef PLATFORM_UNIX
+			fprintf(stderr, "Error: Can't load one of the following files:\nMENU.WAV, PARTICLES.PNG, FONT1.FNT, FONT1.PNG, TRAIL.PSI\n");
+#else
 			MessageBox(NULL, "Can't load one of the following files:\nMENU.WAV, PARTICLES.PNG, FONT1.FNT, FONT1.PNG, TRAIL.PSI", "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
+#endif
 			hge->System_Shutdown();
 			hge->Release();
 			return 0;

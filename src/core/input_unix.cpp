@@ -9,8 +9,6 @@
 
 #include "hge_impl_unix.h"
 
-#if PLATFORM_UNIX
-
 char *KeyNames[] =
 {
  "?",
@@ -174,7 +172,7 @@ bool CALL HGE_Impl::Input_GetEvent(hgeInputEvent *event)
 		delete eptr;
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -293,7 +291,7 @@ void HGE_Impl::_BuildEvent(int type, int key, int scan, int flags, int x, int y)
 		ptx=(int)Xpos; pty=(int)Ypos;
 		bCaptured=false;
 	}
-	
+
 	if(keymods & KMOD_SHIFT) flags|=HGEINP_SHIFT;
 	if(keymods & KMOD_CTRL)  flags|=HGEINP_CTRL;
 	if(keymods & KMOD_ALT)  flags|=HGEINP_ALT;
@@ -314,7 +312,7 @@ void HGE_Impl::_BuildEvent(int type, int key, int scan, int flags, int x, int y)
 		eptr->event.y=(float)pty;
 	}
 
-	eptr->next=0; 
+	eptr->next=0;
 
 	if(!queue) queue=eptr;
 	else
@@ -355,6 +353,3 @@ void HGE_Impl::_ClearQueue()
 
 	queue=0; VKey=0; Char=0; Zpos=0;
 }
-
-#endif  // PLATFORM_UNIX
-
