@@ -24,7 +24,7 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, hgeSprite *sprite, fl
 	psi=hge->Resource_Load(filename);
 	if(!psi) return;
 
-    char *ptr = (char *) psi;
+	char *ptr = (char *) psi;
 	memset(&info, '\0', sizeof (info));
 	info.sprite = sprite;
 	ptr += 4;  // skip these bytes.
@@ -38,6 +38,7 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, hgeSprite *sprite, fl
 	SETMEMBER(float, fDirection);
 	SETMEMBER(float, fSpread);
 	SETMEMBER(BYTE, bRelative);
+	ptr += 3;  // padding.
 	SETMEMBER(float, fSpeedMin);
 	SETMEMBER(float, fSpeedMax);
 	SETMEMBER(float, fGravityMin);
