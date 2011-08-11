@@ -11,7 +11,8 @@ if(UNIX OR APPLE)
 	find_package(SDL REQUIRED)
 	find_package(OpenAL REQUIRED)
 	find_package(Vorbis REQUIRED)
-	find_package(ZLIB REQUIRED)
+	# Disabled until you can select using just the external or internal library
+# 	find_package(ZLIB REQUIRED)
 	find_package(JPEG REQUIRED)
 	find_package(PNG REQUIRED)
 
@@ -31,7 +32,6 @@ if(UNIX OR APPLE)
 		${JPEG_INCLUDE_DIR}
 		${PNG_INCLUDE_DIR}
 		${CMAKE_SOURCE_DIR}/include
-# 		${CMAKE_SOURCE_DIR}/include/png
 		${CMAKE_SOURCE_DIR}/core
 	)
 
