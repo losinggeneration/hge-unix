@@ -92,7 +92,7 @@ bool CALL HGE_Impl::System_Initiate()
 	System_Log("Screen: %dx%d\n", nOrigScreenWidth, nOrigScreenHeight);
 
 	// Register window class
-	
+
 	winclass.style = CS_DBLCLKS | CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 	winclass.lpfnWndProc	= WindowProc;
 	winclass.cbClsExtra		= 0;
@@ -100,11 +100,11 @@ bool CALL HGE_Impl::System_Initiate()
 	winclass.hInstance		= hInstance;
 	winclass.hCursor		= LoadCursor(NULL, IDC_ARROW);
 	winclass.hbrBackground	= (HBRUSH)GetStockObject(BLACK_BRUSH);
-	winclass.lpszMenuName	= NULL; 
+	winclass.lpszMenuName	= NULL;
 	winclass.lpszClassName	= WINDOW_CLASS_NAME;
 	if(szIcon) winclass.hIcon = LoadIcon(hInstance, szIcon);
 	else winclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-	
+
 	if (!RegisterClass(&winclass)) {
 		_PostError("Can't register window class");
 		return false;
@@ -133,7 +133,7 @@ bool CALL HGE_Impl::System_Initiate()
 		rectW.top=0;
 		rectW.right=nScreenWidth;
 		rectW.bottom=nScreenHeight;
-		styleW=WS_CHILD|WS_VISIBLE; 
+		styleW=WS_CHILD|WS_VISIBLE;
 		bWindowed=true;
 	}
 
@@ -247,14 +247,14 @@ bool CALL HGE_Impl::System_Start()
 
 	for(;;)
 	{
-		
+
 		// Process window messages if not in "child mode"
 		// (if in "child mode" the parent application will do this for us)
 
 		if(!hwndParent)
 		{
 			if (PeekMessage(&msg,NULL,0,0,PM_REMOVE))
-			{ 
+			{
 				if (msg.message == WM_QUIT)	break;
 				// TranslateMessage(&msg);
 				DispatchMessage(&msg);
@@ -311,7 +311,7 @@ bool CALL HGE_Impl::System_Start()
 
 				if(procFrameFunc()) break;
 				if(procRenderFunc) procRenderFunc();
-				
+
 				// If if "child mode" - return after processing single frame
 
 				if(hwndParent) break;
@@ -488,7 +488,7 @@ void CALL HGE_Impl::System_SetStateInt(hgeIntState state, int value)
 void CALL HGE_Impl::System_SetStateString(hgeStringState state, const char *value)
 {
 	FILE *hf;
-	
+
 	switch(state)
 	{
 		case HGE_ICON:			szIcon=value;
@@ -598,7 +598,7 @@ void CALL HGE_Impl::System_Log(const char *szFormat, ...)
 {
 	FILE *hf = NULL;
 	va_list ap;
-	
+
 	if(!szLogFile[0]) return;
 
 	hf = fopen(szLogFile, "a");
@@ -685,7 +685,7 @@ HGE_Impl::HGE_Impl()
 	fTime=0.0f;
 	fDeltaTime=0.0f;
 	nFPS=0;
-	
+
 	procFrameFunc=0;
 	procRenderFunc=0;
 	procFocusLostFunc=0;
@@ -729,7 +729,7 @@ HGE_Impl::HGE_Impl()
 	szAppPath[i+1]=0;
 }
 
-void HGE_Impl::_PostError(char *error)
+void HGE_Impl::_PostError(const char *error)
 {
 	System_Log(error);
 	strcpy(szError,error);
@@ -754,10 +754,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	bool bActivating;
 
 	switch(msg)
-	{	
-		case WM_CREATE: 
+	{
+		case WM_CREATE:
 			return FALSE;
-		
+
 		case WM_PAINT:
 			if(pHGE->pD3D && pHGE->procRenderFunc && pHGE->bWindowed) pHGE->procRenderFunc();
 			break;

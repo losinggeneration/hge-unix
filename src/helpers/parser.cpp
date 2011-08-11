@@ -14,7 +14,7 @@ HGE *RScriptParser::hge=0;
 
 struct keyword
 {
-	char*	word;
+	const char*	word;
 	int		code;
 };
 
@@ -174,7 +174,7 @@ int RScriptParser::get_token()
 	return tokentype;
 }
 
-bool RScriptParser::strtkcmp(char *str, char *mem)
+bool RScriptParser::strtkcmp(const char* str, const char* mem)
 {
 	int i,len=strlen(str);
 	for(i=0;i<len;i++)
@@ -202,7 +202,7 @@ DWORD RScriptParser::tkn_hex()
 	return dw;
 }
 
-void RScriptParser::ScriptPostError(char *msg1, char *msg2)
+void RScriptParser::ScriptPostError(const char *msg1, const char *msg2)
 {
 	hge->System_Log("%s, line %d: %s'%s'%s",
 		get_name(), get_line(), msg1, tokenvalue[0] ? tkn_string():"<EOF>", msg2);

@@ -20,7 +20,7 @@ enum
  TTNONE, TTEND, TTNUMBER, TTSTRING,
 
  TTBOOL, TTEQUALS, TTBASED, TTSEPARATOR, TTOPENBLOCK, TTCLOSEBLOCK,
- 
+
  TTRES__FIRST,
  TTRES_INCLUDE, TTRES_RESOURCE, TTRES_TEXTURE, TTRES_SOUND, TTRES_MUSIC,
  TTRES_STREAM, TTRES_TARGET, TTRES_SPRITE, TTRES_ANIMATION, TTRES_FONT,
@@ -59,7 +59,7 @@ public:
 	bool	tkn_bool()   { return (tokenvalue[0]=='t' || tokenvalue[0]=='T') ? true : false; }
 	DWORD	tkn_hex();
 
-	void	ScriptPostError(char *msg1, char *msg2);
+	void	ScriptPostError(const char *msg1, const char *msg2);
 
 	int		tokentype;
 	char	tokenvalue[128];
@@ -68,7 +68,7 @@ public:
 	int		line;
 
 private:
-	bool	strtkcmp(char *str, char *mem);
+	bool	strtkcmp(const char *str, const char *mem);
 
 	static HGE *hge;
 };

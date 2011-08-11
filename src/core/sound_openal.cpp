@@ -170,7 +170,7 @@ HEFFECT CALL HGE_Impl::Effect_Load(const char *filename, DWORD size)
 		else
 		{
 			data=Resource_Load(filename, &_size);
-			if(!data) return NULL;
+			if(!data) return 0;
 		}
 
 		const BYTE *magic = (const BYTE *) data;
@@ -183,7 +183,7 @@ HEFFECT CALL HGE_Impl::Effect_Load(const char *filename, DWORD size)
 		if (!isOgg)
 		{
 			if(!size) Resource_Free(data);
-			return NULL;
+			return 0;
 		}
 
 		// !!! FIXME: alternately, stream ogg data?
@@ -194,9 +194,9 @@ HEFFECT CALL HGE_Impl::Effect_Load(const char *filename, DWORD size)
 		ALenum fmt = AL_FORMAT_STEREO16;
 		if (isOgg)
 		{
-			if (alIsExtensionPresent((const ALubyte *) "AL_EXT_vorbis"))
+			if (alIsExtensionPresent((const ALchar *) "AL_EXT_vorbis"))
 			{
-				fmt = alGetEnumValue((const ALubyte *) "AL_FORMAT_VORBIS_EXT");
+				fmt = alGetEnumValue((const ALchar *) "AL_FORMAT_VORBIS_EXT");
 				decompressed = data;
 				decompressed_size = _size;
 			}

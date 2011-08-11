@@ -205,7 +205,7 @@ public:
 	virtual bool		CALL	Input_KeyDown(int key);
 	virtual bool		CALL	Input_KeyUp(int key);
 	virtual bool		CALL	Input_GetKeyState(int key);
-	virtual char*		CALL	Input_GetKeyName(int key);
+	virtual const  char*		CALL	Input_GetKeyName(int key);
 	virtual int			CALL	Input_GetKey();
 	virtual int			CALL	Input_GetChar();
 	virtual bool		CALL	Input_GetEvent(hgeInputEvent *event);
@@ -219,7 +219,7 @@ public:
 	virtual hgeVertex*	CALL	Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend, int *max_prim);
 	virtual void		CALL	Gfx_FinishBatch(int nprim);
 	virtual void		CALL	Gfx_SetClipping(int x=0, int y=0, int w=0, int h=0);
-	virtual void		CALL	Gfx_SetTransform(float x=0, float y=0, float dx=0, float dy=0, float rot=0, float hscale=0, float vscale=0); 
+	virtual void		CALL	Gfx_SetTransform(float x=0, float y=0, float dx=0, float dy=0, float rot=0, float hscale=0, float vscale=0);
 
 	virtual HTARGET		CALL	Target_Create(int width, int height, bool zbuffer);
 	virtual void		CALL	Target_Free(HTARGET target);
@@ -239,7 +239,7 @@ public:
 
 	static HGE_Impl*	_Interface_Get();
 	void				_FocusChange(bool bAct);
-	void				_PostError(char *error);
+	void				_PostError(const char *error);
 
 	// ini ...
 	void				_LoadIniFile(const char *fname);
@@ -345,7 +345,7 @@ public:
 	//int					_format_id(D3DFORMAT fmt);
 	void				_SetBlendMode(int blend);
 	void				_SetProjectionMatrix(int width, int height);
-	
+
 
 	// Audio
 	void*				hBass;

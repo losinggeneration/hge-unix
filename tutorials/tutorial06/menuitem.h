@@ -18,7 +18,7 @@
 class hgeGUIMenuItem : public hgeGUIObject
 {
 public:
-	hgeGUIMenuItem(int id, hgeFont *fnt, HEFFECT snd, float x, float y, float delay, char *title);
+	hgeGUIMenuItem(int id, hgeFont *fnt, HEFFECT snd, float x, float y, float delay, const char *title);
 
 	virtual void	Render();
 	virtual void	Update(float dt);

@@ -13,15 +13,15 @@
 
 // This is a GUI control constructor,
 // we should initialize all the variables here
-hgeGUIMenuItem::hgeGUIMenuItem(int _id, hgeFont *_fnt, HEFFECT _snd, float _x, float _y, float _delay, char *_title)
+hgeGUIMenuItem::hgeGUIMenuItem(int _id, hgeFont *_fnt, HEFFECT _snd, float _x, float _y, float _delay, const char *_title)
 {
 	float w;
-	
+
 	id=_id;
 	fnt=_fnt;
 	snd=_snd;
 	delay=_delay;
-	title=_title;
+	title=(char *)_title;
 
 	color.SetHWColor(0xFFFFE060);
 	shadow.SetHWColor(0x30000000);
@@ -130,7 +130,7 @@ bool hgeGUIMenuItem::IsDone()
 void hgeGUIMenuItem::Focus(bool bFocused)
 {
 	hgeColor tcolor;
-	
+
 	if(bFocused)
 	{
 		hge->Effect_Play(snd);
@@ -169,7 +169,7 @@ bool hgeGUIMenuItem::MouseLButton(bool bDown)
 		offset=4;
 		return true;
 	}
-	else 
+	else
 	{
 		hge->Effect_Play(snd);
 		offset=0;

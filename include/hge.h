@@ -131,9 +131,9 @@ enum hgeBoolState
 	HGE_WINDOWED		= 1,    // bool		run in window?		(default: false)
 	HGE_ZBUFFER			= 2,    // bool		use z-buffer?		(default: false)
 	HGE_TEXTUREFILTER	= 3,    // bool		texture filtering?	(default: true)
-	
+
 	HGE_USESOUND		= 4,    // bool		use BASS for sound?	(default: true)
-	
+
 	HGE_DONTSUSPEND		= 5,	// bool		focus lost:suspend?	(default: false)
 	HGE_HIDEMOUSE		= 6,	// bool		hide system cursor?	(default: true)
 
@@ -150,7 +150,7 @@ enum hgeFuncState
 	HGE_FOCUSGAINFUNC	= 11,   // bool*()	focus gain function	(default: NULL)
 	HGE_GFXRESTOREFUNC	= 12,   // bool*()	exit function		(default: NULL)
 	HGE_EXITFUNC		= 13,   // bool*()	exit function		(default: NULL)
-	
+
 	HGEFUNCSTATE_FORCE_DWORD = 0x7FFFFFFF
 };
 
@@ -158,7 +158,7 @@ enum hgeHwndState
 {
 	HGE_HWND			= 15,	// int		window handle: read only
 	HGE_HWNDPARENT		= 16,	// int		parent win handle	(default: 0)
-	
+
 	HGEHWNDSTATE_FORCE_DWORD = 0x7FFFFFFF
 };
 
@@ -167,12 +167,12 @@ enum hgeIntState
 	HGE_SCREENWIDTH		= 17,   // int		screen width		(default: 800)
 	HGE_SCREENHEIGHT	= 18,   // int		screen height		(default: 600)
 	HGE_SCREENBPP		= 19,   // int		screen bitdepth		(default: 32) (desktop bpp in windowed mode)
-	
+
 	HGE_SAMPLERATE		= 20,   // int		sample rate			(default: 44100)
 	HGE_FXVOLUME		= 21,   // int		global fx volume	(default: 100)
 	HGE_MUSVOLUME		= 22,   // int		global music volume	(default: 100)
 	HGE_STREAMVOLUME	= 23,   // int		global music volume	(default: 100)
-	
+
 	HGE_FPS				= 24,	// int		fixed fps			(default: HGEFPS_UNLIMITED)
 
 	HGE_POWERSTATUS		= 25,   // int		battery life percent + status
@@ -187,7 +187,7 @@ enum hgeStringState
 {
 	HGE_ICON			= 26,   // char*	icon resource		(default: NULL)
 	HGE_TITLE			= 27,   // char*	window title		(default: "HGE")
-	
+
 	HGE_INIFILE			= 28,   // char*	ini file			(default: NULL) (meaning no file)
 	HGE_LOGFILE			= 29,   // char*	log file			(default: NULL) (meaning no file)
 
@@ -227,7 +227,7 @@ typedef bool (*hgeCallback)();
 */
 struct hgeVertex
 {
-	float			x, y;		// screen position    
+	float			x, y;		// screen position
 	float			z;			// Z-buffer depth 0..1
 	DWORD			col;		// color
 	float			tx, ty;		// texture coordinates
@@ -336,7 +336,7 @@ public:
 	inline HWND					System_GetState(hgeHwndState   state) { return System_GetStateHwnd  (state); }
 	inline int					System_GetState(hgeIntState    state) { return System_GetStateInt   (state); }
 	inline const char*			System_GetState(hgeStringState state) { return System_GetStateString(state); }
-	
+
 	virtual void*		CALL	Resource_Load(const char *filename, DWORD *size=0) = 0;
 	virtual void		CALL	Resource_Free(void *res) = 0;
 	virtual bool		CALL	Resource_AttachPack(const char *filename, const char *password=0) = 0;
@@ -406,7 +406,7 @@ public:
 	virtual bool		CALL	Input_KeyDown(int key) = 0;
 	virtual bool		CALL	Input_KeyUp(int key) = 0;
 	virtual bool		CALL	Input_GetKeyState(int key) = 0;
-	virtual char*		CALL	Input_GetKeyName(int key) = 0;
+	virtual const char*		CALL	Input_GetKeyName(int key) = 0;
 	virtual int			CALL	Input_GetKey() = 0;
 	virtual int			CALL	Input_GetChar() = 0;
 	virtual bool		CALL	Input_GetEvent(hgeInputEvent *event) = 0;
@@ -420,7 +420,7 @@ public:
 	virtual hgeVertex*	CALL	Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend, int *max_prim) = 0;
 	virtual void		CALL	Gfx_FinishBatch(int nprim) = 0;
 	virtual void		CALL	Gfx_SetClipping(int x=0, int y=0, int w=0, int h=0) = 0;
-	virtual void		CALL	Gfx_SetTransform(float x=0, float y=0, float dx=0, float dy=0, float rot=0, float hscale=0, float vscale=0) = 0; 
+	virtual void		CALL	Gfx_SetTransform(float x=0, float y=0, float dx=0, float dy=0, float rot=0, float hscale=0, float vscale=0) = 0;
 
 	virtual HTARGET		CALL	Target_Create(int width, int height, bool zbuffer) = 0;
 	virtual void		CALL	Target_Free(HTARGET target) = 0;

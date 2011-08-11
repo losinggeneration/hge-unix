@@ -698,7 +698,7 @@ HTEXTURE CALL HGE_Impl::Texture_Load(const char *filename, DWORD size, bool bMip
 	{
 		fname = filename;
 		data=pHGE->Resource_Load(filename, &_size);
-		if(!data) return NULL;
+		if(!data) return 0;
 	}
 
 	DWORD *pixels = _DecodeImage((BYTE *) data, fname, _size, width, height);

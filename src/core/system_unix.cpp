@@ -753,7 +753,7 @@ HGE_Impl::HGE_Impl()
 	szAppPath[i+1]=0;
 }
 
-void HGE_Impl::_PostError(char *error)
+void HGE_Impl::_PostError(const char *error)
 {
 	System_Log(error);
 	strcpy(szError,error);

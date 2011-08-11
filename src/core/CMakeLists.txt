@@ -77,11 +77,6 @@ endif(UNIX OR APPLE)
 add_library(hge SHARED ${HGE_SRCS})
 target_link_libraries(hge ${HGE_LIBRARY})
 
-# Needed for now to compile
-if(UNIX OR APPLE)
-	set_target_properties(hge PROPERTIES COMPILE_FLAGS "-fpermissive")
-endif(UNIX OR APPLE)
-
 set(HS ${CMAKE_SOURCE_DIR}/src/helpers)
 set(HGE_HELPER_SRCS
 	${HS}/hgeanim.cpp
