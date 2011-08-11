@@ -131,9 +131,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			// If one of the data files is not found, display
 			// an error message and shutdown.
 #ifdef PLATFORM_UNIX
-			fprintf(stderr, "Error: Can't load MENU.WAV or PARTICLES.PNG\n");
+			fprintf(stderr, "Error: Can't load menu.wav or particles.png\n");
 #else
-			MessageBox(NULL, "Can't load MENU.WAV or PARTICLES.PNG", "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
+			MessageBox(NULL, "Can't load menu.wav or particles.png", "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
 #endif
 			hge->System_Shutdown();
 			hge->Release();

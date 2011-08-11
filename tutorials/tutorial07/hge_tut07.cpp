@@ -168,9 +168,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			// If one of the data files is not found,
 			// display an error message and shutdown
 #ifdef PLATFORM_UNIX
-			fprintf(stderr, "Error: Can't load BG2.PNG or ZAZAKA.PNG\n");
+			fprintf(stderr, "Error: Can't load bg2.png or zazaka.png\n");
 #else
-			MessageBox(NULL, "Can't load BG2.PNG or ZAZAKA.PNG", "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
+			MessageBox(NULL, "Can't load bg2.png or zazaka.png", "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
 #endif
 			hge->System_Shutdown();
 			hge->Release();

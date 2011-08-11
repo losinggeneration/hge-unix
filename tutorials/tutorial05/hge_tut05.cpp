@@ -141,9 +141,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			// If one of the data files is not found, display
 			// an error message and shutdown.
 #ifdef PLATFORM_UNIX
-			fprintf(stderr, "Error: Can't load TEXTURE.JPG\n");
+			fprintf(stderr, "Error: Can't load texture.jpg\n");
 #else
-			MessageBox(NULL, "Can't load TEXTURE.JPG", "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
+			MessageBox(NULL, "Can't load texture.jpg", "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
 #endif
 			hge->System_Shutdown();
 			hge->Release();

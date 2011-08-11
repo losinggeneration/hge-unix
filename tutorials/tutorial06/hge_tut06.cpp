@@ -129,9 +129,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			// If one of the data files is not found, display
 			// an error message and shutdown.
 #ifdef PLATFORM_UNIX
-			fprintf(stderr,  "Error: Can't load BG.PNG, CURSOR.PNG or MENU.WAV\n");
+			fprintf(stderr,  "Error: Can't load bg.png, cursor.png or menu.wav\n");
 #else
-			MessageBox(NULL, "Can't load BG.PNG, CURSOR.PNG or MENU.WAV", "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
+			MessageBox(NULL, "Can't load bg.png, cursor.png or menu.wav", "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL);
 #endif
 			hge->System_Shutdown();
 			hge->Release();
