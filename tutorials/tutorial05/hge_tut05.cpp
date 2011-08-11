@@ -135,7 +135,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	if(hge->System_Initiate()) {
 
 		// Load sound and texture
+#ifdef PLATFORM_UNIX
+		tex=hge->Texture_Load("texture.png");
+#else
 		tex=hge->Texture_Load("texture.jpg");
+#endif
 		if(!tex)
 		{
 			// If one of the data files is not found, display

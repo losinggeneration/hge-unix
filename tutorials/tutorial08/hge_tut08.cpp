@@ -207,13 +207,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 float GetTime()
 {
 #ifdef PLATFORM_UNIX
-	struct tm *t;
-	t = localtime(NULL);
+	struct tm *t = 0;
+	time_t tt= time(NULL);
+	t = localtime(&tt);
 	float tmp = 0;
 
-	tmp=t->tm_sec;
-	tmp=t->tm_min+tmp/60.0f;
-	tmp=t->tm_hour+tmp/60.0f;
+	if(t) {
+		tmp=t->tm_sec;
+		tmp=t->tm_min+tmp/60.0f;
+		tmp=t->tm_hour+tmp/60.0f;
+	}
 #else
 	SYSTEMTIME SysTime;
 	float tmp;
