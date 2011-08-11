@@ -2,12 +2,14 @@ project(hge)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+# Common source
 set(HGE_SRCS
 	demo.cpp
 	random.cpp
 	timer.cpp
 )
 
+# Zlib source: internally included or an external library
 if(USE_INTERNAL_ZLIB)
 	set(HGE_SRCS
 		${HGE_SRCS}
@@ -31,6 +33,7 @@ else(USE_INTERNAL_ZLIB)
 	)
 endif(USE_INTERNAL_ZLIB)
 
+# Are we using CxImage?
 if(USE_CXIMAGE)
 	set(HGE_SRCS
 		${HGE_SRCS}
@@ -69,7 +72,10 @@ if(USE_CXIMAGE)
 		CxImage/xmemfile.cpp
 	)
 endif(USE_CXIMAGE)
+
+# Platform specifc files
 if(UNIX OR APPLE)
+	# Unix/Linux and OS X share these
 	set(HGE_SRCS
 		${HGE_SRCS}
 		graphics_unix.cpp
@@ -81,6 +87,7 @@ if(UNIX OR APPLE)
 		system_unix.cpp
 	)
 else(UNIX OR APPLE)
+	# Win32, though it's probably broken to build
 	set(HGE_SRCS
 		${HGE_SRCS}
 		graphics.cpp

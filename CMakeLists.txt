@@ -6,23 +6,31 @@ option(BUILD_TOOLS "Build the library tools" OFF)
 option(USE_INTERNAL_ZLIB "Use the internal ZLib" OFF)
 
 if(UNIX OR APPLE)
+	# Needed for FindVorbis
 	set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+	# Add our option  for using CxImage,  default is on
 	option(USE_CXIMAGE "Use CXImage (no)" ON)
 
 	find_package(SDL REQUIRED)
 	find_package(OpenAL REQUIRED)
 	find_package(Vorbis REQUIRED)
-	if(NOT USE_INTERNAL_ZLIB)
-		find_package(ZLIB REQUIRED)
-	endif(NOT USE_INTERNAL_ZLIB)
 	find_package(JPEG REQUIRED)
 	find_package(PNG REQUIRED)
 
+	# If we're using the external library, we must find it
+	if(NOT USE_INTERNAL_ZLIB)
+		find_package(ZLIB REQUIRED)
+	endif(NOT USE_INTERNAL_ZLIB)
+
 	if(USE_CXIMAGE)
+		# CxImage required defines
 		add_definitions(-DSUPPORT_CXIMAGE)
 	else(USE_CXIMAGE)
+		# If we're not using CxImage, we'll use this, more common external library
 		find_package(DevIL REQUIRED)
-		message(ERROR "DevIL is not ready to be used yet")
+		# Unfortunately though, it's not implemented/working ;)
+		message(FATAL_ERROR "DevIL is not ready to be used yet")
 	endif(USE_CXIMAGE)
 
 	include_directories(
@@ -38,11 +46,13 @@ if(UNIX OR APPLE)
 	)
 
 	add_definitions(-DPLATFORM_UNIX -D_LINUX)
+
+	# OS X needs this defined as well
 	if(APPLE)
 		add_definitions(-DPLATFORM_MACOSX)
 	endif(APPLE)
 
-
+	# The libraries to link against for HGE, and also for applications using it
 	set(HGE_LIBRARIES
 		${SDL_LIBRARY}
 		${OPENAL_LIBRARY}
@@ -55,18 +65,25 @@ if(UNIX OR APPLE)
 	)
 endif(UNIX OR APPLE)
 
+# This is the HGE library and required libraries to link against
 set(HGE_LIBRARY hge ${HGE_LIBRARIES})
+# And this is the HGE & Helper library and required libraries to link against
 set(HGE_HELPER_LIBRARY hge_helpers ${HGE_LIBRARY})
 
+# Where HGE is located, this also builds the helper library
 add_subdirectory(src/core)
 
+# Did tutorials get enabled to be built?
 if(BUILD_TUTORIALS)
-add_subdirectory(tutorials)
+	add_subdirectory(tutorials)
 endif(BUILD_TUTORIALS)
 
+# Are we building the tools?
 if(BUILD_TOOLS)
-if(UNIX OR APPLE)
-	message(ERROR "Tools currently broken for your platform")
-endif(UNIX OR APPLE)
-add_subdirectory(tools)
+	# Sorry Unix & OS X, the tools are in another castle...
+	if(UNIX OR APPLE)
+		message(FATAL_ERROR "Tools currently broken for your platform")
+	endif(UNIX OR APPLE)
+
+	add_subdirectory(tools)
 endif(BUILD_TOOLS)
