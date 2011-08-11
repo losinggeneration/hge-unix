@@ -45,12 +45,7 @@ if(UNIX OR APPLE)
 		${CMAKE_SOURCE_DIR}/core
 	)
 
-	add_definitions(-DPLATFORM_UNIX -D_LINUX)
-
-	# OS X needs this defined as well
-	if(APPLE)
-		add_definitions(-DPLATFORM_MACOSX)
-	endif(APPLE)
+	add_definitions(-D_LINUX)
 
 	# The libraries to link against for HGE, and also for applications using it
 	set(HGE_LIBRARIES
