@@ -6,11 +6,30 @@ set(HGE_SRCS
 	demo.cpp
 	random.cpp
 	timer.cpp
-
-	# ZLib
-	ZLIB/unzip.c
-	ZLIB/ioapi.c
 )
+
+if(USE_INTERNAL_ZLIB)
+	set(HGE_SRCS
+		${HGE_SRCS}
+		ZLIB/adler32.c
+		ZLIB/crc32.c
+		ZLIB/inffast.c
+		ZLIB/inflate.c
+		ZLIB/inftrees.c
+		ZLIB/ioapi.c
+		ZLIB/trees.c
+		ZLIB/uncompr.c
+		ZLIB/unzip.c
+		ZLIB/zutil.c
+	)
+else(USE_INTERNAL_ZLIB)
+	set(HGE_SRCS
+		${HGE_SRCS}
+		# AFAICT not part of zlib proper
+		ZLIB/ioapi.c
+		ZLIB/unzip.c
+	)
+endif(USE_INTERNAL_ZLIB)
 
 if(USE_CXIMAGE)
 	set(HGE_SRCS
@@ -75,7 +94,7 @@ else(UNIX OR APPLE)
 endif(UNIX OR APPLE)
 
 add_library(hge SHARED ${HGE_SRCS})
-target_link_libraries(hge ${HGE_LIBRARY})
+target_link_libraries(hge ${HGE_LIBRARIES})
 
 set(HS ${CMAKE_SOURCE_DIR}/src/helpers)
 set(HGE_HELPER_SRCS
@@ -97,4 +116,4 @@ set(HGE_HELPER_SRCS
 )
 
 add_library(hge_helpers SHARED ${HGE_HELPER_SRCS})
-target_link_libraries(hge_helpers hge ${HGE_LIBRARY})
+target_link_libraries(hge_helpers hge ${HGE_LIBRARIES})

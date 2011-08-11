@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 
 option(BUILD_TUTORIALS "Build the tutorial samples" OFF)
 option(BUILD_TOOLS "Build the library tools" OFF)
+option(USE_INTERNAL_ZLIB "Use the internal ZLib" OFF)
 
 if(UNIX OR APPLE)
 	set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -11,8 +12,9 @@ if(UNIX OR APPLE)
 	find_package(SDL REQUIRED)
 	find_package(OpenAL REQUIRED)
 	find_package(Vorbis REQUIRED)
-	# Disabled until you can select using just the external or internal library
-# 	find_package(ZLIB REQUIRED)
+	if(NOT USE_INTERNAL_ZLIB)
+		find_package(ZLIB REQUIRED)
+	endif(NOT USE_INTERNAL_ZLIB)
 	find_package(JPEG REQUIRED)
 	find_package(PNG REQUIRED)
 
@@ -41,7 +43,7 @@ if(UNIX OR APPLE)
 	endif(APPLE)
 
 
-	set(HGE_LIBRARY
+	set(HGE_LIBRARIES
 		${SDL_LIBRARY}
 		${OPENAL_LIBRARY}
 		${VORBISFILE_LIBRARY}
@@ -52,6 +54,9 @@ if(UNIX OR APPLE)
 		${PNG_LIBRARY}
 	)
 endif(UNIX OR APPLE)
+
+set(HGE_LIBRARY hge ${HGE_LIBRARIES})
+set(HGE_HELPER_LIBRARY hge_helpers ${HGE_LIBRARY})
 
 add_subdirectory(src/core)
 
