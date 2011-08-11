@@ -212,6 +212,65 @@ void CALL HGE_Impl::Resource_Free(void *res)
 	if(res) free(res);
 }
 
+// this is from PhysicsFS originally ( http://icculus.org/physfs/ )
+//  (also zlib-licensed.)
+static int locateOneElement(char *buf)
+{
+	char *ptr = NULL;
+	DIR *dirp = NULL;
+	struct dirent *dent = NULL;
+
+	if (access(buf, F_OK) == 0)
+		return 1;  /* quick rejection: exists in current case. */
+
+	ptr = strrchr(buf, '/');  /* find entry at end of path. */
+	if (ptr == NULL)
+	{
+		dirp = opendir(".");
+		ptr = buf;
+	}
+	else
+	{
+		*ptr = '\0';
+		dirp = opendir(buf);
+		*ptr = '/';
+		ptr++;  /* point past dirsep to entry itself. */
+	}
+
+	while ((dent = readdir(dirp)) != NULL)
+	{
+		if (strcasecmp(dent->d_name, ptr) == 0)
+		{
+			strcpy(ptr, dent->d_name); /* found a match. Overwrite with this case. */
+			closedir(dirp);
+			return 1;
+		}
+	}
+
+	/* no match at all... */
+	closedir(dirp);
+	return 0;
+}
+
+static int locateCorrectCase(char *buf)
+{
+	char *ptr = buf;
+	char *prevptr = buf;
+
+	while (ptr = strchr(ptr + 1, '/'))
+	{
+		*ptr = '\0';  /* block this path section off */
+		if (!locateOneElement(buf))
+		{
+			*ptr = '/'; /* restore path separator */
+			return -2;  /* missing element in path. */
+		}
+		*ptr = '/'; /* restore path separator */
+	}
+
+	/* check final element... */
+	return locateOneElement(buf) ? 0 : -1;
+}
 
 char* CALL HGE_Impl::Resource_MakePath(const char *filename)
 {
@@ -228,6 +287,9 @@ char* CALL HGE_Impl::Resource_MakePath(const char *filename)
 	}
 
 	for(i=0; szTmpFilename[i]; i++) { if(szTmpFilename[i]=='\\') szTmpFilename[i]='/'; }
+
+	locateCorrectCase(szTmpFilename);
+
 	return szTmpFilename;
 }
 
