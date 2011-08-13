@@ -75,10 +75,5 @@ endif(BUILD_TUTORIALS)
 
 # Are we building the tools?
 if(BUILD_TOOLS)
-	# Sorry Unix & OS X, the tools are in another castle...
-	if(UNIX OR APPLE)
-		message(FATAL_ERROR "Tools currently broken for your platform")
-	endif(UNIX OR APPLE)
-
 	add_subdirectory(tools)
 endif(BUILD_TOOLS)

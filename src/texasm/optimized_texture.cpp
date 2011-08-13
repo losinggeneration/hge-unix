@@ -24,7 +24,7 @@ void COptimizedTexture::Reset()
 	texw = 0;
 	texh = 0;
 	pitch = 0;
-	
+
 	if(tex_data)
 	{
 		hge->Texture_Unlock(tex);
@@ -42,7 +42,7 @@ void COptimizedTexture::Reset()
 bool COptimizedTexture::PlaceObject(CGfxObject *obj)
 {
 	// find & reserve a place for the object
-	
+
 	CRectPlacement::TRect r(0, 0, obj->GetWidth(), obj->GetHeight());
 
 	if(placer.AddAtEmptySpotAutoGrow(&r, maxw, maxh))
@@ -176,9 +176,9 @@ bool COptimizedTexture::OptimizeAlpha()
 
 				if(count)
 				{
-					buf[i*pitch+j].r = unsigned char(r / count);
-					buf[i*pitch+j].g = unsigned char(g / count);
-					buf[i*pitch+j].b = unsigned char(b / count);
+					buf[i*pitch+j].r = (unsigned char)(r / count);
+					buf[i*pitch+j].g = (unsigned char)(g / count);
+					buf[i*pitch+j].b = (unsigned char)(b / count);
 				}
 			}
 

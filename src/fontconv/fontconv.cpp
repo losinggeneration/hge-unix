@@ -6,12 +6,14 @@
 ** HGE Font Description files 1.XX -> 1.6 converter
 */
 
+#include "../../include/hge.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef PLATFORM_UNIX
 #include <windows.h>
+#endif
 
-#include "../../include/hge.h"
 HGE *hge = 0;
 
 
@@ -31,14 +33,13 @@ char *_skip_token(char *szStr);
 int main(int argc, char* argv[])
 {
 	HANDLE				hSearch;
-	WIN32_FIND_DATA		SearchData;
 	int					nfiles=0;
 	bool				done=false;
 	char				*buf, filename[256];
 	filelist			*newFile, *nextFile;
 
 	printf("\nHGE Font 1.XX -> 1.6 converter\nCopyright (C) 2003-2006, Relish Games\n\n");
-	
+
 	if(argc!=2)
 	{
 		printf("Usage: FONTCONV.EXE <wildcard>\n\n");
@@ -49,6 +50,10 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
+#ifdef PLATFORM_UNIX
+#else
+		WIN32_FIND_DATA		SearchData;
+
 		hSearch=FindFirstFile(argv[1], &SearchData);
 		nextFile=0;
 
@@ -76,6 +81,7 @@ int main(int argc, char* argv[])
 
 			done=!FindNextFile(hSearch, &SearchData);
 		}
+#endif
 
 		hge=hgeCreate(HGE_VERSION);
 		hge->System_SetState(HGE_USESOUND, false);
@@ -111,7 +117,7 @@ bool convert(char *filename)
 	static char signature1[]="[HGEFONT]";
 	static char signature2[]="[hgefont]";
 	static char tempfile[]="tmpfont.tmp";
-	
+
 	FILE *hf;
 	char *desc, *pdesc, strbuf[256], texname[256], *pbuf;
 	int intbuf, i, height, texx, texy, tex_width;
@@ -177,8 +183,11 @@ bool convert(char *filename)
 	fclose(hf);
 	free(desc);
 
+#ifdef PLATFORM_UNIX
+#else
 	if(!DeleteFile(filename)) { printf("Can't replace file\n"); return false; }
 	if(!MoveFile(tempfile, filename)) { printf("Sorry! Due to system failure the file seems lost\n"); return false; }
+#endif
 	printf("Ok\n");
 
 	return true;

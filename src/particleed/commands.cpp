@@ -8,7 +8,11 @@
 
 
 #include "particleed.h"
+#include "unix_compat.h"
+
+#ifndef PLATFORM_UNIX
 #include <windows.h>
+#endif
 #include <string>
 
 using namespace std;
@@ -55,7 +59,7 @@ bool DoCommands(int id)
 	switch(id)
 	{
 		// Presets & stuff
-	
+
 		case 0:	return false;
 		case CMD_EXIT: cmdSavePreset(state.nPreset); return true;
 		case CMD_HELP: state.bHelp=ButtonGetState(CMD_HELP); break;
@@ -79,7 +83,7 @@ bool DoCommands(int id)
 			ButtonSetState(CMD_SYS_LIFECONT, false);
 			state.ps->Stop();
 			break;
-		
+
 		case CMD_SYS_LIFECONT:
 			if(ButtonGetState(CMD_SYS_LIFECONT))
 			{
@@ -114,7 +118,7 @@ bool DoCommands(int id)
 				state.ps->info.fParticleLifeMax=state.ps->info.fParticleLifeMin;
 			}
 			break;
-		
+
 		case CMD_SYS_PARLIFETIMEMAX:
 			state.ps->info.fParticleLifeMax=SliderGetValue(CMD_SYS_PARLIFETIMEMAX);
 			if(ButtonGetState(CMD_SYS_PARLIFETIMELOCK))
@@ -144,7 +148,7 @@ bool DoCommands(int id)
 			state.ps->info.fDirection=SliderGetValue(CMD_PM_DIRECTION);
 			GetTextCtrl(CMD_PM_TDIRECTION)->printf("%d",int(state.ps->info.fDirection*180/M_PI));
 			break;
-		
+
 		case CMD_PM_RELATIVE:
 			state.ps->info.bRelative=ButtonGetState(CMD_PM_RELATIVE);
 			break;
@@ -170,7 +174,7 @@ bool DoCommands(int id)
 				state.ps->info.fSpeedMax=state.ps->info.fSpeedMin;
 			}
 			break;
-		
+
 		case CMD_PM_STARTSPEEDMAX:
 			state.ps->info.fSpeedMax=SliderGetValue(CMD_PM_STARTSPEEDMAX);
 			if(ButtonGetState(CMD_PM_STARTSPEEDLOCK))
@@ -196,7 +200,7 @@ bool DoCommands(int id)
 				state.ps->info.fGravityMax=state.ps->info.fGravityMin;
 			}
 			break;
-		
+
 		case CMD_PM_GRAVITYMAX:
 			state.ps->info.fGravityMax=SliderGetValue(CMD_PM_GRAVITYMAX);
 			if(ButtonGetState(CMD_PM_GRAVITYLOCK))
@@ -222,7 +226,7 @@ bool DoCommands(int id)
 				state.ps->info.fRadialAccelMax=state.ps->info.fRadialAccelMin;
 			}
 			break;
-		
+
 		case CMD_PM_RADIALMAX:
 			state.ps->info.fRadialAccelMax=SliderGetValue(CMD_PM_RADIALMAX);
 			if(ButtonGetState(CMD_PM_RADIALLOCK))
@@ -248,7 +252,7 @@ bool DoCommands(int id)
 				state.ps->info.fTangentialAccelMax=state.ps->info.fTangentialAccelMin;
 			}
 			break;
-		
+
 		case CMD_PM_TANGENTIALMAX:
 			state.ps->info.fTangentialAccelMax=SliderGetValue(CMD_PM_TANGENTIALMAX);
 			if(ButtonGetState(CMD_PM_TANGENTIALLOCK))
@@ -259,7 +263,7 @@ bool DoCommands(int id)
 			break;
 
 		// Particle appearance
-		
+
 		case CMD_PA_SIZELOCK:
 			if(ButtonGetState(CMD_PA_SIZELOCK))
 			{
@@ -276,7 +280,7 @@ bool DoCommands(int id)
 				state.ps->info.fSizeEnd=state.ps->info.fSizeStart;
 			}
 			break;
-		
+
 		case CMD_PA_SIZEEND:
 			state.ps->info.fSizeEnd=SliderGetValue(CMD_PA_SIZEEND)/PARTICLE_SIZE;
 			if(ButtonGetState(CMD_PA_SIZELOCK))
@@ -306,7 +310,7 @@ bool DoCommands(int id)
 				state.ps->info.fSpinEnd=state.ps->info.fSpinStart;
 			}
 			break;
-		
+
 		case CMD_PA_SPINEND:
 			state.ps->info.fSpinEnd=SliderGetValue(CMD_PA_SPINEND);
 			if(ButtonGetState(CMD_PA_SPINLOCK))
@@ -336,7 +340,7 @@ bool DoCommands(int id)
 				state.ps->info.colColorEnd.a=state.ps->info.colColorStart.a;
 			}
 			break;
-		
+
 		case CMD_PA_ALPHAEND:
 			state.ps->info.colColorEnd.a=SliderGetValue(CMD_PA_ALPHAEND);
 			if(ButtonGetState(CMD_PA_ALPHALOCK))
@@ -384,6 +388,8 @@ void cmdSavePreset(int n)
 
 	if(!state.ps) return;
 
+#ifdef PLATFORM_UNIX
+#else
 	ZeroMemory(filename, _MAX_PATH);
 	GetModuleFileName(GetModuleHandle(NULL), filename, _MAX_PATH);
 	string s(filename);
@@ -395,6 +401,8 @@ void cmdSavePreset(int n)
 	if(hF == INVALID_HANDLE_VALUE) return;
 	WriteFile(hF, &state.ps->info, sizeof(hgeParticleSystemInfo), &size, NULL );
  	CloseHandle(hF);
+#endif
+
 	state.ps->info.sprite=sprParticles;
 }
 
@@ -406,6 +414,8 @@ void cmdLoadPreset(int n)
 
 	if(!state.ps) return;
 
+#ifdef PLATFORM_UNIX
+#else
 	ZeroMemory(filename, _MAX_PATH);
 	GetModuleFileName(GetModuleHandle(NULL), filename, _MAX_PATH);
 	string s(filename);
@@ -419,9 +429,10 @@ void cmdLoadPreset(int n)
 	sprParticles->SetFrame((DWORD)state.ps->info.sprite & 0xFFFF);
 	sprParticles->SetBlendMode((DWORD)state.ps->info.sprite >> 16);
 	state.ps->info.sprite=sprParticles;
+#endif
 
 	// System parameters
-	
+
 	if(state.ps->info.fLifetime==-1.0f)
 	{
 		SliderSetValue(CMD_SYS_LIFETIME, 5.0f);

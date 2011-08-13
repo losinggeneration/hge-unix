@@ -59,7 +59,7 @@ CGfxObject *CTextureAssembler::FindObj(GfxObjList objlist, char *name)
 void CTextureAssembler::AccumulateRMResources(hgeResourceManager *rm, int resgroup, char *mask_set, bool bMaskInclusive)
 {
 	ResDesc *resdesc;
-	
+
 	// RES_SPRITE
 	resdesc = rm->res[7];
 
@@ -79,6 +79,8 @@ void CTextureAssembler::AccumulateRMResources(hgeResourceManager *rm, int resgro
 
 void CTextureAssembler::AccumulateFileResources(char *wildcard, int resgroup, char *mask_set, bool bMaskInclusive)
 {
+#ifdef PLATFORM_UNIX
+#else
 	HANDLE				hSearch;
 	WIN32_FIND_DATA		SearchData;
 	char				filename[MAX_PATH];
@@ -150,6 +152,7 @@ void CTextureAssembler::AccumulateFileResources(char *wildcard, int resgroup, ch
 	} while(FindNextFile(hSearch, &SearchData));
 
 	FindClose(hSearch);
+#endif
 }
 
 

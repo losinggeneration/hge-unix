@@ -9,7 +9,7 @@
 
 #include "fonted.h"
 #include <stdio.h>
-
+#include "unix_compat.h"
 
 HGE *hge=0;
 
@@ -41,7 +41,7 @@ bool FrameFunc()
 	float		dt=hge->Timer_GetDelta();
 
 	// Update
-	
+
 	fw2=sprFont->GetWidth()/2;
 	fh2=sprFont->GetHeight()/2;
 
@@ -68,7 +68,7 @@ bool RenderFunc()
 	char		szTemp[128];
 
 	// Render
-	
+
 	hge->Gfx_BeginScene();
 	hge->Gfx_Clear(0xFF404040);
 
@@ -123,10 +123,10 @@ bool RenderFunc()
 
 		}
 	}
-		
+
 	sprLeftPane1->Render(0,0);
 	sprLeftPane2->Render(0,512);
-	
+
 	gui->Render();
 
 	if(state.bHelp)
@@ -147,7 +147,11 @@ bool RenderFunc()
 	return false;
 }
 
+#ifdef PLATFORM_UNIX
+int main(int argc, char *argv[])
+#else
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+#endif
 {
 	hge = hgeCreate(HGE_VERSION);
 
@@ -170,7 +174,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		hge->System_Start();
 		DoneEditor();
 	}
+#ifdef PLATFORM_UNIX
+	else fprintf(stderr, "Error: %s\n", hge->System_GetErrorMessage());
+#else
 	else MessageBox(NULL, hge->System_GetErrorMessage(), "Error", MB_OK | MB_ICONERROR | MB_TASKMODAL);
+#endif
 
 	hge->System_Shutdown();
 	hge->Release();
@@ -261,8 +269,8 @@ void CreateGUI()
 	button=new hgeGUIButton(CMD_ANTIALIAS, 97, 180, 8, 8, texGui, 368, 176);
 	button->SetMode(true);
 	button->SetState(state.bAntialias);
-	gui->AddCtrl(button);	
-	
+	gui->AddCtrl(button);
+
 	button=new hgeGUIButton(CMD_BOUNDINGBOX, 9, 461, 8, 8, texGui, 368, 176);
 	button->SetMode(true);
 	button->SetState(state.bBBox);

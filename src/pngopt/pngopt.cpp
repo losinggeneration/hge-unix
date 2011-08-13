@@ -36,15 +36,13 @@ bool convert(char *filename);
 
 int main(int argc, char* argv[])
 {
-	HANDLE				hSearch;
-	WIN32_FIND_DATA		SearchData;
 	int					nfiles=0;
 	bool				done=false;
 	char				*buf, filename[256];
 	filelist			*newFile, *nextFile;
 
 	printf("\nPNG Optimizer v0.2\nCopyright (C) 2003-2008, Relish Games\n\n");
-	
+
 	if(argc!=2)
 	{
 		printf("Usage: PNGOPT.EXE <wildcard>\n\n");
@@ -56,6 +54,10 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
+#ifdef PLATFORM_UNIX
+#else
+		WIN32_FIND_DATA		SearchData;
+		HANDLE				hSearch;
 		hSearch=FindFirstFile(argv[1], &SearchData);
 		nextFile=0;
 
@@ -83,6 +85,7 @@ int main(int argc, char* argv[])
 
 			done=!FindNextFile(hSearch, &SearchData);
 		}
+#endif
 
 		hge=hgeCreate(HGE_VERSION);
 		hge->System_SetState(HGE_USESOUND, false);
@@ -119,24 +122,24 @@ bool convert(char *filename)
 	HTEXTURE tex;
 	int width, height, pitch;
 	color *buf;
-	
+
 	int i,j,k,l;
 	int r,g,b;
 	int count;
 
 	FILE *fp=0;
-	
+
 	printf("%s - ", filename);
-	
+
 	tex = hge->Texture_Load(filename);
-	if(!tex) { printf("Can't load texture.\n"); return false; }	
+	if(!tex) { printf("Can't load texture.\n"); return false; }
 
 	width  = hge->Texture_GetWidth(tex, true);
 	height = hge->Texture_GetHeight(tex, true);
 	pitch  = hge->Texture_GetWidth(tex, false);
 
 	buf=(color *)hge->Texture_Lock(tex, false);
-	if(!buf) { printf("Can't lock texture.\n"); return false; }	
+	if(!buf) { printf("Can't lock texture.\n"); return false; }
 
 	for(i=0; i<height; i++)
 		for(j=0; j<width; j++)
@@ -159,9 +162,9 @@ bool convert(char *filename)
 
 				if(count)
 				{
-					buf[i*pitch+j].r = unsigned char(r / count);
-					buf[i*pitch+j].g = unsigned char(g / count);
-					buf[i*pitch+j].b = unsigned char(b / count);
+					buf[i*pitch+j].r = (unsigned char)(r / count);
+					buf[i*pitch+j].g = (unsigned char)(g / count);
+					buf[i*pitch+j].b = (unsigned char)(b / count);
 				}
 			}
 

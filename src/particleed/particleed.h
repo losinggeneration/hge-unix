@@ -17,6 +17,7 @@
 #include "../../include/hgeparticle.h"
 #include "../../include/hgegui.h"
 #include "../../include/hgeguictrls.h"
+#include "unix_compat.h"
 
 
 #define PARTICLE_SIZE			32

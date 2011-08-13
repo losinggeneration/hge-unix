@@ -6,9 +6,8 @@
 ** Bitmap Font Builder
 */
 
-
 #include "fontlist.h"
-
+#include "unix_compat.h"
 
 CFontList::CFontList()
 {
@@ -23,6 +22,8 @@ CFontList::~CFontList()
 
 void CFontList::BuildList()
 {
+#ifdef PLATFORM_UNIX
+#else
 	HDC hdc = CreateCompatibleDC(0);
 	LOGFONT lf;
 	lf.lfCharSet=DEFAULT_CHARSET;
@@ -31,6 +32,7 @@ void CFontList::BuildList()
 
     EnumFontFamiliesEx(hdc, &lf, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)this, 0);
 	DeleteDC(hdc);
+#endif
 }
 
 void CFontList::ClearList()
@@ -43,7 +45,7 @@ void CFontList::ClearList()
 		delete pItem;
 		pItem=pNext;
 	}
-	
+
 	nFonts=0;
 }
 
@@ -90,6 +92,13 @@ void CFontList::FindSortAdd(char *family)
 	nFonts++;
 }
 
+#ifdef PLATFORM_UNIX
+int EnumFontFamiliesEx(int *lpelfe, int *lpntme, DWORD FontType, void *lParam)
+{
+	assert(true && "write me");
+	return 1;
+}
+#else
 int CALLBACK EnumFontFamExProc(
   ENUMLOGFONTEX *lpelfe,    // logical-font data
   NEWTEXTMETRICEX *lpntme,  // physical-font data
@@ -100,4 +109,4 @@ int CALLBACK EnumFontFamExProc(
 	((CFontList *)lParam)->FindSortAdd(lpelfe->elfLogFont.lfFaceName);
 	return 1;
 }
-
+#endif

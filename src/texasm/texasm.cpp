@@ -11,11 +11,11 @@
 
 #include "../../include/hgeresource.h"
 
+#ifndef PLATFORM_UNIX
 #include <direct.h>
-
+#endif
 
 HGE *hge = 0;
-
 
 void SysLog(const char *format, ...);
 bool ParseTask(char *task, int *resgroup, char *mask, bool *inclusive);
@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 	}
 
 	SysLog("\nTexture Assembler v0.1\nCopyright (C) 2003-2008, Relish Games\n\n");
-	
+
 	// check for args count and display help
 
 	if(argc != 3 && argc != 4)
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
 			SysLog("Invalid task: %s\n", argv[3]);
 			hge->System_Shutdown();
 			hge->Release();
-			return 1;		
+			return 1;
 		}
 
 
@@ -131,8 +131,8 @@ int main(int argc, char* argv[])
 	// make the search/output path consistent with texture
 	// loading, i.e. relative to the main executable
 
-	_getcwd(cwd, sizeof(cwd));
-	_chdir(hge->Resource_MakePath());
+	getcwd(cwd, sizeof(cwd));
+	chdir(hge->Resource_MakePath());
 
 	// Add a task into texture assembler. There may be more than one
 	// call to AccumulateRMResources() and/or AccumulateFileResources().
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
 
 	// restore current working directory
 
-	_chdir(cwd);
+	chdir(cwd);
 
 	delete ta;
 	delete rm;

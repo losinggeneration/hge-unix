@@ -41,4 +41,4 @@ private:
 };
 
 
-#endif HGEGUIRANGE_H
+#endif //HGEGUIRANGE_H

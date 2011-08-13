@@ -1,10 +1,12 @@
-
+#include "../../include/hge.h"
+#include "unix_compat.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef PLATFORM_UNIX
 #include <windows.h>
+#endif
 
-#include "../../include/hge.h"
 
 extern HGE *hge;
 

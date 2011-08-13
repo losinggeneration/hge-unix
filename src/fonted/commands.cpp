@@ -8,8 +8,11 @@
 
 
 #include "fonted.h"
-#include <windows.h>
 #include <string>
+
+#ifndef PLATFORM_UNIX
+#include <windows.h>
+#endif
 
 using namespace std;
 
@@ -92,17 +95,19 @@ void cmdGenerateFont()
 
 bool cmdSaveFont()
 {
+#ifdef PLATFORM_UNIX
+#else
 	FILE *fp;
 	OPENFILENAME ofn;
 	char szFile[512]="\0";
 	char szTemp[512];
 
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
-	ofn.lStructSize = sizeof(OPENFILENAME); 
-	ofn.hwndOwner = hge->System_GetState(HGE_HWND); 
-	ofn.lpstrFilter = "HGE Font Files\0*.fnt\0All Files\0*.*\0\0"; 
-	ofn.lpstrFile= szFile; 
-	ofn.nMaxFile = sizeof(szFile); 
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hge->System_GetState(HGE_HWND);
+	ofn.lpstrFilter = "HGE Font Files\0*.fnt\0All Files\0*.*\0\0";
+	ofn.lpstrFile= szFile;
+	ofn.nMaxFile = sizeof(szFile);
 	ofn.Flags = OFN_OVERWRITEPROMPT; // | OFN_NOCHANGEDIR
 	ofn.lpstrDefExt="fnt";
 	if(!GetSaveFileName(&ofn)) return true;
@@ -134,4 +139,5 @@ bool cmdSaveFont()
 	fclose(fp);
 
 	return SavePNG(texFont, szFile);
+#endif
 }

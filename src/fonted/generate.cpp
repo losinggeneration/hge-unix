@@ -1,5 +1,6 @@
 
 #include "fonted.h"
+#include "unix_compat.h"
 
 CHAR_DESC vChars[256];
 
@@ -39,6 +40,8 @@ HTEXTURE FontGenerate(char *szFontName,
 					  CSymbolRange *pRanges,
 					  int nRangeCount)
 {
+#ifdef PLATFORM_UNIX
+#else
 	int i,j;
 	int nWidth, nHeight;
 
@@ -169,6 +172,7 @@ graphics.DrawString(string2, -1, &font, PointF(10.0f, 60.0f), &solidBrush);
 	DeleteObject(hBM);
 	DeleteObject(hFont);
 	DeleteDC(hBMDC);
-	
+
 	return tex;
+#endif
 }

@@ -6,7 +6,7 @@
 ** Particle systems editor
 */
 
-
+#include "unix_compat.h"
 #include "particleed.h"
 
 
@@ -34,9 +34,9 @@ bool FrameFunc()
 {
 	float		px, py;
 	float		dt=hge->Timer_GetDelta();
-	
+
 	// Update
-	
+
 	hge->Input_GetMousePos(&state.mx, &state.my);
 	if(hge->Input_GetKeyState(HGEK_RBUTTON)) { psx=state.mx; psy=state.my; }
 	else { psx=400; psy=300; }
@@ -69,7 +69,7 @@ bool RenderFunc()
 	hgeRect		bbox;
 
 	// Render
-	
+
 	hge->Gfx_Clear(0);
 	hge->Gfx_BeginScene();
 
@@ -89,7 +89,7 @@ bool RenderFunc()
 		sprLeftPane2->Render(0,512);
 		sprRightPane1->Render(632,0);
 		sprRightPane2->Render(632,512);
-		
+
 		gui->Render();
 		sprParticles->SetColor(state.ps->info.colColorStart.GetHWColor() | 0xFF000000);
 		sprParticles->Render(26,189);
@@ -114,8 +114,11 @@ bool RenderFunc()
 	return false;
 }
 
-
+#ifdef PLATFORM_UNIX
+int main(int argc, char *argv[])
+#else
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+#endif
 {
 	hge = hgeCreate(HGE_VERSION);
 
@@ -138,7 +141,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		hge->System_Start();
 		DoneEditor();
 	}
+#ifdef PLATFORM_UNIX
+	else fprintf(stderr, "Error: %s\n", hge->System_GetErrorMessage());
+#else
 	else MessageBox(NULL, hge->System_GetErrorMessage(), "Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+#endif
 
 	hge->System_Shutdown();
 	hge->Release();
@@ -162,10 +169,10 @@ void InitEditor()
 		bgh = hge->Texture_GetHeight(state.texBG, true);
 		state.sprBG = new hgeSprite(state.texBG, 0, 0, (float)bgw, (float)bgh);
 		state.sprBG->SetHotSpot((float)bgw/2, (float)bgh/2);
-	}
+}
 
 	hge->Resource_AttachPack("particleed.paq");
-	
+
 	state.bIFace=true;
 	state.bHelp=false;
 	state.bBBox=false;
