@@ -406,6 +406,9 @@ void cmdSavePreset(int n)
 	state.ps->info.sprite=sprParticles;
 }
 
+/** TODO char('1' + n) relies on ASCII, and quiet frankly is likely to break with
+    many particles passed in
+*/
 void cmdLoadPreset(int n)
 {
 	HANDLE hF;

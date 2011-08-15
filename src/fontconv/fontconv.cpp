@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 
 	if(argc!=2)
 	{
-		printf("Usage: FONTCONV.EXE <wildcard>\n\n");
+		printf("Usage: %s <wildcard>\n\n", argv[0]);
 		printf("All files found by the specified wildcard will\n");
 		printf("be automatically converted to newer format. Bitmap files\n");
 		printf("should be available along with font description files.\n\n");
