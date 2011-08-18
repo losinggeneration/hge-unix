@@ -7,8 +7,6 @@
 #error This source file is for Mac OS X only.
 #endif
 
-#if PLATFORM_MACOSX
-
 #import <Cocoa/Cocoa.h>
 
 void HGE_Impl::_MacMinimizeWindow()
@@ -34,8 +32,6 @@ void HGE_Impl::_MacHideWindow()
         return;
     [NSApp hide:NSApp];
 }
-
-#endif
 
 // end of macosx_support.mm ...
 
