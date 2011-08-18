@@ -4,9 +4,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Common source
 set(HGE_SRCS
-	demo.cpp
-	random.cpp
-	timer.cpp
+	common/demo.cpp
+	common/random.cpp
+	common/timer.cpp
 )
 
 # Zlib source: internally included or an external library
@@ -76,27 +76,36 @@ endif(USE_CXIMAGE)
 # Platform specifc files
 if(UNIX OR APPLE)
 	# Unix/Linux and OS X share these
+	include_directories(unix)
 	set(HGE_SRCS
 		${HGE_SRCS}
-		graphics_unix.cpp
-		ini_unix.cpp
-		input_unix.cpp
-		power_unix.cpp
-		resource_unix.cpp
-		sound_openal.cpp
-		system_unix.cpp
+		unix/graphics.cpp
+		unix/ini.cpp
+		unix/input.cpp
+		unix/power.cpp
+		unix/resource.cpp
+		unix/sound_openal.cpp
+		unix/system.cpp
 	)
+
+	if(APPLE)
+		set(HGE_SRCS
+			${HGE_SRCS}
+			unix/macosx_support.mm
+		)
+	endif(APPLE)
 else(UNIX OR APPLE)
 	# Win32, though it's probably broken to build
+	include_directories(windows)
 	set(HGE_SRCS
 		${HGE_SRCS}
-		graphics.cpp
-		ini.cpp
-		input.cpp
-		power.cpp
-		resource.cpp
-		sound_libbass.cpp
-		system.cpp
+		windows/graphics.cpp
+		windows/ini.cpp
+		windows/input.cpp
+		windows/power.cpp
+		windows/resource.cpp
+		windows/sound_libbass.cpp
+		windows/system.cpp
 	)
 endif(UNIX OR APPLE)
 

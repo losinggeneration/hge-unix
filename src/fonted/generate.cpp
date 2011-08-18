@@ -41,6 +41,7 @@ HTEXTURE FontGenerate(char *szFontName,
 					  int nRangeCount)
 {
 #ifdef PLATFORM_UNIX
+	return 0;
 #else
 	int i,j;
 	int nWidth, nHeight;

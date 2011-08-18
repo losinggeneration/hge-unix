@@ -13,7 +13,7 @@
 //  this code.
 
 
-#include "hge_impl_unix.h"
+#include "hge_impl.h"
 
 #include "AL/al.h"
 #include "AL/alc.h"

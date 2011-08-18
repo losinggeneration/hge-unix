@@ -29,7 +29,7 @@ FEditorState	state;
 float			psx=484, psy=300;
 float			fw2, fh2;
 
-void			InitEditor();
+bool	InitEditor();
 void			DoneEditor();
 void			CreateGUI();
 
@@ -41,6 +41,8 @@ bool FrameFunc()
 	float		dt=hge->Timer_GetDelta();
 
 	// Update
+	if(sprFont == 0)
+		return false;
 
 	fw2=sprFont->GetWidth()/2;
 	fh2=sprFont->GetHeight()/2;
@@ -71,6 +73,9 @@ bool RenderFunc()
 
 	hge->Gfx_BeginScene();
 	hge->Gfx_Clear(0xFF404040);
+
+	if(sprFont == 0)
+		return false;
 
 	sprBlack->SetTextureRect(0,0,sprFont->GetWidth(),sprFont->GetHeight());
 	sprBlack->Render(psx-fw2, psy-fh2);
@@ -170,9 +175,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	if(hge->System_Initiate())
 	{
-		InitEditor();
-		hge->System_Start();
-		DoneEditor();
+		if(InitEditor()) {
+			hge->System_Start();
+			DoneEditor();
+		}
+		else {
+			fprintf(stderr, "Error initializing editor\n");
+		}
 	}
 #ifdef PLATFORM_UNIX
 	else fprintf(stderr, "Error: %s\n", hge->System_GetErrorMessage());
@@ -185,7 +194,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	return 0;
 }
 
-void InitEditor()
+bool InitEditor()
 {
 	hge->Resource_AttachPack("fonted.paq");
 
@@ -210,7 +219,8 @@ void InitEditor()
 	state.sr.First=32;
 	state.sr.Last=126;
 
-	cmdGenerateFont();
+	if(!cmdGenerateFont())
+		return false;
 
 	texGui=hge->Texture_Load("fgui.png");
 
@@ -223,6 +233,8 @@ void InitEditor()
 
 	gui=new hgeGUI();
 	CreateGUI();
+
+	return true;
 }
 
 void DoneEditor()

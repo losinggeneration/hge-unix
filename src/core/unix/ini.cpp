@@ -6,7 +6,7 @@
 ** Core functions implementation: unix ini file
 */
 
-#include "hge_impl_unix.h"
+#include "hge_impl.h"
 
 const char *HGE_Impl::_BuildProfilePath(const char *section, const char *name, const char *szIniFile)
 {

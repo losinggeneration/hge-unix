@@ -6,7 +6,7 @@
 ** Core functions implementation: resources management
 */
 
-#include "hge_impl_unix.h"
+#include "hge_impl.h"
 
 #ifndef strupr
 void strupr(char *s) {

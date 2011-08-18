@@ -16,7 +16,7 @@
 
 // !!! FIXME: ...apparently we're locking textures upside down, too?
 
-#include "hge_impl_unix.h"
+#include "hge_impl.h"
 
 //#define SUPPORT_CXIMAGE 1
 #if SUPPORT_CXIMAGE

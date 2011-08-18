@@ -30,32 +30,32 @@ STATICLIB=gccRelease/libhge.a
 $(BIN): $(LINKOBJ)
 	$(DLLWRAP) --output-def $(DEFFILE) --driver-name c++ --implib $(STATICLIB) $(LINKOBJ) $(LIBS) -o $(BIN)
 
-gccRelease/timer.o: timer.cpp
-	$(CPP) -c timer.cpp -o gccRelease/timer.o $(CXXFLAGS)
+gccRelease/timer.o: common/timer.cpp
+	$(CPP) -c common/timer.cpp -o gccRelease/timer.o $(CXXFLAGS)
 
-gccRelease/graphics.o: graphics.cpp
-	$(CPP) -c graphics.cpp -o gccRelease/graphics.o $(CXXFLAGS)
+gccRelease/graphics.o: windows/graphics.cpp
+	$(CPP) -c windows/graphics.cpp -o gccRelease/graphics.o $(CXXFLAGS)
 
-gccRelease/ini.o: ini.cpp
-	$(CPP) -c ini.cpp -o gccRelease/ini.o $(CXXFLAGS)
+gccRelease/ini.o: windows/ini.cpp
+	$(CPP) -c windows/ini.cpp -o gccRelease/ini.o $(CXXFLAGS)
 
-gccRelease/input.o: input.cpp
-	$(CPP) -c input.cpp -o gccRelease/input.o $(CXXFLAGS)
+gccRelease/input.o: windows/input.cpp
+	$(CPP) -c windows/input.cpp -o gccRelease/input.o $(CXXFLAGS)
 
-gccRelease/random.o: random.cpp
-	$(CPP) -c random.cpp -o gccRelease/random.o $(CXXFLAGS)
+gccRelease/random.o: common/random.cpp
+	$(CPP) -c common/random.cpp -o gccRelease/random.o $(CXXFLAGS)
 
-gccRelease/resource.o: resource.cpp
-	$(CPP) -c resource.cpp -o gccRelease/resource.o $(CXXFLAGS)
+gccRelease/resource.o: windows/resource.cpp
+	$(CPP) -c windows/resource.cpp -o gccRelease/resource.o $(CXXFLAGS)
 
-gccRelease/sound_libbass.o: sound_libbass.cpp
-	$(CPP) -c sound_libbass.cpp -o gccRelease/sound_libbass.o $(CXXFLAGS)
+gccRelease/sound_libbass.o: windows/sound_libbass.cpp
+	$(CPP) -c windows/sound_libbass.cpp -o gccRelease/sound_libbass.o $(CXXFLAGS)
 
-gccRelease/system.o: system.cpp
-	$(CPP) -c system.cpp -o gccRelease/system.o $(CXXFLAGS)
+gccRelease/system.o: windows/system.cpp
+	$(CPP) -c windows/system.cpp -o gccRelease/system.o $(CXXFLAGS)
 
-gccRelease/demo.o: demo.cpp
-	$(CPP) -c demo.cpp -o gccRelease/demo.o $(CXXFLAGS)
+gccRelease/demo.o: common/demo.cpp
+	$(CPP) -c common/demo.cpp -o gccRelease/demo.o $(CXXFLAGS)
 
 gccRelease/crc32.o: ZLIB/crc32.c
 	$(CC) -c ZLIB/crc32.c -o gccRelease/crc32.o $(CFLAGS)

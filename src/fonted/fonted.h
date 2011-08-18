@@ -33,14 +33,14 @@
 #define CHR_UPPER		1  // 0x41-0x5A
 #define CHR_LOWER		2  // 0x61-0x7A
 #define CHR_NUMBERS		4  // 0x30-0x39
-#define CHR_PUNCT		8  // 0x21-0x2F, 0x3A-0x40, 0x5B-0x60, 0x7B-0x7E 
+#define CHR_PUNCT		8  // 0x21-0x2F, 0x3A-0x40, 0x5B-0x60, 0x7B-0x7E
 #define CHR_UPPER_RUS	16 // 0xC0-0xDF
 #define CHR_LOWER_RUS	32 // 0xE0-0xFF
 
 #define CHR_ALL			64 // 0x21-0xFF
 
 
-struct CSymbolRange	
+struct CSymbolRange
 {
 	unsigned short	First;
 	unsigned short	Last;
@@ -56,7 +56,7 @@ extern CHAR_DESC vChars[256];
 
 
 bool cmdSaveFont();
-void cmdGenerateFont();
+bool cmdGenerateFont();
 
 extern HGE *hge;
 

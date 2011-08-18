@@ -7,7 +7,7 @@
 */
 
 
-#include "hge_impl_unix.h"
+#include "hge_impl.h"
 
 const char *KeyNames[] =
 {
