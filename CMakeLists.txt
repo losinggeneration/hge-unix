@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 option(BUILD_TUTORIALS "Build the tutorial samples" OFF)
 option(BUILD_TOOLS "Build the library tools" OFF)
 option(USE_INTERNAL_ZLIB "Use the internal ZLib" OFF)
+option(ENABLE_SCRIPTING_LUA "Enables Lua scripting" ON)
 
 if(UNIX OR APPLE)
 	# Needed for FindVorbis
@@ -60,6 +61,14 @@ if(UNIX OR APPLE)
 	)
 endif(UNIX OR APPLE)
 
+if(ENABLE_SCRIPTING_LUA)
+	set(HGE_BINDING_LUA hgeBindingLua)
+	set(HGE_LIBRARIES
+		${HGE_LIBRARIES}
+		${HGE_BINDING_LUA}
+	)
+endif(ENABLE_SCRIPTING_LUA)
+
 # This is the HGE library and required libraries to link against
 set(HGE_LIBRARY hge ${HGE_LIBRARIES})
 # And this is the HGE & Helper library and required libraries to link against
@@ -67,6 +76,10 @@ set(HGE_HELPER_LIBRARY hge_helpers ${HGE_LIBRARY})
 
 # Where HGE is located, this also builds the helper library
 add_subdirectory(src/core)
+
+if(ENABLE_SCRIPTING_LUA)
+	add_subdirectory(src/core/scripting/lua)
+endif(ENABLE_SCRIPTING_LUA)
 
 # Did tutorials get enabled to be built?
 if(BUILD_TUTORIALS)

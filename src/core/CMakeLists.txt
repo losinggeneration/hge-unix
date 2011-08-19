@@ -110,7 +110,7 @@ else(UNIX OR APPLE)
 endif(UNIX OR APPLE)
 
 add_library(hge SHARED ${HGE_SRCS})
-target_link_libraries(hge ${HGE_LIBRARIES})
+target_link_libraries(hge ${HGE_LIBRARIES} ${HGE_BINDING_LUA})
 
 set(HS ${CMAKE_SOURCE_DIR}/src/helpers)
 set(HGE_HELPER_SRCS
