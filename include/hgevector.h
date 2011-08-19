@@ -10,10 +10,7 @@
 #ifndef HGEVECTOR_H
 #define HGEVECTOR_H
 
-
-#include "hge.h"
 #include <math.h>
-
 
 /*
 ** Fast 1.0/sqrtf(float) routine
