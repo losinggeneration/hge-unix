@@ -429,10 +429,13 @@ void cmdLoadPreset(int n)
 	if(hF == INVALID_HANDLE_VALUE) return;
 	ReadFile(hF, &state.ps->info, sizeof(hgeParticleSystemInfo), &size, NULL );
  	CloseHandle(hF);
-	sprParticles->SetFrame((DWORD)state.ps->info.sprite & 0xFFFF);
-	sprParticles->SetBlendMode((DWORD)state.ps->info.sprite >> 16);
-	state.ps->info.sprite=sprParticles;
 #endif
+
+	// I'm think this is what they were getting at for these two functions
+	// ~losinggeneration 2011-08-18 13:13:42
+	sprParticles->SetFrame((DWORD)state.ps->info.sprite->GetTexture() & 0xFFFF);
+	sprParticles->SetBlendMode((DWORD)state.ps->info.sprite->GetBlendMode() >> 16);
+	state.ps->info.sprite=sprParticles;
 
 	// System parameters
 
