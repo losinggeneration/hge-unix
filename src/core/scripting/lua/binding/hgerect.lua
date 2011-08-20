@@ -6,6 +6,36 @@
 -- hgeRect helper class
 --
 
+bindhgeRect = {
+	classes = {
+		{
+			name = "hge.Rect",
+			className = "hgeRect",
+			ctors = {
+				'()',
+				'(float _x1, float _y1, float _x2, float _y2)',
+			},
+			properties = {
+				'float x1',
+				'float y1',
+				'float x2',
+				'float y2',
+			},
+			memberFunctions = {[[
+				void    Clear();
+				bool    IsClean() const;
+				void	Set(float _x1, float _y1, float _x2, float _y2);
+				void	SetRadius(float x, float y, float r);
+				void	Encapsulate(float x, float y);
+				bool	TestPoint(float x, float y) const;
+				bool	Intersect(const hgeRect *rect) const;
+			]]},
+		},
+	},
+	modules = {
+	}
+}
+
 --[[
 
 class hgeRect
@@ -13,19 +43,16 @@ class hgeRect
 public:
 	float	x1, y1, x2, y2;
 
-	hgeRect(float _x1, float _y1, float _x2, float _y2) {x1=_x1; y1=_y1; x2=_x2; y2=_y2; bClean=false; }
-	hgeRect() {bClean=true;}
+	hgeRect(float _x1, float _y1, float _x2, float _y2);
+	hgeRect();
 
-	void    Clear() {bClean=true;}
-	bool    IsClean() const {return bClean;}
-	void	Set(float _x1, float _y1, float _x2, float _y2) { x1=_x1; x2=_x2; y1=_y1; y2=_y2; bClean=false; }
-	void	SetRadius(float x, float y, float r) { x1=x-r; x2=x+r; y1=y-r; y2=y+r; bClean=false; }
+	void    Clear();
+	bool    IsClean() const;
+	void	Set(float _x1, float _y1, float _x2, float _y2);
+	void	SetRadius(float x, float y, float r);
 	void	Encapsulate(float x, float y);
 	bool	TestPoint(float x, float y) const;
 	bool	Intersect(const hgeRect *rect) const;
-
-private:
-	bool	bClean;
 };
 
 --]]

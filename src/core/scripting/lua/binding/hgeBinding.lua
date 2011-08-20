@@ -1,12 +1,24 @@
-require('hgevector')
+function hgeBuildDefinitionDB(files)
+	local tbls = 'return'
+
+	for i,v in  ipairs(files) do
+		require(v:lower())
+		tbls = tbls .. ' bind' .. v .. ','
+	end
+
+	buildDefinitionDB(loadstring(tbls:sub(0, -2))())
+end
 
 function hgeBind(class_name)
+	local lower_class = class_name:lower()
 	local bind_tbl = loadstring('return bind'..class_name)()
-	local lower_class = class_name:lower();
-	buildDefinitionDB(bind_tbl)
-	write([[
-		class ]]..class_name..[[;
-	]])
+
+	-- Ou forward declarations for the classes/structs
+	for i,v in ipairs(bind_tbl.classes) do
+		write([[
+			class ]]..v.className..[[;
+		]])
+	end
 	writeHeader(bind_tbl)
 	flushWritten('cpp/lua_'..lower_class..'.h')
 
@@ -15,11 +27,20 @@ function hgeBind(class_name)
 	write([[
 		#include "]]..lower_class..[[.h"
 	]])
-	writeDefinitions(bindhgeVector, 'bind_'..class_name)
+	writeDefinitions(bind_tbl, 'bind_lua_'..class_name)
 	flushWritten('cpp/lua_'..lower_class..'.cpp')
 end
 
 function generate()
-	hgeBind("hgeVector")
--- 	hgeVectorBind()
+	local files = {
+		'hgeRect',
+		'hgeStrings',
+		'hgeVector',
+	}
+
+	hgeBuildDefinitionDB(files)
+
+	for i,v in ipairs(files) do
+		hgeBind(v)
+	end
 end

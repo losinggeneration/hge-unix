@@ -33,10 +33,10 @@ set(HGEBINDING_CPP
 # 	cpp/lua_hgegui.h
 # 	cpp/lua_hgeguictrls.h
 # 	cpp/lua_hgeparticle.h
-# 	cpp/lua_hgerect.h
+	cpp/lua_hgerect.h
 # 	cpp/lua_hgeresource.h
 # 	cpp/lua_hgesprite.h
-# 	cpp/lua_hgestrings.h
+	cpp/lua_hgestrings.h
 	cpp/lua_hgevector.h
 
 # Generated source files
@@ -48,14 +48,22 @@ set(HGEBINDING_CPP
 # 	cpp/lua_hgegui.cpp
 # 	cpp/lua_hgeguictrls.cpp
 # 	cpp/lua_hgeparticle.cpp
-# 	cpp/lua_hgerect.cpp
+	cpp/lua_hgerect.cpp
 # 	cpp/lua_hgeresource.cpp
 # 	cpp/lua_hgesprite.cpp
-# 	cpp/lua_hgestrings.cpp
+	cpp/lua_hgestrings.cpp
 	cpp/lua_hgevector.cpp
 )
 
-include_directories(luna-gen)
+include_directories(
+	${CMAKE_SOURCE_DIR}/src/core
+	${CMAKE_SOURCE_DIR}/src/core/unix
+	${CMAKE_SOURCE_DIR}/src/core/windows
+	${CMAKE_CURRENT_BINARY_DIR}/cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/luna-gen
+)
+
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cpp)
 
 add_custom_command(
 	OUTPUT ${HGEBINDING_CPP}

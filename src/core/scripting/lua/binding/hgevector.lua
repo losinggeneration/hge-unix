@@ -9,8 +9,8 @@
 bindhgeVector = {
 	classes = {
 		{
-			name="hge.Vector",
-			className="hgeVector",
+			name = "hge.Vector",
+			className = "hgeVector",
 			ctors = {
 				'()',
 				'(float x, float y)',
@@ -39,6 +39,8 @@ bindhgeVector = {
 				hgeVector*	Rotate(float a);
 			]]},
 		}
+	},
+	modules = {
 	}
 }
 

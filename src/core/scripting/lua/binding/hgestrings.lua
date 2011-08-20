@@ -6,6 +6,32 @@
 -- hgeStringTable helper class header
 --
 
+bindhgeStrings = {
+	classes = {
+		{
+			name = "hge.NamedString",
+			className = "NamedString",
+			properties = {
+-- 				'char name[MAXSTRNAMELENGTH]',
+-- 				'char* string',
+				'NamedString *next',
+			}
+		},
+		{
+			name = "hge.StringTable",
+			className = "hgeStringTable",
+			ctors = {
+				'(const char *filename)',
+			},
+			memberFunctions = {[[
+				const char* GetString(const char* name);
+			]]},
+		}
+	},
+	modules = {
+	}
+}
+
 --[[
 
 #define MAXSTRNAMELENGTH 64
