@@ -9,8 +9,8 @@
 bindhgeVector = {
 	classes = {
 		{
-			name = "hge.Vector",
-			className = "hgeVector",
+			name = 'hge.Vector',
+			className = 'hgeVector',
 			ctors = {
 				'()',
 				'(float x, float y)',
@@ -29,15 +29,15 @@ bindhgeVector = {
 				hgeVector	operator/  (const float scalar)	const;
 				hgeVector	operator*  (const float scalar) const;
 				hgeVector&	operator*= (const float scalar);
+			]],
+				{ rename = 'dot', 'float Dot(const hgeVector *v) const;' },
+				{ rename = 'length', 'float Length() const;' },
+				{ rename = 'angle', 'float Angle(const hgeVector *v) const;' },
 
-				float		Dot(const hgeVector *v) const;
-				float		Length() const;
-				float		Angle(const hgeVector *v) const;
-
-				void		Clamp(const float max);
-				hgeVector*	Normalize();
-				hgeVector*	Rotate(float a);
-			]]},
+				{ rename = 'clamp', 'void Clamp(const float max);' },
+				{ rename = 'normalize', 'hgeVector* Normalize();' },
+				{ rename = 'rotate', 'hgeVector* Rotate(float a);' },
+			},
 		}
 	},
 	modules = {

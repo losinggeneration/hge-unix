@@ -23,9 +23,9 @@ bindhgeStrings = {
 			ctors = {
 				'(const char *filename)',
 			},
-			memberFunctions = {[[
-				const char* GetString(const char* name);
-			]]},
+			memberFunctions = {
+				{ rename = 'getstring', 'const char* GetString(const char* name);' },
+			},
 		}
 	},
 	modules = {

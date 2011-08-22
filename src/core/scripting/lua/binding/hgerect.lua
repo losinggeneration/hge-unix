@@ -21,15 +21,15 @@ bindhgeRect = {
 				'float x2',
 				'float y2',
 			},
-			memberFunctions = {[[
-				void    Clear();
-				bool    IsClean() const;
-				void	Set(float _x1, float _y1, float _x2, float _y2);
-				void	SetRadius(float x, float y, float r);
-				void	Encapsulate(float x, float y);
-				bool	TestPoint(float x, float y) const;
-				bool	Intersect(const hgeRect *rect) const;
-			]]},
+			memberFunctions = {
+				{ rename = 'clear', 'void Clear();' },
+				{ rename ='isclean', 'bool IsClean() const;' },
+				{ rename ='set', 'void Set(float _x1, float _y1, float _x2, float _y2);' },
+				{ rename ='setradius', 'void SetRadius(float x, float y, float r);' },
+				{ rename ='encapsulate', 'void Encapsulate(float x, float y);' },
+				{ rename ='testpoint', 'bool TestPoint(float x, float y) const;' },
+				{ rename ='intersect', 'bool Intersect(const hgeRect *rect) const;' },
+			},
 		},
 	},
 	modules = {

@@ -27,14 +27,14 @@ set(HGEBINDING_CPP
 # Generated headers
 # 	cpp/lua_hge.h
 # 	cpp/lua_hgeanim.h
-# 	cpp/lua_hgecolor.h
+	cpp/lua_hgecolor.h
 # 	cpp/lua_hgedistort.h
 # 	cpp/lua_hgefont.h
 # 	cpp/lua_hgegui.h
 # 	cpp/lua_hgeguictrls.h
 # 	cpp/lua_hgeparticle.h
 	cpp/lua_hgerect.h
-# 	cpp/lua_hgeresource.h
+	cpp/lua_hgeresource.h
 # 	cpp/lua_hgesprite.h
 	cpp/lua_hgestrings.h
 	cpp/lua_hgevector.h
@@ -42,14 +42,14 @@ set(HGEBINDING_CPP
 # Generated source files
 # 	cpp/lua_hge.cpp
 # 	cpp/lua_hgeanim.cpp
-# 	cpp/lua_hgecolor.cpp
+	cpp/lua_hgecolor.cpp
 # 	cpp/lua_hgedistort.cpp
 # 	cpp/lua_hgefont.cpp
 # 	cpp/lua_hgegui.cpp
 # 	cpp/lua_hgeguictrls.cpp
 # 	cpp/lua_hgeparticle.cpp
 	cpp/lua_hgerect.cpp
-# 	cpp/lua_hgeresource.cpp
+	cpp/lua_hgeresource.cpp
 # 	cpp/lua_hgesprite.cpp
 	cpp/lua_hgestrings.cpp
 	cpp/lua_hgevector.cpp

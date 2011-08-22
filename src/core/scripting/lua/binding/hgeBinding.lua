@@ -33,9 +33,11 @@ end
 
 function generate()
 	local files = {
+		'hgeColor',
 		'hgeRect',
 		'hgeStrings',
 		'hgeVector',
+		'hgeResource', -- has members for sprite, animation, font, and others
 	}
 
 	hgeBuildDefinitionDB(files)
