@@ -38,6 +38,7 @@ function generate()
 		'hgeStrings',
 		'hgeVector',
 		'hgeResource', -- has members for sprite, animation, font, and others
+-- 		'hge',
 	}
 
 	hgeBuildDefinitionDB(files)
