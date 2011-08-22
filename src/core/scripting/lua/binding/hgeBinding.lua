@@ -13,7 +13,7 @@ function hgeBind(class_name)
 	local lower_class = class_name:lower()
 	local bind_tbl = loadstring('return bind'..class_name)()
 
-	-- Ou forward declarations for the classes/structs
+	-- Our forward declarations for the classes/structs
 	for i,v in ipairs(bind_tbl.classes) do
 		write([[
 			class ]]..v.className..[[;
