@@ -93,7 +93,7 @@ public:
 	virtual HWND		CALL	System_GetStateHwnd  (hgeHwndState  );
 	virtual int			CALL	System_GetStateInt   (hgeIntState   );
 	virtual const char*	CALL	System_GetStateString(hgeStringState);
-	virtual char*		CALL	System_GetErrorMessage();
+	virtual const char*	CALL	System_GetErrorMessage();
 	virtual	void		CALL	System_Log(const char *format, ...);
 	virtual bool		CALL	System_Launch(const char *url);
 	virtual void		CALL	System_Snapshot(const char *filename=0);
@@ -181,7 +181,7 @@ public:
 	virtual hgeVertex*	CALL	Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend, int *max_prim);
 	virtual void		CALL	Gfx_FinishBatch(int nprim);
 	virtual void		CALL	Gfx_SetClipping(int x=0, int y=0, int w=0, int h=0);
-	virtual void		CALL	Gfx_SetTransform(float x=0, float y=0, float dx=0, float dy=0, float rot=0, float hscale=0, float vscale=0); 
+	virtual void		CALL	Gfx_SetTransform(float x=0, float y=0, float dx=0, float dy=0, float rot=0, float hscale=0, float vscale=0);
 
 	virtual HTARGET		CALL	Target_Create(int width, int height, bool zbuffer);
 	virtual void		CALL	Target_Free(HTARGET target);
@@ -297,7 +297,7 @@ public:
 	int					_format_id(D3DFORMAT fmt);
 	void				_SetBlendMode(int blend);
 	void				_SetProjectionMatrix(int width, int height);
-	
+
 
 	// Audio
 	HINSTANCE			hBass;
