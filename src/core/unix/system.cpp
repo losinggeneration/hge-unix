@@ -588,7 +588,7 @@ const char* CALL HGE_Impl::System_GetStateString(hgeStringState state) {
 	return NULL;
 }
 
-char* CALL HGE_Impl::System_GetErrorMessage()
+const char* CALL HGE_Impl::System_GetErrorMessage()
 {
 	return szError;
 }

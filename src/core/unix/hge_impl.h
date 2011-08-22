@@ -125,7 +125,7 @@ public:
 	virtual HWND		CALL	System_GetStateHwnd  (hgeHwndState  );
 	virtual int			CALL	System_GetStateInt   (hgeIntState   );
 	virtual const char*	CALL	System_GetStateString(hgeStringState);
-	virtual char*		CALL	System_GetErrorMessage();
+	virtual const char*	CALL	System_GetErrorMessage();
 	virtual	void		CALL	System_Log(const char *format, ...);
 	virtual bool		CALL	System_Launch(const char *url);
 	virtual void		CALL	System_Snapshot(const char *filename=0);
