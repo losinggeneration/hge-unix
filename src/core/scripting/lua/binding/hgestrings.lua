@@ -38,9 +38,9 @@ bindhgeStrings = {
 
 struct NamedString
 {
-	char			name[MAXSTRNAMELENGTH];
-	char			*string;
-	NamedString		*next;
+	char name[MAXSTRNAMELENGTH];
+	char *string;
+	NamedString *next;
 };
 
 /*
@@ -50,17 +50,8 @@ class hgeStringTable
 {
 public:
 	hgeStringTable(const char *filename);
-	~hgeStringTable();
 
-	char			*GetString(const char *name);
-
-private:
-	hgeStringTable(const hgeStringTable &);
-	hgeStringTable&	operator= (const hgeStringTable &);
-
-	NamedString		*strings;
-
-	static HGE		*hge;
+	char *GetString(const char *name);
 };
 
 --]]

@@ -20,15 +20,16 @@ bindhgeVector = {
 				'float y',
 			},
 			memberFunctions = {[[
-				hgeVector	operator-  ()					const;
-				hgeVector	operator-  (const hgeVector &v) const;
-				hgeVector	operator+  (const hgeVector &v) const;
-				hgeVector&	operator-= (const hgeVector &v);
-				hgeVector&	operator+= (const hgeVector &v);
+				hgeVector operator-() const;
+				hgeVector operator-(const hgeVector &v) const;
+				hgeVector operator+(const hgeVector &v) const;
+				hgeVector& operator-=(const hgeVector &v);
+				hgeVector& operator+=(const hgeVector &v);
 
-				hgeVector	operator/  (const float scalar)	const;
-				hgeVector	operator*  (const float scalar) const;
-				hgeVector&	operator*= (const float scalar);
+				hgeVector operator/(const float scalar) const;
+				hgeVector operator*(const float scalar) const;
+				hgeVector& operator*=(const float scalar);
+				bool operator==(const hgeVector &v) const;
 			]],
 				{ rename = 'dot', 'float Dot(const hgeVector *v) const;' },
 				{ rename = 'length', 'float Length() const;' },
@@ -47,13 +48,6 @@ bindhgeVector = {
 --[[
 -- NOTE: These are all Unbound still
 float InvSqrt(float x);
-
-class hgeVector
-{
-public:
-	bool		operator== (const hgeVector &v)	const;
-	bool		operator!= (const hgeVector &v)	const;
-};
 
 inline hgeVector operator* (const float s, const hgeVector &v);
 inline float	 operator^ (const hgeVector &v, const hgeVector &u);

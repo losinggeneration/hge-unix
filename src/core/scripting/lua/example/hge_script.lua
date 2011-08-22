@@ -1,7 +1,12 @@
 print("Hello HGE")
 
 function test_bound(expected, real_value)
-	print("should be "..tostring(expected).."::"..tostring(real_value))
+	local r,e = pcall(assert, expected == real_value)
+	if r then
+		print("test succeeded: "..tostring(expected).." == "..tostring(real_value))
+	else
+		print("test failed: ".. e .. " | "..tostring(expected).." ~= "..tostring(real_value))
+	end
 end
 
 function print_vector(v)
@@ -24,6 +29,10 @@ v5 = v4 * 5
 print_vector(v5)
 print(v5:dot(v4))
 print(v5:length())
+print("testing ==")
+test_bound(false, v5 == v4)
+test_bound(true, v5 ~= v4)
+test_bound(false, true)
 
 print_separator()
 local f = io.open('test_strings', 'w');

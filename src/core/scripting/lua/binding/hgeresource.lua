@@ -123,14 +123,6 @@ public:
 	hgeStringTable*		GetStringTable(const char *name, int resgroup=0);
 
 	ResDesc*			res[RESTYPES];
-
-private:
-	hgeResourceManager(const hgeResourceManager &);
-	hgeResourceManager&	operator= (const hgeResourceManager&);
-	void				_remove_all();
-	void				_parse_script(const char *scriptname=0);
-
-	static HGE			*hge;
 };
 
 --]]

@@ -30,11 +30,7 @@ bindhgeColor = {
 				hgeColorRGB operator*(const hgeColorRGB &c) const;
 				hgeColorRGB & operator-=(const hgeColorRGB &c);
 				hgeColorRGB & operator+=(const hgeColorRGB &c);
-			]],
-				-- Not implemented in luna-gen
--- 				bool operator ==(const hgeColorRGB &c) const;
--- 				bool operator!=(const hgeColorRGB &c) const;
-			[[
+				bool operator ==(const hgeColorRGB &c) const;
 				hgeColorRGB operator/(const float scalar) const;
 				hgeColorRGB operator*(const float scalar) const;
 				hgeColorRGB & operator*=(const float scalar);
@@ -65,10 +61,7 @@ bindhgeColor = {
 				hgeColorHSV operator*(const hgeColorHSV &c) const;
 				hgeColorHSV & operator-=(const hgeColorHSV &c);
 				hgeColorHSV & operator+=(const hgeColorHSV &c);
-			]],
--- 				bool operator==(const hgeColorHSV &c) const;
--- 				bool operator!=(const hgeColorHSV &c) const;
-			[[
+				bool operator==(const hgeColorHSV &c) const;
 				hgeColorHSV operator/(const float scalar) const;
 				hgeColorHSV operator*(const float scalar) const;
 				hgeColorHSV & operator*=(const float scalar);
