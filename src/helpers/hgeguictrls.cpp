@@ -221,7 +221,7 @@ hgeGUIListbox::~hgeGUIListbox()
 }
 
 
-int hgeGUIListbox::AddItem(char *item)
+int hgeGUIListbox::AddItem(const char *item)
 {
 	hgeGUIListboxItem *pItem=pItems, *pPrev=0, *pNew;
 
@@ -255,7 +255,7 @@ void hgeGUIListbox::DeleteItem(int n)
 	nItems--;
 }
 
-char *hgeGUIListbox::GetItemText(int n)
+const char *hgeGUIListbox::GetItemText(int n)
 {
 	int i;
 	hgeGUIListboxItem *pItem=pItems;

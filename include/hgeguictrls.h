@@ -118,14 +118,14 @@ public:
 	hgeGUIListbox(int id, float x, float y, float w, float h, hgeFont *fnt, DWORD tColor, DWORD thColor, DWORD hColor);
 	virtual			~hgeGUIListbox();
 
-	int				AddItem(char *item);
+	int				AddItem(const char *item);
 	void			DeleteItem(int n);
 	int				GetSelectedItem() { return nSelectedItem; }
 	void			SetSelectedItem(int n) { if(n>=0 && n<GetNumItems()) nSelectedItem=n; }
 	int				GetTopItem() { return nTopItem; }
 	void			SetTopItem(int n) { if(n>=0 && n<=GetNumItems()-GetNumRows()) nTopItem=n; }
 
-	char			*GetItemText(int n);
+	const char		*GetItemText(int n);
 	int				GetNumItems() { return nItems; }
 	int				GetNumRows() { return int((rect.y2-rect.y1)/font->GetHeight()); }
 	void			Clear();
