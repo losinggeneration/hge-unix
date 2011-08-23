@@ -58,12 +58,44 @@ if(UNIX OR APPLE)
 		${JPEG_LIBRARY}
 		${PNG_LIBRARY}
 	)
+
+	set(USE_SHARED SHARED)
+elseif(WIN32)
+	# Windows
+	add_definitions(-D_WINDOWS -D_WIN32)
+	set(USE_INTERNAL_ZLIB ON)
+
+	set(HGE_LIBRARIES
+		d3d8
+		winmm
+	)
+
+	if(MSVC AND NOT (CMAKE_BUILD_TYPE MATCHES Debug))
+		set(HGE_LIBRARIES ${HGE_LIBRARIES}
+			d3dx8
+		)
+	else()
+		#Sorry MinGW32, you're not currently allowed to make a "release"
+		add_definitions(-DDEBUG)
+		set(HGE_LIBRARIES ${HGE_LIBRARIES}
+			d3dx8d
+		)
+	endif()
+
+	set(USE_SHARED SHARED)
+else()
+	message(FATAL_ERROR "Unknown platform")
 endif(UNIX OR APPLE)
 
-# This is the HGE library and required libraries to link against
-set(HGE_LIBRARY hge ${HGE_LIBRARIES})
-# And this is the HGE & Helper library and required libraries to link against
-set(HGE_HELPER_LIBRARY hge_helpers ${HGE_LIBRARY})
+if(WIN32)
+	set(HGE_LIBRARY hge ${HGE_LIBRARIES})
+	set(HGE_HELPER_LIBRARY hge ${HGE_LIBRARIES})
+else()
+	# This is the HGE library and required libraries to link against
+	set(HGE_LIBRARY hge ${HGE_LIBRARIES})
+	# And this is the HGE & Helper library and required libraries to link against
+	set(HGE_HELPER_LIBRARY hge_helpers ${HGE_LIBRARY})
+endif()
 
 # Where HGE is located, this also builds the helper library
 add_subdirectory(src/core)

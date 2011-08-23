@@ -96,7 +96,7 @@ if(UNIX OR APPLE)
 	endif(APPLE)
 else(UNIX OR APPLE)
 	# Win32, though it's probably broken to build
-	include_directories(windows)
+	include_directories(windows unix)
 	set(HGE_SRCS
 		${HGE_SRCS}
 		windows/graphics.cpp
@@ -108,9 +108,6 @@ else(UNIX OR APPLE)
 		windows/system.cpp
 	)
 endif(UNIX OR APPLE)
-
-add_library(hge SHARED ${HGE_SRCS})
-target_link_libraries(hge ${HGE_LIBRARIES})
 
 set(HS ${CMAKE_SOURCE_DIR}/src/helpers)
 set(HGE_HELPER_SRCS
@@ -131,5 +128,13 @@ set(HGE_HELPER_SRCS
 	${HS}/resources.cpp
 )
 
-add_library(hge_helpers SHARED ${HGE_HELPER_SRCS})
-target_link_libraries(hge_helpers hge ${HGE_LIBRARIES})
+if(WIN32)
+	add_library(hge ${USE_SHARED} ${HGE_SRCS} ${HGE_HELPER_SRCS})
+	target_link_libraries(hge ${HGE_LIBRARIES})
+else()
+	add_library(hge ${USE_SHARED} ${HGE_SRCS})
+	target_link_libraries(hge ${HGE_LIBRARIES})
+
+	add_library(hge_helpers ${USE_SHARED} ${HGE_HELPER_SRCS})
+	target_link_libraries(hge_helpers hge ${HGE_LIBRARIES})
+endif()

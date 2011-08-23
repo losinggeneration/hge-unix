@@ -9,6 +9,10 @@
 #include "fontlist.h"
 #include "unix_compat.h"
 
+#ifdef _WINDOWS
+#include <wingdi.h>
+#endif
+
 CFontList::CFontList()
 {
 	nFonts=0;

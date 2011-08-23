@@ -8,6 +8,7 @@
 
 
 #include "fonted.h"
+#include <cstdio>
 #include <string>
 
 #ifndef PLATFORM_UNIX

@@ -10,7 +10,7 @@
 #include "hge_impl.h"
 
 
-char *KeyNames[] =
+const char *KeyNames[] =
 {
  "?",
  "Left Mouse Button", "Right Mouse Button", "?", "Middle Mouse Button",
@@ -60,7 +60,7 @@ bool CALL HGE_Impl::Input_GetEvent(hgeInputEvent *event)
 		delete eptr;
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -103,7 +103,7 @@ bool CALL HGE_Impl::Input_KeyUp(int key)
 	return (keyz[key] & 2) != 0;
 }
 
-char* CALL HGE_Impl::Input_GetKeyName(int key)
+const char* CALL HGE_Impl::Input_GetKeyName(int key)
 {
 	return KeyNames[key];
 }
@@ -190,7 +190,7 @@ void HGE_Impl::_BuildEvent(int type, int key, int scan, int flags, int x, int y)
 		pt.x=(int)Xpos; pt.y=(int)Ypos;
 		bCaptured=false;
 	}
-	
+
 	if(kbstate[VK_SHIFT] & 0x80) flags|=HGEINP_SHIFT;
 	if(kbstate[VK_CONTROL] & 0x80) flags|=HGEINP_CTRL;
 	if(kbstate[VK_MENU] & 0x80) flags|=HGEINP_ALT;
@@ -211,7 +211,7 @@ void HGE_Impl::_BuildEvent(int type, int key, int scan, int flags, int x, int y)
 		eptr->event.y=(float)pt.y;
 	}
 
-	eptr->next=0; 
+	eptr->next=0;
 
 	if(!queue) queue=eptr;
 	else
@@ -240,7 +240,7 @@ void HGE_Impl::_ClearQueue()
 	CInputEventList *nexteptr, *eptr=queue;
 
 	memset(&keyz, 0, sizeof(keyz));
-	
+
 	while(eptr)
 	{
 		nexteptr=eptr->next;

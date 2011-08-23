@@ -641,7 +641,7 @@ void CALL HGE_Impl::System_Snapshot(const char *filename)
 	if(pD3DDevice)
 	{
 		pD3DDevice->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &pSurf);
-		D3DXSaveSurfaceToFile(filename, D3DXIFF_BMP, pSurf, NULL, NULL);
+// 		D3DXSaveSurfaceToFile(filename, D3DXIFF_BMP, pSurf, NULL, NULL);
 		pSurf->Release();
 	}
 }

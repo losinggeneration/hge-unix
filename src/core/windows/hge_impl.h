@@ -167,7 +167,7 @@ public:
 	virtual bool		CALL	Input_KeyDown(int key);
 	virtual bool		CALL	Input_KeyUp(int key);
 	virtual bool		CALL	Input_GetKeyState(int key);
-	virtual char*		CALL	Input_GetKeyName(int key);
+	virtual const char*	CALL	Input_GetKeyName(int key);
 	virtual int			CALL	Input_GetKey();
 	virtual int			CALL	Input_GetChar();
 	virtual bool		CALL	Input_GetEvent(hgeInputEvent *event);
@@ -199,7 +199,7 @@ public:
 
 	static HGE_Impl*	_Interface_Get();
 	void				_FocusChange(bool bAct);
-	void				_PostError(char *error);
+	void				_PostError(const char *error);
 
 
 	HINSTANCE			hInstance;

@@ -6,13 +6,11 @@
 ** Core functions implementation: resources management
 */
 
-
-#include "hge_impl.h"
-
 #define NOCRYPT
-//#define NOUNCRYPT
+// #define NOUNCRYPT
 #include "ZLIB/unzip.h"
-
+#undef DWORD
+#include "hge_impl.h"
 
 bool CALL HGE_Impl::Resource_AttachPack(const char *filename, const char *password)
 {
@@ -28,7 +26,7 @@ bool CALL HGE_Impl::Resource_AttachPack(const char *filename, const char *passwo
 		if(!strcmp(szName,resItem->filename)) return false;
 		resItem=resItem->next;
 	}
-	
+
 	zip=unzOpen(szName);
 	if(!zip) return false;
 	unzClose(zip);
@@ -82,7 +80,7 @@ void CALL HGE_Impl::Resource_RemoveAllPacks()
 
 void* CALL HGE_Impl::Resource_Load(const char *filename, DWORD *size)
 {
-	static char *res_err="Can't load resource: %s";
+	const char *res_err="Can't load resource: %s";
 
 	CResourceList *resItem=res;
 	char szName[_MAX_PATH];
@@ -96,7 +94,7 @@ void* CALL HGE_Impl::Resource_Load(const char *filename, DWORD *size)
 	if(filename[0]=='\\' || filename[0]=='/' || filename[1]==':') goto _fromfile; // skip absolute paths
 
 	// Load from pack
- 
+
 	strcpy(szName,filename);
 	strupr(szName);
 	for(i=0; szName[i]; i++) { if(szName[i]=='/') szName[i]='\\'; }
@@ -144,10 +142,10 @@ void* CALL HGE_Impl::Resource_Load(const char *filename, DWORD *size)
 				if(size) *size=file_info.uncompressed_size;
 				return ptr;
 			}
-			
+
 			done=unzGoToNextFile(zip);
 		}
-		
+
 		unzClose(zip);
 		resItem=resItem->next;
 	}
@@ -171,7 +169,7 @@ _fromfile:
 		_PostError(szName);
 		return 0;
 	}
-	if(ReadFile(hF, ptr, file_info.uncompressed_size, &file_info.uncompressed_size, NULL ) == 0)
+	if(ReadFile(hF, ptr, file_info.uncompressed_size, (DWORD *)&file_info.uncompressed_size, NULL ) == 0)
 	{
 		CloseHandle(hF);
 		free(ptr);
@@ -179,7 +177,7 @@ _fromfile:
 		_PostError(szName);
 		return 0;
 	}
-	
+
 	CloseHandle(hF);
 	if(size) *size=file_info.uncompressed_size;
 	return ptr;
