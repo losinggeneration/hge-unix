@@ -6,7 +6,6 @@ function hgeBuildDefinitionDB(files)
 		tbls = tbls .. ' bind' .. v .. ','
 	end
 
-	print(tbls:sub(0, -2))
 	buildDefinitionDB(loadstring(tbls:sub(0, -2))())
 end
 
@@ -49,7 +48,7 @@ function generate()
 
 	hgeBuildDefinitionDB(files)
 
--- 	for i,v in ipairs(files) do
--- 		hgeBind(v)
--- 	end
+	for i,v in ipairs(files) do
+		hgeBind(v)
+	end
 end
