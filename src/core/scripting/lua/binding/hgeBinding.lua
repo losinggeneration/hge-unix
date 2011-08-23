@@ -6,6 +6,7 @@ function hgeBuildDefinitionDB(files)
 		tbls = tbls .. ' bind' .. v .. ','
 	end
 
+	print(tbls:sub(0, -2))
 	buildDefinitionDB(loadstring(tbls:sub(0, -2))())
 end
 
@@ -33,17 +34,22 @@ end
 
 function generate()
 	local files = {
+		'hgeAnim',
 		'hgeColor',
+		'hgeDistort',
+		'hgeFont',
+		'hgeSprite',
 		'hgeRect',
 		'hgeStrings',
 		'hgeVector',
-		'hgeResource', -- has members for sprite, animation, font, and others
+-- 		'hgeGui',
+-- 		'hgeResource', -- has members for sprite, animation, font, and others
 -- 		'hge',
 	}
 
 	hgeBuildDefinitionDB(files)
 
-	for i,v in ipairs(files) do
-		hgeBind(v)
-	end
+-- 	for i,v in ipairs(files) do
+-- 		hgeBind(v)
+-- 	end
 end
