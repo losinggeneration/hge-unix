@@ -6,6 +6,93 @@
 -- hgeGUI default controls header
 --
 
+bindhgeGuiCtrls = {
+	classes = {
+		{
+			name = 'hge.GUI.Button',
+			className = 'hgeGUIButton',
+			ctors = {
+				'(int id, float x, float y, float w, float h, HTEXTURE tex, float tx, float ty)',
+			},
+			memberFunctions = {
+				{ 'void SetMode(bool _bTrigger);' },
+				{ 'void SetState(bool _bPressed);' },
+				{ 'bool GetState() const;' },
+
+				{ 'void Render();' },
+				{ 'bool MouseLButton(bool bDown);' },
+			},
+		},
+		{
+			name = 'hge.GUI.Listbox',
+			className = 'hgeGUIListbox',
+			ctors = {
+				'(int id, float x, float y, float w, float h, hgeFont *fnt, DWORD tColor, DWORD thColor, DWORD hColor)',
+			},
+			memberFunctions = {
+				{ 'int AddItem(const char * item);' },
+				{ 'void DeleteItem(int n);' },
+				{ 'int GetSelectedItem();' },
+				{ 'void SetSelectedItem(int n);' },
+				{ 'int GetTopItem();' },
+				{ 'void SetTopItem(int n);' },
+
+				{ 'const char * GetItemText(int n);' },
+				{ 'int GetNumItems();' },
+				{ 'int GetNumRows();' },
+				{ 'void Clear();' },
+
+				{ 'void Render();' },
+				{ 'bool MouseMove(float x, float y);' },
+				{ 'bool MouseLButton(bool bDown);' },
+				{ 'bool MouseWheel(int nNotches);' },
+				{ 'bool KeyClick(int key, int chr);' },
+			},
+		},
+		{
+			name = 'hge.GUI.Listbox.Item',
+			className = 'hgeGUIListboxItem',
+			--  really text[64]
+			properties = {
+-- 				'std::string text;',
+				'hgeGUIListboxItem *next;',
+			},
+		},
+		{
+			name = 'hge.GUI.Slider',
+			className = 'hgeGUISlider',
+			ctors = {
+				'(int id, float x, float y, float w, float h, HTEXTURE tex, float tx, float ty, float sw, float sh, bool vertical)',
+			},
+			memberFunctions = {
+				{ 'void SetMode(float _fMin, float _fMax, int _mode);' },
+				{ 'void SetValue(float _fVal);' },
+				{ 'float GetValue() const;' },
+
+				{ 'void Render();' },
+				{ 'bool MouseMove(float x, float y);' },
+				{ 'bool MouseLButton(bool bDown);' },
+			},
+		},
+		{
+			name = 'hge.GUI.Text',
+			className = 'hgeGUIText',
+			ctors = {
+				'(int id, float x, float y, float w, float h, hgeFont *fnt)',
+			},
+			memberFunctions = {
+				{ 'void SetMode(int _align);' },
+				{ 'void SetText(const char * _text);' },
+-- 				{ 'void printf(const char *format, ...);' },
+
+				{ 'void Render();' },
+			},
+		},
+	},
+	modules = {
+	},
+}
+
 --[[
 
 #define hgeButtonGetState(gui,id) ((hgeGUIButton*)gui->GetCtrl(id))->GetState()
@@ -15,80 +102,8 @@
 #define hgeGetTextCtrl(gui,id) ((hgeGUIText*)gui->GetCtrl(id))
 #define hgeGetListboxCtrl(gui,id) ((hgeGUIListbox*)gui->GetCtrl(id))
 
-class hgeGUIText : public hgeGUIObject
-{
-public:
-	hgeGUIText(int id, float x, float y, float w, float h, hgeFont *fnt);
-
-	void SetMode(int _align);
-	void SetText(const char *_text);
-	void printf(const char *format, ...);
-
-	virtual void Render();
-};
-
-class hgeGUIButton : public hgeGUIObject
-{
-public:
-	hgeGUIButton(int id, float x, float y, float w, float h, HTEXTURE tex, float tx, float ty);
-	virtual ~hgeGUIButton();
-
-	void SetMode(bool _bTrigger) { bTrigger=_bTrigger; }
-	void SetState(bool _bPressed) { bPressed=_bPressed; }
-	bool GetState() const { return bPressed; }
-
-	virtual void Render();
-	virtual bool MouseLButton(bool bDown);
-};
-
 #define HGESLIDER_BAR 0
 #define HGESLIDER_BARRELATIVE 1
 #define HGESLIDER_SLIDER 2
-
-class hgeGUISlider : public hgeGUIObject
-{
-public:
-	hgeGUISlider(int id, float x, float y, float w, float h, HTEXTURE tex, float tx, float ty, float sw, float sh, bool vertical=false);
-	virtual ~hgeGUISlider();
-
-	void SetMode(float _fMin, float _fMax, int _mode) { fMin=_fMin; fMax=_fMax; mode=_mode; }
-	void SetValue(float _fVal);
-	float GetValue() const { return fVal; }
-
-	virtual void Render();
-	virtual bool MouseMove(float x, float y);
-	virtual bool MouseLButton(bool bDown);
-};
-
-struct hgeGUIListboxItem
-{
-	char text[64];
-	hgeGUIListboxItem *next;
-};
-
-class hgeGUIListbox : public hgeGUIObject
-{
-public:
-	hgeGUIListbox(int id, float x, float y, float w, float h, hgeFont *fnt, DWORD tColor, DWORD thColor, DWORD hColor);
-	virtual ~hgeGUIListbox();
-
-	int AddItem(char *item);
-	void DeleteItem(int n);
-	int GetSelectedItem() { return nSelectedItem; }
-	void SetSelectedItem(int n) { if(n>=0 && n<GetNumItems()) nSelectedItem=n; }
-	int GetTopItem() { return nTopItem; }
-	void SetTopItem(int n) { if(n>=0 && n<=GetNumItems()-GetNumRows()) nTopItem=n; }
-
-	char *GetItemText(int n);
-	int GetNumItems() { return nItems; }
-	int GetNumRows() { return int((rect.y2-rect.y1)/font->GetHeight()); }
-	void Clear();
-
-	virtual void Render();
-	virtual bool MouseMove(float x, float y) { mx=x; my=y; return false; }
-	virtual bool MouseLButton(bool bDown);
-	virtual bool MouseWheel(int nNotches);
-	virtual bool KeyClick(int key, int chr);
-};
 
 --]]

@@ -8,6 +8,7 @@
 
 bindhgeSprite = {
 	classes = {
+		{
 		name = 'hge.Sprite',
 		className = 'hgeSprite',
 		ctors = {
@@ -16,7 +17,7 @@ bindhgeSprite = {
 		},
 		memberFunctions = {
 			{ 'void Render(float x, float y);' },
-			{ 'void RenderEx(float x, float y, float rot, float hscale=1.0f, float vscale);' },
+			{ 'void RenderEx(float x, float y, float rot, float hscale, float vscale);' },
 			{ 'void RenderStretch(float x1, float y1, float x2, float y2);' },
 			{ 'void Render4V(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3);' },
 
@@ -26,21 +27,22 @@ bindhgeSprite = {
 			{ 'void SetZ(float z, int i);' },
 			{ 'void SetBlendMode(int blend);' },
 			{ 'void SetHotSpot(float x, float y);' },
-			{ 'void SetFlip(bool bX, bool bY, bool bHotSpot = false);' },
+			{ 'void SetFlip(bool bX, bool bY, bool bHotSpot);' },
 
 			{ 'HTEXTURE GetTexture() const;' },
-			{ 'void GetTextureRect(float *x, float *y, float *w, float *h) const;' },
 			{ 'DWORD GetColor(int i) const;' },
 			{ 'float GetZ(int i) const;' },
 			{ 'int GetBlendMode() const;' },
-			{ 'void GetHotSpot(float *x, float *y) const;' },
-			{ 'void GetFlip(bool *bX, bool *bY) const;' },
+-- 			{ 'void GetTextureRect(float *x, float *y, float *w, float *h) const;' },
+-- 			{ 'void GetHotSpot(float *x, float *y) const;' },
+-- 			{ 'void GetFlip(bool *bX, bool *bY) const;' },
 
 			{ 'float GetWidth() const;' },
 			{ 'float GetHeight() const;' },
 			{ 'hgeRect* GetBoundingBox(float x, float y, hgeRect *rect) const;' },
 			{ 'hgeRect* GetBoundingBoxEx(float x, float y, float rot, float hscale, float vscale, hgeRect *rect) const;' },
-		}
+		},
+		},
 	},
 	modules = {
 	},
