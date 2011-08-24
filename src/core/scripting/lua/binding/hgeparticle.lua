@@ -97,7 +97,8 @@ bindhgeParticle = {
 				'(const hgeParticleSystem &ps);',
 			},
 			memberFunctions =  {
-				{ 'hgeParticleSystem& operator= (const hgeParticleSystem &ps);' },
+				-- in header, but wasn't implemented
+-- 				{ 'hgeParticleSystem& operator= (const hgeParticleSystem &ps);' },
 
 				{ 'void Render();' },
 				{ 'void FireAt(float x, float y);' },

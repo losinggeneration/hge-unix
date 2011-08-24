@@ -10,8 +10,8 @@ do -- use conf : all these can be changed in input file or from command line arg
 	gen_lua.number_types={'int', 'double', 'float'}
 	gen_lua.enum_types={}
 	gen_lua.boolean_types={'bool'}
-	gen_lua.string_types={'const%s+char%s*%*', 'std%s*::%s*string', 'TString'} -- string types has to support static conversion  to const char*, and construction from const char*.
-	gen_lua.string_to_cstr={'@'              , '@.c_str()',         '@.ptr()'}
+	gen_lua.string_types={'const%s+char%s*%*', 'char%s+*', 'std%s*::%s*string', 'TString'} -- string types has to support static conversion  to const char*, and construction from const char*.
+	gen_lua.string_to_cstr={'@'              , '@'       , '@.c_str()',         '@.ptr()'}
 	gen_lua.string_from_cstr={'@'            , 'std::string(@)',    'TString(@)'}
 	gen_lua.auto_rename={{'__eq','operator%s*=='},{'__le', 'operator%s*<='},{'__lt', 'operator%s*<'},{'rsub', 'operator%s*-='},{'rmod', 'operator%s*%%='},{'radd', 'operator%s*+='},{'rmult', 'operator%s*%*='}, {'rdiv', 'operator%s*/='},{'assign', 'operator%s*='},{'__call','operator%s*%(%s*%)'},{'__div','operator%s*/'},{'__mul','operator%s*%*'},{'__add','operator%s*+'}, {'__sub','operator%s*-'},{'__mod', 'operator%s*%%'},} -- operator()
 	gen_lua.modifiers={'const', '%*', '&','inline','virtual'}

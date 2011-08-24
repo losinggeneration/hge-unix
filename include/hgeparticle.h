@@ -90,13 +90,14 @@ class hgeParticleSystem
 {
 public:
 	hgeParticleSystemInfo info;
-	
+
 	hgeParticleSystem(const char *filename, hgeSprite *sprite, float fps=0.0f);
 	hgeParticleSystem(hgeParticleSystemInfo *psi, float fps=0.0f);
 	hgeParticleSystem(const hgeParticleSystem &ps);
 	~hgeParticleSystem() { hge->Release(); }
 
-	hgeParticleSystem&	operator= (const hgeParticleSystem &ps);
+	/* Not actually implemented */
+// 	hgeParticleSystem&	operator= (const hgeParticleSystem &ps);
 
 
 	void				Render();

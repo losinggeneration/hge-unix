@@ -40,7 +40,7 @@ set(HGEBINDING_CPP
 	cpp/lua_hgevector.h
 
 # Generated source files
-# 	cpp/lua_hge.cpp
+	cpp/lua_hge.cpp
 	cpp/lua_hgeanim.cpp
 	cpp/lua_hgecolor.cpp
 	cpp/lua_hgedistort.cpp
