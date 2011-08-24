@@ -28,6 +28,11 @@ function hgeBind(class_name)
 		#include "]]..lower_class..[[.h"
 	]])
 
+	-- hge is special in that it's abstract
+	if class_name == 'hge' then
+		write([[#include "hge_impl.h"]])
+	end
+
 	writeDefinitions(bind_tbl, 'bind_lua_'..class_name)
 	flushWritten('cpp/lua_'..lower_class..'.cpp')
 end
@@ -42,10 +47,11 @@ function generate()
 		'hgeRect',
 		'hgeStrings',
 		'hgeVector',
+		'hgeParticle',
 		'hgeGui',
 		'hgeGuiCtrls',
 		'hgeResource', -- has members for sprite, animation, font, and others
--- 		'hge',
+		'hge',
 	}
 
 	hgeBuildDefinitionDB(files)

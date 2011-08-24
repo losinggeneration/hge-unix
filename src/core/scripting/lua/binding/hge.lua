@@ -6,14 +6,14 @@
 -- System layer API
 --
 
+array.pushBack(gen_lua.enum_types, 'hgeBoolState', 'hgeFuncState', 'hgeHwndState', 'hgeInputEvent', 'hgeIntState', 'hgeStringState')
+array.pushBack(gen_lua.number_types, 'HWND')
+
 bindhge = {
 	classes = {
 		{
 			name = 'hge',
-			className = 'HGE',
-			ctors = {
-				'()',
-			},
+			className = 'HGE_Impl',
 			memberFunctions = {
 				{ rename = 'release', 'void Release();' },
 
@@ -21,119 +21,174 @@ bindhge = {
 				{ rename = 'system_shutdown', 'void System_Shutdown();' },
 				{ rename = 'system_start', 'bool System_Start();' },
 				{ rename = 'system_geterrormessage', 'const char* System_GetErrorMessage();' },
-				{ rename = 'system_log', 'void System_Log(const char *format, ...);' },
+-- 				{ rename = 'system_log', 'void System_Log(const char *format, ...);' },
 				{ rename = 'system_launch', 'bool System_Launch(const char *url);' },
 				{ rename = 'system_snapshot', 'void System_Snapshot(const char *filename);' },
 
 				{ rename = 'system_set_bool_state', 'void System_SetState(hgeBoolState state, bool value);' },
-				{ rename = 'system_set_func_state', 'void System_SetState(hgeFuncState state, hgeCallback value);' },
+-- 				{ rename = 'system_set_func_state', 'void System_SetState(hgeFuncState state, hgeCallback value);' },
 				{ rename = 'system_set_hwnd_state', 'void System_SetState(hgeHwndState state, HWND value);' },
 				{ rename = 'system_set_int_state', 'void System_SetState(hgeIntState state, int value);' },
 				{ rename = 'system_set_string_state', 'void System_SetState(hgeStringState state, const char *value);' },
 				{ rename = 'system_get_bool_state', 'bool System_GetState(hgeBoolState state);' },
-				{ rename = 'system_get_func_state', 'hgeCallback System_GetState(hgeFuncState state);' },
+-- 				{ rename = 'system_get_func_state', 'hgeCallback System_GetState(hgeFuncState state);' },
 				{ rename = 'system_get_hwnd_state', 'HWND System_GetState(hgeHwndState state);' },
 				{ rename = 'system_get_int_state', 'int System_GetState(hgeIntState state);' },
 				{ rename = 'system_get_string_state', 'const char* System_GetState(hgeStringState state);' },
-
-				{ rename = 'resource_load', 'void* Resource_Load(const char *filename, DWORD *size);' },
-				{ rename = 'resource_free', 'void Resource_Free(void *res);' },
-				{ rename = 'resource_attachpack', 'bool Resource_AttachPack(const char *filename, const char *password);' },
-				{ rename = 'resource_removepack', 'void Resource_RemovePack(const char *filename);' },
-				{ rename = 'resource_removeallpacks', 'void Resource_RemoveAllPacks();' },
-				{ rename = 'resource_makepath', 'char* Resource_MakePath(const char *filename);' },
-				{ rename = 'resource_enumfiles', 'char* Resource_EnumFiles(const char *wildcard);' },
-				{ rename = 'resource_enumfolders', 'char* Resource_EnumFolders(const char *wildcard);' },
-
-				{ rename = 'ini_setint', 'void Ini_SetInt(const char *section, const char *name, int value);' },
-				{ rename = 'ini_getint', 'int Ini_GetInt(const char *section, const char *name, int def_val);' },
-				{ rename = 'ini_setfloat', 'void Ini_SetFloat(const char *section, const char *name, float value);' },
-				{ rename = 'ini_getfloat', 'float Ini_GetFloat(const char *section, const char *name, float def_val);' },
-				{ rename = 'ini_setstring', 'void Ini_SetString(const char *section, const char *name, const char *value);' },
-				{ rename = 'ini_getstring', 'char* Ini_GetString(const char *section, const char *name, const char *def_val);' },
-
-				{ rename = 'random_seed', 'void Random_Seed(int seed);' },
-				{ rename = 'random_int', 'int Random_Int(int min, int max);' },
-				{ rename = 'random_float', 'float Random_Float(float min, float max);' },
-
-				{ rename = 'timer_gettime', 'float Timer_GetTime();' },
-				{ rename = 'timer_getdelta', 'float Timer_GetDelta();' },
-				{ rename = 'timer_getfps', 'int Timer_GetFPS();' },
-
-				{ rename = 'effect_load', 'HEFFECT Effect_Load(const char *filename, DWORD size);' },
-				{ rename = 'effect_free', 'void Effect_Free(HEFFECT eff);' },
-				{ rename = 'effect_play', 'HCHANNEL Effect_Play(HEFFECT eff);' },
-				{ rename = 'effect_playex', 'HCHANNEL Effect_PlayEx(HEFFECT eff, int volume, int pan, float pitch, bool loop);' },
-
-				{ rename = 'music_load', 'HMUSIC Music_Load(const char *filename, DWORD size);' },
-				{ rename = 'music_free', 'void Music_Free(HMUSIC mus);' },
-				{ rename = 'music_play', 'HCHANNEL Music_Play(HMUSIC mus, bool loop, int volume, int order, int row);' },
-				{ rename = 'music_setamplification', 'void Music_SetAmplification(HMUSIC music, int ampl);' },
-				{ rename = 'music_getamplification', 'int Music_GetAmplification(HMUSIC music);' },
-				{ rename = 'music_getlength', 'int Music_GetLength(HMUSIC music);' },
-				{ rename = 'music_setpos', 'void Music_SetPos(HMUSIC music, int order, int row);' },
-				{ rename = 'music_getpos', 'bool Music_GetPos(HMUSIC music, int *order, int *row);' },
-				{ rename = 'music_setinstrvolume', 'void Music_SetInstrVolume(HMUSIC music, int instr, int volume);' },
-				{ rename = 'music_getinstrvolume', 'int Music_GetInstrVolume(HMUSIC music, int instr);' },
-				{ rename = 'music_setchannelvolume', 'void Music_SetChannelVolume(HMUSIC music, int channel, int volume);' },
-				{ rename = 'music_getchannelvolume', 'int Music_GetChannelVolume(HMUSIC music, int channel);' },
-
-				{ rename = 'stream_load', 'HSTREAM Stream_Load(const char *filename, DWORD size);' },
-				{ rename = 'stream_free', 'void Stream_Free(HSTREAM stream);' },
-				{ rename = 'stream_play', 'HCHANNEL Stream_Play(HSTREAM stream, bool loop, int volume);' },
-
-				{ rename = 'channel_setpanning', 'void Channel_SetPanning(HCHANNEL chn, int pan);' },
-				{ rename = 'channel_setvolume', 'void Channel_SetVolume(HCHANNEL chn, int volume);' },
-				{ rename = 'channel_setpitch', 'void Channel_SetPitch(HCHANNEL chn, float pitch);' },
-				{ rename = 'channel_pause', 'void Channel_Pause(HCHANNEL chn);' },
-				{ rename = 'channel_resume', 'void Channel_Resume(HCHANNEL chn);' },
-				{ rename = 'channel_stop', 'void Channel_Stop(HCHANNEL chn);' },
-				{ rename = 'channel_pauseall', 'void Channel_PauseAll();' },
-				{ rename = 'channel_resumeall', 'void Channel_ResumeAll();' },
-				{ rename = 'channel_stopall', 'void Channel_StopAll();' },
-				{ rename = 'channel_isplaying', 'bool Channel_IsPlaying(HCHANNEL chn);' },
-				{ rename = 'channel_getlength', 'float Channel_GetLength(HCHANNEL chn);' },
-				{ rename = 'channel_getpos', 'float Channel_GetPos(HCHANNEL chn);' },
-				{ rename = 'channel_setpos', 'void Channel_SetPos(HCHANNEL chn, float fSeconds);' },
-				{ rename = 'channel_slideto', 'void Channel_SlideTo(HCHANNEL channel, float time, int volume, int pan, float pitch);' },
-				{ rename = 'channel_issliding', 'bool Channel_IsSliding(HCHANNEL channel);' },
-
-				{ rename = 'input_getmousepos', 'void Input_GetMousePos(float *x, float *y);' },
-				{ rename = 'input_setmousepos', 'void Input_SetMousePos(float x, float y);' },
-				{ rename = 'input_getmousewheel', 'int Input_GetMouseWheel();' },
-				{ rename = 'input_ismouseover', 'bool Input_IsMouseOver();' },
-				{ rename = 'input_keydown', 'bool Input_KeyDown(int key);' },
-				{ rename = 'input_keyup', 'bool Input_KeyUp(int key);' },
-				{ rename = 'input_getkeystate', 'bool Input_GetKeyState(int key);' },
-				{ rename = 'input_getkeyname', 'const char* Input_GetKeyName(int key);' },
-				{ rename = 'input_getkey', 'int Input_GetKey();' },
-				{ rename = 'input_getchar', 'int Input_GetChar();' },
-				{ rename = 'input_getevent', 'bool Input_GetEvent(hgeInputEvent *event);' },
-
-				{ rename = 'gfx_beginscene', 'bool Gfx_BeginScene(HTARGET target);' },
-				{ rename = 'gfx_endscene', 'void Gfx_EndScene();' },
-				{ rename = 'gfx_clear', 'void Gfx_Clear(DWORD color);' },
-				{ rename = 'gfx_renderline', 'void Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD color, float z);' },
-				{ rename = 'gfx_rendertriple', 'void Gfx_RenderTriple(const hgeTriple *triple);' },
-				{ rename = 'gfx_renderquad', 'void Gfx_RenderQuad(const hgeQuad *quad);' },
-				{ rename = 'gfx_startbatch', 'hgeVertex* Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend, int *max_prim);' },
-				{ rename = 'gfx_finishbatch', 'void Gfx_FinishBatch(int nprim);' },
-				{ rename = 'gfx_setclipping', 'void Gfx_SetClipping(int x, int y, int w, int h);' },
-				{ rename = 'gfx_settransform', 'void Gfx_SetTransform(float x, float y, float dx, float dy, float rot, float hscale, float vscale);' },
-
-				{ rename = 'target_create', 'HTARGET Target_Create(int width, int height, bool zbuffer);' },
-				{ rename = 'target_free', 'void Target_Free(HTARGET target);' },
-				{ rename = 'target_gettexture', 'HTEXTURE Target_GetTexture(HTARGET target);' },
-
-				{ rename = 'texture_create', 'HTEXTURE Texture_Create(int width, int height);' },
-				{ rename = 'texture_load', 'HTEXTURE Texture_Load(const char *filename, DWORD size, bool bMipmap);' },
-				{ rename = 'texture_free', 'void Texture_Free(HTEXTURE tex);' },
-				{ rename = 'texture_getwidth', 'int Texture_GetWidth(HTEXTURE tex, bool bOriginal);' },
-				{ rename = 'texture_getheight', 'int Texture_GetHeight(HTEXTURE tex, bool bOriginal);' },
-				{ rename = 'texture_lock', 'DWORD* Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int top, int width, int height);' },
-				{ rename = 'textureunlock', 'void Texture_Unlock(HTEXTURE tex);' },
+--
+-- 				{ rename = 'resource_load', 'void* Resource_Load(const char *filename, DWORD *size);' },
+-- 				{ rename = 'resource_free', 'void Resource_Free(void *res);' },
+-- 				{ rename = 'resource_attachpack', 'bool Resource_AttachPack(const char *filename, const char *password);' },
+-- 				{ rename = 'resource_removepack', 'void Resource_RemovePack(const char *filename);' },
+-- 				{ rename = 'resource_removeallpacks', 'void Resource_RemoveAllPacks();' },
+-- 				{ rename = 'resource_makepath', 'char* Resource_MakePath(const char *filename);' },
+-- 				{ rename = 'resource_enumfiles', 'char* Resource_EnumFiles(const char *wildcard);' },
+-- 				{ rename = 'resource_enumfolders', 'char* Resource_EnumFolders(const char *wildcard);' },
+--
+-- 				{ rename = 'ini_setint', 'void Ini_SetInt(const char *section, const char *name, int value);' },
+-- 				{ rename = 'ini_getint', 'int Ini_GetInt(const char *section, const char *name, int def_val);' },
+-- 				{ rename = 'ini_setfloat', 'void Ini_SetFloat(const char *section, const char *name, float value);' },
+-- 				{ rename = 'ini_getfloat', 'float Ini_GetFloat(const char *section, const char *name, float def_val);' },
+-- 				{ rename = 'ini_setstring', 'void Ini_SetString(const char *section, const char *name, const char *value);' },
+-- 				{ rename = 'ini_getstring', 'char* Ini_GetString(const char *section, const char *name, const char *def_val);' },
+--
+-- 				{ rename = 'random_seed', 'void Random_Seed(int seed);' },
+-- 				{ rename = 'random_int', 'int Random_Int(int min, int max);' },
+-- 				{ rename = 'random_float', 'float Random_Float(float min, float max);' },
+--
+-- 				{ rename = 'timer_gettime', 'float Timer_GetTime();' },
+-- 				{ rename = 'timer_getdelta', 'float Timer_GetDelta();' },
+-- 				{ rename = 'timer_getfps', 'int Timer_GetFPS();' },
+--
+-- 				{ rename = 'effect_load', 'HEFFECT Effect_Load(const char *filename, DWORD size);' },
+-- 				{ rename = 'effect_free', 'void Effect_Free(HEFFECT eff);' },
+-- 				{ rename = 'effect_play', 'HCHANNEL Effect_Play(HEFFECT eff);' },
+-- 				{ rename = 'effect_playex', 'HCHANNEL Effect_PlayEx(HEFFECT eff, int volume, int pan, float pitch, bool loop);' },
+--
+-- 				{ rename = 'music_load', 'HMUSIC Music_Load(const char *filename, DWORD size);' },
+-- 				{ rename = 'music_free', 'void Music_Free(HMUSIC mus);' },
+-- 				{ rename = 'music_play', 'HCHANNEL Music_Play(HMUSIC mus, bool loop, int volume, int order, int row);' },
+-- 				{ rename = 'music_setamplification', 'void Music_SetAmplification(HMUSIC music, int ampl);' },
+-- 				{ rename = 'music_getamplification', 'int Music_GetAmplification(HMUSIC music);' },
+-- 				{ rename = 'music_getlength', 'int Music_GetLength(HMUSIC music);' },
+-- 				{ rename = 'music_setpos', 'void Music_SetPos(HMUSIC music, int order, int row);' },
+-- 				{ rename = 'music_getpos', 'bool Music_GetPos(HMUSIC music, int *order, int *row);' },
+-- 				{ rename = 'music_setinstrvolume', 'void Music_SetInstrVolume(HMUSIC music, int instr, int volume);' },
+-- 				{ rename = 'music_getinstrvolume', 'int Music_GetInstrVolume(HMUSIC music, int instr);' },
+-- 				{ rename = 'music_setchannelvolume', 'void Music_SetChannelVolume(HMUSIC music, int channel, int volume);' },
+-- 				{ rename = 'music_getchannelvolume', 'int Music_GetChannelVolume(HMUSIC music, int channel);' },
+--
+-- 				{ rename = 'stream_load', 'HSTREAM Stream_Load(const char *filename, DWORD size);' },
+-- 				{ rename = 'stream_free', 'void Stream_Free(HSTREAM stream);' },
+-- 				{ rename = 'stream_play', 'HCHANNEL Stream_Play(HSTREAM stream, bool loop, int volume);' },
+--
+-- 				{ rename = 'channel_setpanning', 'void Channel_SetPanning(HCHANNEL chn, int pan);' },
+-- 				{ rename = 'channel_setvolume', 'void Channel_SetVolume(HCHANNEL chn, int volume);' },
+-- 				{ rename = 'channel_setpitch', 'void Channel_SetPitch(HCHANNEL chn, float pitch);' },
+-- 				{ rename = 'channel_pause', 'void Channel_Pause(HCHANNEL chn);' },
+-- 				{ rename = 'channel_resume', 'void Channel_Resume(HCHANNEL chn);' },
+-- 				{ rename = 'channel_stop', 'void Channel_Stop(HCHANNEL chn);' },
+-- 				{ rename = 'channel_pauseall', 'void Channel_PauseAll();' },
+-- 				{ rename = 'channel_resumeall', 'void Channel_ResumeAll();' },
+-- 				{ rename = 'channel_stopall', 'void Channel_StopAll();' },
+-- 				{ rename = 'channel_isplaying', 'bool Channel_IsPlaying(HCHANNEL chn);' },
+-- 				{ rename = 'channel_getlength', 'float Channel_GetLength(HCHANNEL chn);' },
+-- 				{ rename = 'channel_getpos', 'float Channel_GetPos(HCHANNEL chn);' },
+-- 				{ rename = 'channel_setpos', 'void Channel_SetPos(HCHANNEL chn, float fSeconds);' },
+-- 				{ rename = 'channel_slideto', 'void Channel_SlideTo(HCHANNEL channel, float time, int volume, int pan, float pitch);' },
+-- 				{ rename = 'channel_issliding', 'bool Channel_IsSliding(HCHANNEL channel);' },
+--
+-- 				{ rename = 'input_getmousepos', 'void Input_GetMousePos(float *x, float *y);' },
+-- 				{ rename = 'input_setmousepos', 'void Input_SetMousePos(float x, float y);' },
+-- 				{ rename = 'input_getmousewheel', 'int Input_GetMouseWheel();' },
+-- 				{ rename = 'input_ismouseover', 'bool Input_IsMouseOver();' },
+-- 				{ rename = 'input_keydown', 'bool Input_KeyDown(int key);' },
+-- 				{ rename = 'input_keyup', 'bool Input_KeyUp(int key);' },
+-- 				{ rename = 'input_getkeystate', 'bool Input_GetKeyState(int key);' },
+-- 				{ rename = 'input_getkeyname', 'const char* Input_GetKeyName(int key);' },
+-- 				{ rename = 'input_getkey', 'int Input_GetKey();' },
+-- 				{ rename = 'input_getchar', 'int Input_GetChar();' },
+-- 				{ rename = 'input_getevent', 'bool Input_GetEvent(hgeInputEvent *event);' },
+--
+-- 				{ rename = 'gfx_beginscene', 'bool Gfx_BeginScene(HTARGET target);' },
+-- 				{ rename = 'gfx_endscene', 'void Gfx_EndScene();' },
+-- 				{ rename = 'gfx_clear', 'void Gfx_Clear(DWORD color);' },
+-- 				{ rename = 'gfx_renderline', 'void Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD color, float z);' },
+-- 				{ rename = 'gfx_rendertriple', 'void Gfx_RenderTriple(const hgeTriple *triple);' },
+-- 				{ rename = 'gfx_renderquad', 'void Gfx_RenderQuad(const hgeQuad *quad);' },
+-- 				{ rename = 'gfx_startbatch', 'hgeVertex* Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend, int *max_prim);' },
+-- 				{ rename = 'gfx_finishbatch', 'void Gfx_FinishBatch(int nprim);' },
+-- 				{ rename = 'gfx_setclipping', 'void Gfx_SetClipping(int x, int y, int w, int h);' },
+-- 				{ rename = 'gfx_settransform', 'void Gfx_SetTransform(float x, float y, float dx, float dy, float rot, float hscale, float vscale);' },
+--
+-- 				{ rename = 'target_create', 'HTARGET Target_Create(int width, int height, bool zbuffer);' },
+-- 				{ rename = 'target_free', 'void Target_Free(HTARGET target);' },
+-- 				{ rename = 'target_gettexture', 'HTEXTURE Target_GetTexture(HTARGET target);' },
+--
+-- 				{ rename = 'texture_create', 'HTEXTURE Texture_Create(int width, int height);' },
+-- 				{ rename = 'texture_load', 'HTEXTURE Texture_Load(const char *filename, DWORD size, bool bMipmap);' },
+-- 				{ rename = 'texture_free', 'void Texture_Free(HTEXTURE tex);' },
+-- 				{ rename = 'texture_getwidth', 'int Texture_GetWidth(HTEXTURE tex, bool bOriginal);' },
+-- 				{ rename = 'texture_getheight', 'int Texture_GetHeight(HTEXTURE tex, bool bOriginal);' },
+-- 				{ rename = 'texture_lock', 'DWORD* Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int top, int width, int height);' },
+-- 				{ rename = 'textureunlock', 'void Texture_Unlock(HTEXTURE tex);' },
 			},
-		}
+			enums = {
+				-- enum hgeBoolState
+				{ 'HGE_WINDOWED', '(int)HGE_WINDOWED' },
+				{ 'HGE_ZBUFFER', '(int)HGE_ZBUFFER' },
+				{ 'HGE_TEXTUREFILTER', '(int)HGE_TEXTUREFILTER' },
+				{ 'HGE_USESOUND', '(int)HGE_USESOUND' },
+				{ 'HGE_DONTSUSPEND', '(int)HGE_DONTSUSPEND' },
+				{ 'HGE_HIDEMOUSE', '(int)HGE_HIDEMOUSE' },
+				{ 'HGE_SHOWSPLASH', '(int)HGE_SHOWSPLASH' },
+				{ 'HGEBOOLSTATE_FORCE_DWORD', '(int)HGEBOOLSTATE_FORCE_DWORD' },
+
+				-- enum hgeFuncState
+				{ 'HGE_FRAMEFUNC', '(int)HGE_FRAMEFUNC' },
+				{ 'HGE_RENDERFUNC', '(int)HGE_RENDERFUNC' },
+				{ 'HGE_FOCUSLOSTFUNC', '(int)HGE_FOCUSLOSTFUNC' },
+				{ 'HGE_FOCUSGAINFUNC', '(int)HGE_FOCUSGAINFUNC' },
+				{ 'HGE_GFXRESTOREFUNC', '(int)HGE_GFXRESTOREFUNC' },
+				{ 'HGE_EXITFUNC', '(int)HGE_EXITFUNC' },
+
+				{ 'HGEFUNCSTATE_FORCE_DWORD', '(int)HGEFUNCSTATE_FORCE_DWORD' },
+
+				-- enum hgeHwndState
+				{ 'HGE_HWND', '(int)HGE_HWND' },
+				{ 'HGE_HWNDPARENT', '(int)HGE_HWNDPARENT' },
+
+				{ 'HGEHWNDSTATE_FORCE_DWORD', '(int)HGEHWNDSTATE_FORCE_DWORD' },
+
+				-- enum hgeIntState
+				{ 'HGE_SCREENWIDTH', '(int)HGE_SCREENWIDTH' },
+				{ 'HGE_SCREENHEIGHT', '(int)HGE_SCREENHEIGHT' },
+				{ 'HGE_SCREENBPP', '(int)HGE_SCREENBPP' },
+
+				{ 'HGE_SAMPLERATE', '(int)HGE_SAMPLERATE' },
+				{ 'HGE_FXVOLUME', '(int)HGE_FXVOLUME' },
+				{ 'HGE_MUSVOLUME', '(int)HGE_MUSVOLUME' },
+				{ 'HGE_STREAMVOLUME', '(int)HGE_STREAMVOLUME' },
+
+				{ 'HGE_FPS', '(int)HGE_FPS' },
+
+				{ 'HGE_POWERSTATUS', '(int)HGE_POWERSTATUS' },
+
+				{ 'HGE_ORIGSCREENWIDTH', '(int)HGE_ORIGSCREENWIDTH' },
+				{ 'HGE_ORIGSCREENHEIGHT', '(int)HGE_ORIGSCREENHEIGHT' },
+
+				{ 'HGEINTSTATE_FORCE_DWORD', '(int)HGEINTSTATE_FORCE_DWORD' },
+
+				-- enum hgeStringState
+				{ 'HGE_ICON', '(int)HGE_ICON' },
+				{ 'HGE_TITLE', '(int)HGE_TITLE' },
+
+				{ 'HGE_INIFILE', '(int)HGE_INIFILE' },
+				{ 'HGE_LOGFILE', '(int)HGE_LOGFILE' },
+
+				{ 'HGESTRINGSTATE_FORCE_DWORD', '(int)HGESTRINGSTATE_FORCE_DWORD' },
+			},
+		},
 	},
 	modules = {
 	}
@@ -190,76 +245,7 @@ bindhge = {
 #define BLEND_DEFAULT_Z		(BLEND_COLORMUL | BLEND_ALPHABLEND | BLEND_ZWRITE)
 
 
-/*
-** HGE System state constants
-*/
-enum hgeBoolState
-{
-	HGE_WINDOWED		= 1,    // bool		run in window?		(default: false)
-	HGE_ZBUFFER			= 2,    // bool		use z-buffer?		(default: false)
-	HGE_TEXTUREFILTER	= 3,    // bool		texture filtering?	(default: true)
 
-	HGE_USESOUND		= 4,    // bool		use BASS for sound?	(default: true)
-
-	HGE_DONTSUSPEND		= 5,	// bool		focus lost:suspend?	(default: false)
-	HGE_HIDEMOUSE		= 6,	// bool		hide system cursor?	(default: true)
-
-	HGE_SHOWSPLASH		= 7,	// bool		hide system cursor?	(default: true)
-
-	HGEBOOLSTATE_FORCE_DWORD = 0x7FFFFFFF
-};
-
-enum hgeFuncState
-{
-	HGE_FRAMEFUNC		= 8,    // bool*()	frame function		(default: NULL) (you MUST set this)
-	HGE_RENDERFUNC		= 9,    // bool*()	render function		(default: NULL)
-	HGE_FOCUSLOSTFUNC	= 10,   // bool*()	focus lost function	(default: NULL)
-	HGE_FOCUSGAINFUNC	= 11,   // bool*()	focus gain function	(default: NULL)
-	HGE_GFXRESTOREFUNC	= 12,   // bool*()	exit function		(default: NULL)
-	HGE_EXITFUNC		= 13,   // bool*()	exit function		(default: NULL)
-
-	HGEFUNCSTATE_FORCE_DWORD = 0x7FFFFFFF
-};
-
-enum hgeHwndState
-{
-	HGE_HWND			= 15,	// int		window handle: read only
-	HGE_HWNDPARENT		= 16,	// int		parent win handle	(default: 0)
-
-	HGEHWNDSTATE_FORCE_DWORD = 0x7FFFFFFF
-};
-
-enum hgeIntState
-{
-	HGE_SCREENWIDTH		= 17,   // int		screen width		(default: 800)
-	HGE_SCREENHEIGHT	= 18,   // int		screen height		(default: 600)
-	HGE_SCREENBPP		= 19,   // int		screen bitdepth		(default: 32) (desktop bpp in windowed mode)
-
-	HGE_SAMPLERATE		= 20,   // int		sample rate			(default: 44100)
-	HGE_FXVOLUME		= 21,   // int		global fx volume	(default: 100)
-	HGE_MUSVOLUME		= 22,   // int		global music volume	(default: 100)
-	HGE_STREAMVOLUME	= 23,   // int		global music volume	(default: 100)
-
-	HGE_FPS				= 24,	// int		fixed fps			(default: HGEFPS_UNLIMITED)
-
-	HGE_POWERSTATUS		= 25,   // int		battery life percent + status
-
-	HGE_ORIGSCREENWIDTH		= 30,   // int		original screen width		(default: 800 ... not valid until hge->System_Initiate()!)
-	HGE_ORIGSCREENHEIGHT	= 31,   // int		original screen height		(default: 600 ... not valid until hge->System_Initiate()!))
-
-	HGEINTSTATE_FORCE_DWORD = 0x7FFFFFF
-};
-
-enum hgeStringState
-{
-	HGE_ICON			= 26,   // char*	icon resource		(default: NULL)
-	HGE_TITLE			= 27,   // char*	window title		(default: "HGE")
-
-	HGE_INIFILE			= 28,   // char*	ini file			(default: NULL) (meaning no file)
-	HGE_LOGFILE			= 29,   // char*	log file			(default: NULL) (meaning no file)
-
-	HGESTRINGSTATE_FORCE_DWORD = 0x7FFFFFFF
-};
 
 /*
 ** Callback protoype used by HGE
@@ -360,147 +346,6 @@ struct hgeInputEvent
 #define HGEINP_NUMLOCK		32
 #define HGEINP_REPEAT		64
 
-
-/*
-** HGE Interface class
-*/
-class HGE
-{
-public:
-	HGE() {}
-	virtual ~HGE() {};
-
-	virtual	void		CALL	Release() = 0;
-
-	virtual bool		CALL	System_Initiate() = 0;
-	virtual void		CALL	System_Shutdown() = 0;
-	virtual bool		CALL	System_Start() = 0;
-	virtual char*		CALL	System_GetErrorMessage() = 0;
-	virtual	void		CALL	System_Log(const char *format, ...) = 0;
-	virtual bool		CALL	System_Launch(const char *url) = 0;
-	virtual void		CALL	System_Snapshot(const char *filename=0) = 0;
-
-private:
-	virtual void		CALL	System_SetStateBool  (hgeBoolState   state, bool        value) = 0;
-	virtual void		CALL	System_SetStateFunc  (hgeFuncState   state, hgeCallback value) = 0;
-	virtual void		CALL	System_SetStateHwnd  (hgeHwndState   state, HWND        value) = 0;
-	virtual void		CALL	System_SetStateInt   (hgeIntState    state, int         value) = 0;
-	virtual void		CALL	System_SetStateString(hgeStringState state, const char *value) = 0;
-	virtual bool		CALL	System_GetStateBool  (hgeBoolState   state) = 0;
-	virtual hgeCallback	CALL	System_GetStateFunc  (hgeFuncState   state) = 0;
-	virtual HWND		CALL	System_GetStateHwnd  (hgeHwndState   state) = 0;
-	virtual int			CALL	System_GetStateInt   (hgeIntState    state) = 0;
-	virtual const char*	CALL	System_GetStateString(hgeStringState state) = 0;
-
-public:
-	inline void					System_SetState(hgeBoolState   state, bool        value) { System_SetStateBool  (state, value); }
-	inline void					System_SetState(hgeFuncState   state, hgeCallback value) { System_SetStateFunc  (state, value); }
-	inline void					System_SetState(hgeHwndState   state, HWND        value) { System_SetStateHwnd  (state, value); }
-	inline void					System_SetState(hgeIntState    state, int         value) { System_SetStateInt   (state, value); }
-	inline void					System_SetState(hgeStringState state, const char *value) { System_SetStateString(state, value); }
-	inline bool					System_GetState(hgeBoolState   state) { return System_GetStateBool  (state); }
-	inline hgeCallback			System_GetState(hgeFuncState   state) { return System_GetStateFunc  (state); }
-	inline HWND					System_GetState(hgeHwndState   state) { return System_GetStateHwnd  (state); }
-	inline int					System_GetState(hgeIntState    state) { return System_GetStateInt   (state); }
-	inline const char*			System_GetState(hgeStringState state) { return System_GetStateString(state); }
-
-	virtual void*		CALL	Resource_Load(const char *filename, DWORD *size=0) = 0;
-	virtual void		CALL	Resource_Free(void *res) = 0;
-	virtual bool		CALL	Resource_AttachPack(const char *filename, const char *password=0) = 0;
-	virtual void		CALL	Resource_RemovePack(const char *filename) = 0;
-	virtual void		CALL	Resource_RemoveAllPacks() = 0;
-	virtual char*		CALL	Resource_MakePath(const char *filename=0) = 0;
-	virtual char*		CALL	Resource_EnumFiles(const char *wildcard=0) = 0;
-	virtual char*		CALL	Resource_EnumFolders(const char *wildcard=0) = 0;
-
-	virtual	void		CALL	Ini_SetInt(const char *section, const char *name, int value) = 0;
-	virtual	int			CALL	Ini_GetInt(const char *section, const char *name, int def_val) = 0;
-	virtual	void		CALL	Ini_SetFloat(const char *section, const char *name, float value) = 0;
-	virtual	float		CALL	Ini_GetFloat(const char *section, const char *name, float def_val) = 0;
-	virtual	void		CALL	Ini_SetString(const char *section, const char *name, const char *value) = 0;
-	virtual	char*		CALL	Ini_GetString(const char *section, const char *name, const char *def_val) = 0;
-
-	virtual void		CALL	Random_Seed(int seed=0) = 0;
-	virtual int			CALL	Random_Int(int min, int max) = 0;
-	virtual float		CALL	Random_Float(float min, float max) = 0;
-
-	virtual float		CALL	Timer_GetTime() = 0;
-	virtual float		CALL	Timer_GetDelta() = 0;
-	virtual int			CALL	Timer_GetFPS() = 0;
-
-	virtual HEFFECT		CALL	Effect_Load(const char *filename, DWORD size=0) = 0;
-	virtual void		CALL	Effect_Free(HEFFECT eff) = 0;
-	virtual HCHANNEL	CALL 	Effect_Play(HEFFECT eff) = 0;
-	virtual HCHANNEL	CALL	Effect_PlayEx(HEFFECT eff, int volume=100, int pan=0, float pitch=1.0f, bool loop=false) = 0;
-
-	virtual HMUSIC		CALL	Music_Load(const char *filename, DWORD size=0) = 0;
-	virtual void		CALL	Music_Free(HMUSIC mus) = 0;
-	virtual HCHANNEL	CALL	Music_Play(HMUSIC mus, bool loop, int volume = 100, int order = -1, int row = -1) = 0;
-	virtual void		CALL	Music_SetAmplification(HMUSIC music, int ampl) = 0;
-	virtual int			CALL	Music_GetAmplification(HMUSIC music) = 0;
-	virtual int			CALL	Music_GetLength(HMUSIC music) = 0;
-	virtual void		CALL	Music_SetPos(HMUSIC music, int order, int row) = 0;
-	virtual bool		CALL	Music_GetPos(HMUSIC music, int *order, int *row) = 0;
-	virtual void		CALL	Music_SetInstrVolume(HMUSIC music, int instr, int volume) = 0;
-	virtual int			CALL	Music_GetInstrVolume(HMUSIC music, int instr) = 0;
-	virtual void		CALL	Music_SetChannelVolume(HMUSIC music, int channel, int volume) = 0;
-	virtual int			CALL	Music_GetChannelVolume(HMUSIC music, int channel) = 0;
-
-	virtual HSTREAM		CALL	Stream_Load(const char *filename, DWORD size=0) = 0;
-	virtual void		CALL	Stream_Free(HSTREAM stream) = 0;
-	virtual HCHANNEL	CALL	Stream_Play(HSTREAM stream, bool loop, int volume = 100) = 0;
-
-	virtual void		CALL	Channel_SetPanning(HCHANNEL chn, int pan) = 0;
-	virtual void		CALL 	Channel_SetVolume(HCHANNEL chn, int volume) = 0;
-	virtual void		CALL 	Channel_SetPitch(HCHANNEL chn, float pitch) = 0;
-	virtual void		CALL 	Channel_Pause(HCHANNEL chn) = 0;
-	virtual void		CALL 	Channel_Resume(HCHANNEL chn) = 0;
-	virtual void		CALL 	Channel_Stop(HCHANNEL chn) = 0;
-	virtual void		CALL 	Channel_PauseAll() = 0;
-	virtual void		CALL 	Channel_ResumeAll() = 0;
-	virtual void		CALL 	Channel_StopAll() = 0;
-	virtual bool		CALL	Channel_IsPlaying(HCHANNEL chn) = 0;
-	virtual float		CALL	Channel_GetLength(HCHANNEL chn) = 0;
-	virtual float		CALL	Channel_GetPos(HCHANNEL chn) = 0;
-	virtual void		CALL	Channel_SetPos(HCHANNEL chn, float fSeconds) = 0;
-	virtual void		CALL	Channel_SlideTo(HCHANNEL channel, float time, int volume, int pan = -101, float pitch = -1) = 0;
-	virtual bool		CALL	Channel_IsSliding(HCHANNEL channel) = 0;
-
-	virtual void		CALL	Input_GetMousePos(float *x, float *y) = 0;
-	virtual void		CALL	Input_SetMousePos(float x, float y) = 0;
-	virtual int			CALL	Input_GetMouseWheel() = 0;
-	virtual bool		CALL	Input_IsMouseOver() = 0;
-	virtual bool		CALL	Input_KeyDown(int key) = 0;
-	virtual bool		CALL	Input_KeyUp(int key) = 0;
-	virtual bool		CALL	Input_GetKeyState(int key) = 0;
-	virtual const char*		CALL	Input_GetKeyName(int key) = 0;
-	virtual int			CALL	Input_GetKey() = 0;
-	virtual int			CALL	Input_GetChar() = 0;
-	virtual bool		CALL	Input_GetEvent(hgeInputEvent *event) = 0;
-
-	virtual bool		CALL	Gfx_BeginScene(HTARGET target=0) = 0;
-	virtual void		CALL	Gfx_EndScene() = 0;
-	virtual void		CALL	Gfx_Clear(DWORD color) = 0;
-	virtual void		CALL	Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD color=0xFFFFFFFF, float z=0.5f) = 0;
-	virtual void		CALL	Gfx_RenderTriple(const hgeTriple *triple) = 0;
-	virtual void		CALL	Gfx_RenderQuad(const hgeQuad *quad) = 0;
-	virtual hgeVertex*	CALL	Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend, int *max_prim) = 0;
-	virtual void		CALL	Gfx_FinishBatch(int nprim) = 0;
-	virtual void		CALL	Gfx_SetClipping(int x=0, int y=0, int w=0, int h=0) = 0;
-	virtual void		CALL	Gfx_SetTransform(float x=0, float y=0, float dx=0, float dy=0, float rot=0, float hscale=0, float vscale=0) = 0;
-
-	virtual HTARGET		CALL	Target_Create(int width, int height, bool zbuffer) = 0;
-	virtual void		CALL	Target_Free(HTARGET target) = 0;
-	virtual HTEXTURE	CALL	Target_GetTexture(HTARGET target) = 0;
-
-	virtual HTEXTURE	CALL	Texture_Create(int width, int height) = 0;
-	virtual HTEXTURE	CALL	Texture_Load(const char *filename, DWORD size=0, bool bMipmap=false) = 0;
-	virtual void		CALL	Texture_Free(HTEXTURE tex) = 0;
-	virtual int			CALL	Texture_GetWidth(HTEXTURE tex, bool bOriginal=false) = 0;
-	virtual int			CALL	Texture_GetHeight(HTEXTURE tex, bool bOriginal=false) = 0;
-	virtual DWORD*		CALL	Texture_Lock(HTEXTURE tex, bool bReadOnly=true, int left=0, int top=0, int width=0, int height=0) = 0;
-	virtual void		CALL	Texture_Unlock(HTEXTURE tex) = 0;
-};
 
 extern "C" { EXPORT HGE * CALL hgeCreate(int ver); }
 
