@@ -128,13 +128,26 @@ set(HGE_HELPER_SRCS
 	${HS}/resources.cpp
 )
 
-if(WIN32)
+if(WIN32 OR ${BUILD_SINGLE_LIB})
 	add_library(hge ${USE_SHARED} ${HGE_SRCS} ${HGE_HELPER_SRCS})
 	target_link_libraries(hge ${HGE_LIBRARIES})
+	set(HGE_TARGETS hge)
 else()
 	add_library(hge ${USE_SHARED} ${HGE_SRCS})
 	target_link_libraries(hge ${HGE_LIBRARIES})
 
 	add_library(hge_helpers ${USE_SHARED} ${HGE_HELPER_SRCS})
 	target_link_libraries(hge_helpers hge ${HGE_LIBRARIES})
+	set(HGE_TARGETS hge hge_helpers)
 endif()
+
+install(TARGETS ${HGE_TARGETS}
+	RUNTIME DESTINATION bin
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+)
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
+	DESTINATION include/hge
+	FILES_MATCHING PATTERN "*.h"
+)

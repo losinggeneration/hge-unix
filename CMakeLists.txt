@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 option(BUILD_TUTORIALS "Build the tutorial samples" OFF)
 option(BUILD_TOOLS "Build the library tools" OFF)
 option(USE_INTERNAL_ZLIB "Use the internal ZLib" OFF)
+option(BUILD_SINGLE_LIB "Build a single library for HGE and Helpers" OFF)
 
 if(UNIX OR APPLE)
 	# Needed for FindVorbis
@@ -87,7 +88,7 @@ else()
 	message(FATAL_ERROR "Unknown platform")
 endif(UNIX OR APPLE)
 
-if(WIN32)
+if(WIN32 OR ${BUILD_SINGLE_LIB})
 	set(HGE_LIBRARY hge ${HGE_LIBRARIES})
 	set(HGE_HELPER_LIBRARY hge ${HGE_LIBRARIES})
 else()
