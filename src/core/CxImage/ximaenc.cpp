@@ -349,19 +349,19 @@ bool CxImage::Encode(CxFile *hFile, uint32_t imagetype)
 #if CXIMAGE_SUPPORT_JASPER
 	if (
  #if	CXIMAGE_SUPPORT_JP2
-		CXIMAGE_FORMAT_JP2==imagetype || 
+		CXIMAGE_FORMAT_JP2==imagetype ||
  #endif
  #if	CXIMAGE_SUPPORT_JPC
-		CXIMAGE_FORMAT_JPC==imagetype || 
+		CXIMAGE_FORMAT_JPC==imagetype ||
  #endif
  #if	CXIMAGE_SUPPORT_PGX
-		CXIMAGE_FORMAT_PGX==imagetype || 
+		CXIMAGE_FORMAT_PGX==imagetype ||
  #endif
  #if	CXIMAGE_SUPPORT_PNM
-		CXIMAGE_FORMAT_PNM==imagetype || 
+		CXIMAGE_FORMAT_PNM==imagetype ||
  #endif
  #if	CXIMAGE_SUPPORT_RAS
-		CXIMAGE_FORMAT_RAS==imagetype || 
+		CXIMAGE_FORMAT_RAS==imagetype ||
  #endif
 		 false ){
 		CxImageJAS *newima = new CxImageJAS;
@@ -678,7 +678,7 @@ bool CxImage::LoadResource(HRSRC hRes, uint32_t imagetype, HMODULE hModule)
  * \param filename: file name
  * \param imagetype: file format, see ENUM_CXIMAGE_FORMATS
  */
-// 
+//
 // > filename: file name
 // > imagetype: specify the image format (CXIMAGE_FORMAT_BMP,...)
 // For UNICODE support: char -> TCHAR
@@ -1000,19 +1000,19 @@ bool CxImage::Decode(CxFile *hFile, uint32_t imagetype)
 #if CXIMAGE_SUPPORT_JASPER
 	if (CXIMAGE_FORMAT_UNKNOWN==imagetype ||
 #if	CXIMAGE_SUPPORT_JP2
-	 CXIMAGE_FORMAT_JP2==imagetype || 
+	 CXIMAGE_FORMAT_JP2==imagetype ||
 #endif
 #if	CXIMAGE_SUPPORT_JPC
-	 CXIMAGE_FORMAT_JPC==imagetype || 
+	 CXIMAGE_FORMAT_JPC==imagetype ||
 #endif
 #if	CXIMAGE_SUPPORT_PGX
-	 CXIMAGE_FORMAT_PGX==imagetype || 
+	 CXIMAGE_FORMAT_PGX==imagetype ||
 #endif
 #if	CXIMAGE_SUPPORT_PNM
-	 CXIMAGE_FORMAT_PNM==imagetype || 
+	 CXIMAGE_FORMAT_PNM==imagetype ||
 #endif
 #if	CXIMAGE_SUPPORT_RAS
-	 CXIMAGE_FORMAT_RAS==imagetype || 
+	 CXIMAGE_FORMAT_RAS==imagetype ||
 #endif
 	 false ){
 		CxImageJAS *newima = new CxImageJAS;
@@ -1122,7 +1122,7 @@ bool CxImage::CheckFormat(CxFile * hFile, uint32_t imagetype)
 ////////////////////////////////////////////////////////////////////////////////
 bool CxImage::CheckFormat(uint8_t * buffer, uint32_t size, uint32_t imagetype)
 {
-	if (buffer==NULL || size==NULL){
+	if (buffer==NULL || size==0){
 		strcpy(info.szLastError,"invalid or empty buffer");
 		return false;
 	}
