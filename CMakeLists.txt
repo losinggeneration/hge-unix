@@ -6,6 +6,10 @@ option(BUILD_TOOLS "Build the library tools" OFF)
 option(USE_INTERNAL_ZLIB "Use the internal ZLib" OFF)
 option(ENABLE_SCRIPTING_LUA "Enables Lua scripting" ON)
 
+if(ENABLE_SCRIPTING_LUA)
+	option(USE_LUNA_GEN "Use luna-gen to for Lua bingings" OFF)
+endif()
+
 if(UNIX OR APPLE)
 	# Needed for FindVorbis
 	set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -62,7 +66,13 @@ if(UNIX OR APPLE)
 endif(UNIX OR APPLE)
 
 if(ENABLE_SCRIPTING_LUA)
-	set(HGE_BINDING_LUA hgeBindingLua)
+	if(USE_LUNA_GEN)
+		set(HGE_BINDING_LUA hgeBindingLua)
+	else()
+		find_package(OOLua REQUIRED)
+		set(HGE_BINDING_LUA oolua_hge)
+	endif()
+
 	set(HGE_LIBRARIES
 		${HGE_LIBRARIES}
 		${HGE_BINDING_LUA}
