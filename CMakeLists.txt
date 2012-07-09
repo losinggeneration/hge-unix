@@ -5,6 +5,7 @@ option(BUILD_TUTORIALS "Build the tutorial samples" OFF)
 option(BUILD_TOOLS "Build the library tools" OFF)
 option(USE_INTERNAL_ZLIB "Use the internal ZLib" OFF)
 option(BUILD_SINGLE_LIB "Build a single library for HGE and Helpers" OFF)
+option(BUILD_C_API "Build a C api version of the library" OFF)
 
 if(UNIX OR APPLE)
 	# Needed for FindVorbis
@@ -100,6 +101,10 @@ endif()
 
 # Where HGE is located, this also builds the helper library
 add_subdirectory(src/core)
+
+if(BUILD_C_API)
+	add_subdirectory(c_api)
+endif(BUILD_C_API)
 
 # Did tutorials get enabled to be built?
 if(BUILD_TUTORIALS)
