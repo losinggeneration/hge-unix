@@ -6,7 +6,7 @@ set(HGE_C_SRCS
 	hge.cpp
 )
 
-# set(HGE_C_HELPER_SRCS
+set(HGE_C_HELPER_SRCS
 # 	hgeanim.cpp
 # 	hgecolor.cpp
 # 	hgedistort.cpp
@@ -19,8 +19,8 @@ set(HGE_C_SRCS
 # 	hgeresource.cpp
 # 	hgesprite.cpp
 # 	hgestrings.cpp
-# 	hgevector.cpp
-# )
+	hgevector.cpp
+)
 
 if(WIN32 OR ${BUILD_SINGLE_LIB})
 	add_library(hge_c ${USE_SHARED} ${HGE_C_SRCS} ${HGE_C_HELPER_SRCS})
