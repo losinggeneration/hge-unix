@@ -11,9 +11,9 @@ set(HGE_C_HELPER_SRCS
 # 	hgecolor.cpp
 	hgedistort.cpp
 	hgefont.cpp
-# 	hgegui.cpp
-# 	hgeguictrls.cpp
-# 	hgeparticle.cpp
+	hgegui.cpp
+	hgeguictrls.cpp
+	hgeparticle.cpp
 	hgerect.cpp
 # 	hgeresource.cpp
 	hgesprite.cpp
