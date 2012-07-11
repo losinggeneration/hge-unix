@@ -43,6 +43,6 @@ install(TARGETS ${HGE_TARGETS}
 )
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/c_api/include/
-	DESTINATION include/hge
+	DESTINATION include/hge/c
 	FILES_MATCHING PATTERN "*.h"
 )
