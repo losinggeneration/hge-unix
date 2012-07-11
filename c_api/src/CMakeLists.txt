@@ -7,18 +7,17 @@ set(HGE_C_SRCS
 )
 
 set(HGE_C_HELPER_SRCS
-# 	hgeanim.cpp
+	hgeanim.cpp
 # 	hgecolor.cpp
-# 	hgedistort.cpp
-# 	hgefont.cpp
+	hgedistort.cpp
+	hgefont.cpp
 # 	hgegui.cpp
 # 	hgeguictrls.cpp
 # 	hgeparticle.cpp
-# 	hgepmanager.cpp
-# 	hgerect.cpp
+	hgerect.cpp
 # 	hgeresource.cpp
-# 	hgesprite.cpp
-# 	hgestrings.cpp
+	hgesprite.cpp
+	hgestrings.cpp
 	hgevector.cpp
 )
 

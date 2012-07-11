@@ -523,4 +523,5 @@ void HGE_Texture_Unlock(HGE_t *hge, HTEXTURE tex);
 #ifdef __cplusplus
 }
 #endif
+
 #endif
