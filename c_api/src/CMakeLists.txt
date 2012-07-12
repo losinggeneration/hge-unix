@@ -15,7 +15,7 @@ set(HGE_C_HELPER_SRCS
 	hgeguictrls.cpp
 	hgeparticle.cpp
 	hgerect.cpp
-# 	hgeresource.cpp
+	hgeresource.cpp
 	hgesprite.cpp
 	hgestrings.cpp
 	hgevector.cpp
