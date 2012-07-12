@@ -8,7 +8,7 @@ set(HGE_C_SRCS
 
 set(HGE_C_HELPER_SRCS
 	hgeanim.cpp
-# 	hgecolor.cpp
+	hgecolor.cpp
 	hgedistort.cpp
 	hgefont.cpp
 	hgegui.cpp

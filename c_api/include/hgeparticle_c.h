@@ -22,7 +22,7 @@ struct HGE_Particle_SystemInfo_t
 
 	float fDirection;
 	float fSpread;
-	BYTE bRelative; // was "bool", but that's 4 bytes on PowerPC instead of 1, and it broke loading from disk...
+	BYTE bRelative; // was "BOOL", but that's 4 bytes on PowerPC instead of 1, and it broke loading from disk...
 
 	float fSpeedMin;
 	float fSpeedMax;
@@ -53,43 +53,42 @@ struct HGE_Particle_SystemInfo_t
 /// hgeParticleSystem
 typedef struct HGE_Particle_System_s HGE_Particle_System_t;
 // HGE_Particle_SystemInfo_t info;
-//
-// HGE_Particle_System(const char *filename, HGE_Sprite_t *sprite, float fps);
-// HGE_Particle_System(HGE_Particle_SystemInfo_t *psi, float fps);
-// HGE_Particle_System(const HGE_Particle_System_t *ps);
-// ~HGE_Particle_System();
-//
+HGE_Particle_System_t *HGE_Particle_System_New(const char *filename, HGE_Sprite_t *sprite, float fps);
+HGE_Particle_System_t *HGE_Particle_System_NewInfo(HGE_Particle_SystemInfo_t *psi, float fps);
+HGE_Particle_System_t *HGE_Particle_System_Copy(const HGE_Particle_System_t *ps);
+void HGE_Particle_System_Free(HGE_Particle_System_t *ps);
+
 // HGE_Particle_System& operator= (const HGE_Particle_System *ps);
 //
-// void Render();
-// void FireAt(float x, float y);
-// void Fire();
-// void Stop(bool bKillParticles);
-// void Update(float fDeltaTime);
-// void MoveTo(float x, float y, bool bMoveParticles);
-// void Transpose(float x, float y);
-// void TrackBoundingBox(bool bTrack);
-//
-// int GetParticlesAlive();
-// float GetAge();
-// void GetPosition(float *x, float *y);
-// void GetTransposition(float *x, float *y);
-// HGE_Rect_t* GetBoundingBox(HGE_Rect_t *rect);
+void Particle_System_Render(HGE_Particle_System_t *ps);
+void Particle_System_FireAt(HGE_Particle_System_t *ps, float x, float y);
+void Particle_System_Fire(HGE_Particle_System_t *ps);
+void Particle_System_Stop(HGE_Particle_System_t *ps, BOOL bKillParticles);
+void Particle_System_Update(HGE_Particle_System_t *ps, float fDeltaTime);
+void Particle_System_MoveTo(HGE_Particle_System_t *ps, float x, float y, BOOL bMoveParticles);
+void Particle_System_Transpose(HGE_Particle_System_t *ps, float x, float y);
+void Particle_System_TrackBoundingBox(HGE_Particle_System_t *ps, BOOL bTrack);
+
+int Particle_System_GetParticlesAlive(HGE_Particle_System_t *ps);
+float Particle_System_GetAge(HGE_Particle_System_t *ps);
+void Particle_System_GetPosition(HGE_Particle_System_t *ps, float *x, float *y);
+void Particle_System_GetTransposition(HGE_Particle_System_t *ps, float *x, float *y);
+HGE_Rect_t* Particle_System_GetBoundingBox(HGE_Particle_System_t *ps, HGE_Rect_t *rect);
 
 /// hgeParticleManager
 typedef struct HGE_Particle_Manager_s HGE_Particle_Manager_t;
-// HGE_Particle_Manager(float fps);
-// ~HGE_Particle_Manager();
-//
-// void Update(float dt);
-// void Render();
-//
-// HGE_Particle_System_t* SpawnPS(HGE_Particle_SystemInfo_t *psi, float x, float y);
-// bool IsPSAlive(HGE_Particle_System_t *ps);
-// void Transpose(float x, float y);
-// void GetTransposition(float *dx, float *dy);
-// void KillPS(HGE_Particle_System_t *ps);
-// void KillAll();
+HGE_Particle_Manager_t *HGE_Particle_Manager_New(float fps);
+void HGE_Particle_Manager_Free(HGE_Particle_Manager_t *pm);
+
+void HGE_Particle_Manager_Update(HGE_Particle_Manager_t *pm, float dt);
+void HGE_Particle_Manager_Render(HGE_Particle_Manager_t *pm);
+
+HGE_Particle_System_t* HGE_Particle_Manager_SpawnPS(HGE_Particle_Manager_t *pm, HGE_Particle_SystemInfo_t *psi, float x, float y);
+BOOL HGE_Particle_Manager_IsPSAlive(HGE_Particle_System_t *ps);
+void HGE_Particle_Manager_Transpose(HGE_Particle_Manager_t *pm, float x, float y);
+void HGE_Particle_Manager_GetTransposition(HGE_Particle_Manager_t *pm, float *dx, float *dy);
+void HGE_Particle_Manager_KillPS(HGE_Particle_Manager_t *pm, HGE_Particle_System_t *ps);
+void HGE_Particle_Manager_KillAll(HGE_Particle_Manager_t *pm);
 
 #ifdef __cplusplus
 }
