@@ -28,13 +28,27 @@ void HGE_Font_Render(HGE_Font_t *font, float x, float y, int align, const char *
 	font->f->Render(x, y, align, string);
 }
 
-// void HGE_Font_printf(HGE_Font_t *font, float x, float y, int align, const char *format, ...) {
-// 	font->f->printf(float x, float y, int align, const char *format, ...);
-// }
+void HGE_Font_printf(HGE_Font_t *font, float x, float y, int align, const char *format, ...) {
+	va_list vl;
+	char buffer[1024];
 
-// void HGE_Font_printfb(HGE_Font_t *font, float x, float y, float w, float h, int align, const char *format, ...) {
-// 	font->f->printfb(float x, float y, float w, float h, int align, const char *format, ...);
-// }
+	va_start(vl, format);
+	vsnprintf(buffer, 1024, format, vl);
+	va_end(vl);
+
+	font->f->printf(x, y, align, buffer);
+}
+
+void HGE_Font_printfb(HGE_Font_t *font, float x, float y, float w, float h, int align, const char *format, ...) {
+	va_list vl;
+	char buffer[1024];
+
+	va_start(vl, format);
+	vsnprintf(buffer, 1024, format, vl);
+	va_end(vl);
+
+	font->f->printfb(x, y, w, h, align, buffer);
+}
 
 void HGE_Font_SetColor(HGE_Font_t *font, DWORD col) {
 	font->f->SetColor(col);

@@ -25,7 +25,7 @@ HGE_Font_t *HGE_Font_New(const char *filename, BOOL bMipmap);
 void HGE_Font_Free(HGE_Font_t *font);
 
 void HGE_Font_Render(HGE_Font_t *font, float x, float y, int align, const char *string);
-// void HGE_Font_printf(HGE_Font_t *font, float x, float y, int align, const char *format, ...);
+void HGE_Font_printf(HGE_Font_t *font, float x, float y, int align, const char *format, ...);
 // void HGE_Font_printfb(HGE_Font_t *font, float x, float y, float w, float h, int align, const char *format, ...);
 
 void HGE_Font_SetColor(HGE_Font_t *font, DWORD col);
