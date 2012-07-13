@@ -42,12 +42,16 @@ void hgeGUIText::SetMode(int _align)
 
 void hgeGUIText::SetText(const char *_text)
 {
-	strcpy(text, _text);
+	strncpy(text, _text, sizeof(text)-1);
+	text[sizeof(text) - 1] = '\0';
 }
 
 void hgeGUIText::printf(const char *format, ...)
 {
-// 	vsprintf(text, format, (char *)&format+sizeof(format));
+	va_list vl;
+	va_start(vl, format);
+	vsnprintf(text, sizeof(text)-1, format, vl);
+	va_end(vl);
 }
 
 void hgeGUIText::Render()
