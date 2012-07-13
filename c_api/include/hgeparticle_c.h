@@ -11,7 +11,7 @@ typedef struct HGE_Color_s HGE_Color_t;
 typedef struct HGE_Sprite_s HGE_Sprite_t;
 typedef struct HGE_Rect_s HGE_Rect_t;
 
-struct HGE_Particle_SystemInfo_t
+typedef struct HGE_Particle_SystemInfo_s
 {
 	HGE_Sprite_t* sprite; // texture + blend mode
 	int nEmission; // particles per sec
@@ -48,7 +48,7 @@ struct HGE_Particle_SystemInfo_t
 	HGE_Color_t *colColorEnd;
 	float fColorVar;
 	float fAlphaVar;
-};
+} HGE_Particle_SystemInfo_t;
 
 /// hgeParticleSystem
 typedef struct HGE_Particle_System_s HGE_Particle_System_t;
