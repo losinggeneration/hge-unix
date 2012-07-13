@@ -20,6 +20,7 @@ extern "C" {
 typedef struct HGE_Sprite_s HGE_Sprite_t;
 typedef struct HGE_Font_s HGE_Font_t;
 
+/// bool bMipmap=false
 HGE_Font_t *HGE_Font_New(const char *filename, BOOL bMipmap);
 void HGE_Font_Free(HGE_Font_t *font);
 

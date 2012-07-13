@@ -2,11 +2,11 @@
 #define HGE_C_API_H
 #define HGE_C_API
 
+#include "unix_compat.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "unix_compat.h"
 
 #ifdef _WINDOWS
 #include <windows.h>
@@ -336,9 +336,11 @@ float HGE_Random_Float(HGE_t *hge, float min, float max);
 float HGE_Timer_GetTime(HGE_t *hge);
 float HGE_Timer_GetDelta(HGE_t *hge);
 int HGE_Timer_GetFPS(HGE_t *hge);
+/// DWORD size=0
 HEFFECT HGE_Effect_Load(HGE_t *hge, const char *filename, DWORD size);
 void HGE_Effect_Free(HGE_t *hge, HEFFECT eff);
 HCHANNEL HGE_Effect_Play(HGE_t *hge, HEFFECT eff);
+/// int volume=100, int pan=0, float pitch=1.0f, bool loop=false
 HCHANNEL HGE_Effect_PlayEx(HGE_t *hge, HEFFECT eff, int volume, int pan, float pitch, BOOL loop);
 HMUSIC HGE_Music_Load(HGE_t *hge, const char *filename, DWORD size);
 void HGE_Music_Free(HGE_t *hge, HMUSIC mus);
@@ -381,6 +383,7 @@ const char* HGE_Input_GetKeyName(HGE_t *hge, int key);
 int HGE_Input_GetKey(HGE_t *hge);
 int HGE_Input_GetChar(HGE_t *hge);
 BOOL HGE_Input_GetEvent(HGE_t *hge, HGE_InputEvent_t *event);
+/// HTARGET target=0
 BOOL HGE_Gfx_BeginScene(HGE_t *hge, HTARGET target);
 void HGE_Gfx_EndScene(HGE_t *hge);
 void HGE_Gfx_Clear(HGE_t *hge, DWORD color);
@@ -395,6 +398,7 @@ HTARGET HGE_Target_Create(HGE_t *hge, int width, int height, BOOL zbuffer);
 void HGE_Target_Free(HGE_t *hge, HTARGET target);
 HTEXTURE HGE_Target_GetTexture(HGE_t *hge, HTARGET target);
 HTEXTURE HGE_Texture_Create(HGE_t *hge, int width, int height);
+/// DWORD size=0, bool bMipmap=false
 HTEXTURE HGE_Texture_Load(HGE_t *hge, const char *filename, DWORD size, BOOL bMipmap);
 void HGE_Texture_Free(HGE_t *hge, HTEXTURE tex);
 int HGE_Texture_GetWidth(HGE_t *hge, HTEXTURE tex, BOOL bOriginal);

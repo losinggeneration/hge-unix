@@ -21,6 +21,7 @@ void HGE_Sprite_Render4V(HGE_Sprite_t *sprite, float x0, float y0, float x1, flo
 
 void HGE_Sprite_SetTexture(HGE_Sprite_t *sprite, HTEXTURE tex);
 void HGE_Sprite_SetTextureRect(HGE_Sprite_t *sprite, float x, float y, float w, float h, BOOL adjSize);
+/// int i=-1
 void HGE_Sprite_SetColor(HGE_Sprite_t *sprite, DWORD col, int i);
 void HGE_Sprite_SetZ(HGE_Sprite_t *sprite, float z, int i);
 void HGE_Sprite_SetBlendMode(HGE_Sprite_t *sprite, int blend);
