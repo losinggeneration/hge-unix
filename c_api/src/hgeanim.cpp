@@ -1,13 +1,10 @@
 #include "hgeanim.h"
 #include "hgeanim_c.h"
+#include "hgeanim_impl.h"
 
 #include <malloc.h>
 
 extern "C" {
-
-typedef struct HGE_Animation_s {
-	hgeAnimation *a;
-} HGE_Animation_t;
 
 HGE_Animation_t *HGE_Animation_New(HTEXTURE tex, int nframes, float FPS, float x, float y, float w, float h) {
 	HGE_Animation_t *a = (HGE_Animation_t *)malloc(sizeof(HGE_Animation_t));

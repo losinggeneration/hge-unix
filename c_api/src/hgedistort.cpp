@@ -1,12 +1,10 @@
 #include "hgedistort.h"
 #include "hgedistort_c.h"
+#include "hgedistort_impl.h"
+
 #include <malloc.h>
 
 extern "C" {
-
-typedef struct HGE_DistortionMesh_s {
-	hgeDistortionMesh *dm;
-} HGE_DistortionMesh_t;
 
 HGE_DistortionMesh_t *HGE_DistortionMesh_Create(int cols, int rows) {
 	HGE_DistortionMesh_t *dm = (HGE_DistortionMesh_t *)malloc(sizeof(HGE_DistortionMesh_t));
