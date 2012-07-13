@@ -13,12 +13,13 @@ extern "C" {
 
 typedef struct HGE_DistortionMesh_s HGE_DistortionMesh_t;
 
-HGE_DistortionMesh_t *HGE_DistortionMesh_Create(int cols, int rows);
+HGE_DistortionMesh_t *HGE_DistortionMesh_New(int cols, int rows);
 HGE_DistortionMesh_t *HGE_DistortionMesh_Copy(const HGE_DistortionMesh_t *dm);
 void HGE_DistortionMesh_Free(HGE_DistortionMesh_t *dm);
 HGE_DistortionMesh_t *HGE_DistortionMesh_Set(HGE_DistortionMesh_t *dm, const HGE_DistortionMesh_t *cp);
 
 void HGE_DistortionMesh_Render(HGE_DistortionMesh_t *dm, float x, float y);
+/// DWORD col=0xFFFFFFFF, float z=0.5f
 void HGE_DistortionMesh_Clear(HGE_DistortionMesh_t *dm, DWORD col, float z);
 
 void HGE_DistortionMesh_SetTexture(HGE_DistortionMesh_t *dm, HTEXTURE tex);

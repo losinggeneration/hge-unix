@@ -27,12 +27,12 @@ void HGE_Vector_SetY(HGE_Vector_t *v, float y) {
 	v->v.y = y;
 }
 
-HGE_Vector_t HGE_Vector_Create(float x, float y) {
+HGE_Vector_t HGE_Vector_New(float x, float y) {
 	HGE_Vector_t v = {hgeVector(x,y)};
 	return v;
 }
 
-HGE_Vector_t HGE_Vector_CreateEmpty() {
+HGE_Vector_t HGE_Vector_NewEmpty() {
 	HGE_Vector_t v = {hgeVector()};
 	return v;
 }

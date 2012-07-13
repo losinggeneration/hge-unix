@@ -7,7 +7,7 @@
 extern "C" {
 	#endif
 
-#define HGE_Color HGE_Color_RGB
+#define HGE_Color HGE_Color_RGB_t
 
 typedef struct HGE_Color_RGB_s HGE_Color_RGB_t;
 typedef struct HGE_Color_HSV_s HGE_Color_HSV_t;

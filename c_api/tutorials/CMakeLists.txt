@@ -18,40 +18,40 @@ target_link_libraries(hge_c_tut02 hge_c)
 
 #---------------------------------------------
 
-# set(TUTORIAL03_SRCS
-#         tutorial03/hge_tut03.c
-# )
-#
-# add_executable(hge_c_tut03 ${TUTORIAL03_SRCS})
-# target_link_libraries(hge_c_tut03 hge ${HGE_HELPER_LIBRARY})
-#
-# #---------------------------------------------
-#
-# set(TUTORIAL04_SRCS
-#         tutorial04/hge_tut04.c
-# )
-#
-# add_executable(hge_c_tut04 ${TUTORIAL04_SRCS})
-# target_link_libraries(hge_c_tut04 ${HGE_HELPER_LIBRARY})
-#
-# #---------------------------------------------
-#
-# set(TUTORIAL05_SRCS
-#         tutorial05/hge_tut05.c
-# )
-#
-# add_executable(hge_c_tut05 ${TUTORIAL05_SRCS})
-# target_link_libraries(hge_c_tut05 ${HGE_HELPER_LIBRARY})
-#
-# #---------------------------------------------
-#
+set(TUTORIAL03_SRCS
+        tutorial03/hge_tut03.c
+)
+
+add_executable(hge_c_tut03 ${TUTORIAL03_SRCS})
+target_link_libraries(hge_c_tut03 hge hge_c)
+
+#---------------------------------------------
+
+set(TUTORIAL04_SRCS
+        tutorial04/hge_tut04.c
+)
+
+add_executable(hge_c_tut04 ${TUTORIAL04_SRCS})
+target_link_libraries(hge_c_tut04 hge_c)
+
+#---------------------------------------------
+
+set(TUTORIAL05_SRCS
+        tutorial05/hge_tut05.c
+)
+
+add_executable(hge_c_tut05 ${TUTORIAL05_SRCS})
+target_link_libraries(hge_c_tut05 hge_c m)
+
+#---------------------------------------------
+
 # set(TUTORIAL06_SRCS
 #         tutorial06/hge_tut06.c
 #         tutorial06/menuitem.c
 # )
 #
 # add_executable(hge_c_tut06 ${TUTORIAL06_SRCS})
-# target_link_libraries(hge_c_tut06 ${HGE_HELPER_LIBRARY})
+# target_link_libraries(hge_c_tut06 hge_c m)
 #
 # #---------------------------------------------
 #
@@ -60,7 +60,7 @@ target_link_libraries(hge_c_tut02 hge_c)
 # )
 #
 # add_executable(hge_c_tut07 ${TUTORIAL07_SRCS})
-# target_link_libraries(hge_c_tut07 ${HGE_HELPER_LIBRARY})
+# target_link_libraries(hge_c_tut07 hge_c)
 #
 # #---------------------------------------------
 #
@@ -69,4 +69,4 @@ target_link_libraries(hge_c_tut02 hge_c)
 # )
 #
 # add_executable(hge_c_tut08 ${TUTORIAL08_SRCS})
-# target_link_libraries(hge_c_tut08 ${HGE_HELPER_LIBRARY})
+# target_link_libraries(hge_c_tut08 hge_c)

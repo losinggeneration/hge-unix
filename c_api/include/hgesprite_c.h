@@ -15,6 +15,7 @@ HGE_Sprite_t *HGE_Sprite_Copy(const HGE_Sprite_t *spr);
 void HGE_Sprite_Free(HGE_Sprite_t *sprite);
 
 void HGE_Sprite_Render(HGE_Sprite_t *sprite, float x, float y);
+/// float hscale=1.0f, float vscale=0.0f
 void HGE_Sprite_RenderEx(HGE_Sprite_t *sprite, float x, float y, float rot, float hscale, float vscale);
 void HGE_Sprite_RenderStretch(HGE_Sprite_t *sprite, float x1, float y1, float x2, float y2);
 void HGE_Sprite_Render4V(HGE_Sprite_t *sprite, float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3);

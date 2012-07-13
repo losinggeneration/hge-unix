@@ -6,7 +6,7 @@
 
 extern "C" {
 
-HGE_DistortionMesh_t *HGE_DistortionMesh_Create(int cols, int rows) {
+HGE_DistortionMesh_t *HGE_DistortionMesh_New(int cols, int rows) {
 	HGE_DistortionMesh_t *dm = (HGE_DistortionMesh_t *)malloc(sizeof(HGE_DistortionMesh_t));
 
 	dm->dm = new hgeDistortionMesh(cols, rows);
