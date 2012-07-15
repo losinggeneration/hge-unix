@@ -215,8 +215,10 @@ bool CxImagePNG::Decode(CxFile *hFile)
 			RGBQUAD* pal=GetPalette();
 			if (pal){
 				uint32_t ip;
-				for (ip=0;ip<min(head.biClrUsed,(unsigned long)_num_trans);ip++)
-					pal[ip].rgbReserved=_trans_alpha[ip];
+				if(_trans_alpha != 0) {
+					for (ip=0;ip<min(head.biClrUsed,(unsigned long)_num_trans);ip++)
+						pal[ip].rgbReserved=_trans_alpha[ip];
+				}
 				for (ip=_num_trans;ip<head.biClrUsed;ip++){
 					pal[ip].rgbReserved=255;
 				}
