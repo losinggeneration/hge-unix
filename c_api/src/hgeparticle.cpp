@@ -107,7 +107,7 @@ void HGE_Particle_System_GetTransposition(HGE_Particle_System_t *ps, float *x, f
 }
 
 HGE_Rect_t* HGE_Particle_System_GetBoundingBox(HGE_Particle_System_t *ps, HGE_Rect_t *rect) {
-	ps->ps->GetBoundingBox(&rect->r);
+	ps->ps->GetBoundingBox(rect->r);
 	return rect;
 }
 

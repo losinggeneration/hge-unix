@@ -116,14 +116,14 @@ float HGE_Sprite_GetHeight(HGE_Sprite_t *sprite) {
 HGE_Rect_t* HGE_Sprite_GetBoundingBox(HGE_Sprite_t *sprite, float x, float y, HGE_Rect_t *rect) {
 	HGE_Rect_t *r = HGE_Rect_NewEmpty();
 
-	r->r = *sprite->s->GetBoundingBox(x, y, &rect->r);
+	r->r = sprite->s->GetBoundingBox(x, y, rect->r);
 
 	return r;
 }
 HGE_Rect_t* HGE_Sprite_GetBoundingBoxEx(HGE_Sprite_t *sprite, float x, float y, float rot, float hscale, float vscale, HGE_Rect_t *rect) {
 	HGE_Rect_t *r = HGE_Rect_NewEmpty();
 
-	r->r = *sprite->s->GetBoundingBoxEx(x, y, rot, hscale, vscale, &rect->r);
+	r->r = sprite->s->GetBoundingBoxEx(x, y, rot, hscale, vscale, rect->r);
 
 	return r;
 }
