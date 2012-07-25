@@ -12,13 +12,37 @@ extern "C" {
 #define HGE_GUI_UPDOWN 2
 #define HGE_GUI_CYCLED 4
 
-typedef struct HGE_Rect_s HGE_Rect_t;
-typedef struct HGE_Sprite_s HGE_Sprite_t;
 typedef struct HGE_GUI_Object_s HGE_GUI_Object_t;
 typedef struct HGE_GUI_s HGE_GUI_t;
 
+// Used for inheritance
+typedef struct HGE_GUI_Object_Impl_s {
+	void (*Render)(void *user_struct);
+	void (*Update)(void *user_struct, float dt);
+
+	void (*Enter)(void *user_struct);
+	void (*Leave)(void *user_struct);
+	void (*Reset)(void *user_struct);
+	BOOL (*IsDone)(void *user_struct);
+	void (*Focus)(void *user_struct, BOOL bFocused);
+	void (*MouseOver)(void *user_struct, BOOL bOver);
+
+	BOOL (*MouseMove)(void *user_struct, float x, float y);
+	BOOL (*MouseLButton)(void *user_struct, BOOL bDown);
+	BOOL (*MouseRButton)(void *user_struct, BOOL bDown);
+	BOOL (*MouseWheel)(void *user_struct, int nNotches);
+	BOOL (*KeyClick)(void *user_struct, int key, int chr);
+
+	void (*SetColor)(void *user_struct, DWORD _color);
+} HGE_GUI_Object_Impl_t;
+
+// forward declarations from other headers
+typedef struct HGE_Rect_s HGE_Rect_t;
+typedef struct HGE_Sprite_s HGE_Sprite_t;
+typedef struct HGE_s HGE_t;
+
 /// hgeGUIObject
-HGE_GUI_Object_t *HGE_GUI_Object_New();
+HGE_GUI_Object_t *HGE_GUI_Object_New(HGE_GUI_Object_Impl_t* impl, void* user_struct);
 void HGE_GUI_Object_Free(HGE_GUI_Object_t *go);
 
 void HGE_GUI_Object_HGE_GUI_Object_Render(HGE_GUI_Object_t *go);
@@ -28,16 +52,16 @@ void HGE_GUI_Object_Enter(HGE_GUI_Object_t *go);
 void HGE_GUI_Object_Leave(HGE_GUI_Object_t *go);
 void HGE_GUI_Object_Reset(HGE_GUI_Object_t *go);
 BOOL HGE_GUI_Object_IsDone(HGE_GUI_Object_t *go);
-void HGE_GUI_Object_Focus(HGE_GUI_Object_t *go, BOOL bFocused);
-void HGE_GUI_Object_MouseOver(HGE_GUI_Object_t *go, BOOL bOver);
+void HGE_GUI_Object_Focus(HGE_GUI_Object_t *go, BOOL focused);
+void HGE_GUI_Object_MouseOver(HGE_GUI_Object_t *go, BOOL over);
 
 BOOL HGE_GUI_Object_MouseMove(HGE_GUI_Object_t *go, float x, float y);
-BOOL HGE_GUI_Object_MouseLButton(HGE_GUI_Object_t *go, BOOL bDown);
-BOOL HGE_GUI_Object_MouseRButton(HGE_GUI_Object_t *go, BOOL bDown);
-BOOL HGE_GUI_Object_MouseWheel(HGE_GUI_Object_t *go, int nNotches);
+BOOL HGE_GUI_Object_MouseLButton(HGE_GUI_Object_t *go, BOOL down);
+BOOL HGE_GUI_Object_MouseRButton(HGE_GUI_Object_t *go, BOOL down);
+BOOL HGE_GUI_Object_MouseWheel(HGE_GUI_Object_t *go, int notches);
 BOOL HGE_GUI_Object_KeyClick(HGE_GUI_Object_t *go, int key, int chr);
 
-void HGE_GUI_Object_SetColor(HGE_GUI_Object_t *go, DWORD _color);
+void HGE_GUI_Object_SetColor(HGE_GUI_Object_t *go, DWORD color);
 
 void HGE_GUI_Object_SetId(HGE_GUI_Object_t *go, int id);
 int HGE_GUI_Object_GetId(HGE_GUI_Object_t *go);
@@ -49,7 +73,6 @@ void HGE_GUI_Object_SetEnabled(HGE_GUI_Object_t *go, BOOL enabled);
 BOOL HGE_GUI_Object_GetEnabled(HGE_GUI_Object_t *go);
 void HGE_GUI_Object_SetRect(HGE_GUI_Object_t *go, const HGE_Rect_t *rect);
 HGE_Rect_t *HGE_GUI_Object_GetRect(HGE_GUI_Object_t *go);
-void HGE_GUI_Object_SetColor(HGE_GUI_Object_t *go, DWORD color);
 DWORD HGE_GUI_Object_GetColor(HGE_GUI_Object_t *go);
 
 void HGE_GUI_Object_SetGui(HGE_GUI_Object_t *go, HGE_GUI_t *gui);
@@ -65,7 +88,9 @@ void HGE_GUI_Free(HGE_GUI_t *g);
 
 void HGE_GUI_AddCtrl(HGE_GUI_t *g, HGE_GUI_Object_t *ctrl);
 void HGE_GUI_DelCtrl(HGE_GUI_t *g, int id);
-HGE_GUI_Object_t* HGE_GUI_GetCtrl(HGE_GUI_t *g, int id);
+/// You must call free() on the returned object when you're done
+/// DO NOT call HGE_GUI_Object_Free on it.
+HGE_GUI_Object_t *HGE_GUI_GetCtrl(HGE_GUI_t *g, int id);
 
 void HGE_GUI_MoveCtrl(HGE_GUI_t *g, int id, float x, float y);
 void HGE_GUI_ShowCtrl(HGE_GUI_t *g, int id, BOOL visible);
