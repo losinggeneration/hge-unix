@@ -7,13 +7,12 @@
 extern "C" {
 #endif
 
-/// TODO these most definately don't work
-#define HGE_Button_GetState(gui,id) ((HGE_GUI_Button*)gui->GetCtrl(id))->GetState()
-#define HGE_Button_SetState(gui,id,b) ((HGE_GUI_Button*)gui->GetCtrl(id))->SetState(b)
-#define HGE_Slider_GetValue(gui,id) ((HGE_GUI_Slider*)gui->GetCtrl(id))->GetValue()
-#define HGE_Slider_SetValue(gui,id,f) ((HGE_GUI_Slider*)gui->GetCtrl(id))->SetValue(f)
-#define HGE_Text_GetCtrl(gui,id) ((HGE_GUI_Text*)gui->GetCtrl(id))
-#define HGE_Listbox_GetCtrl(gui,id) ((HGE_GUI_Listbox*)gui->GetCtrl(id))
+#define HGE_Button_GetState(gui,id) HGE_GUI_Button_GetState((HGE_GUI_Button_t*)HGE_GUI_GetCtl(gui, id))
+#define HGE_Button_SetState(gui,id,b) HGE_GUI_Button_SetState((HGE_GUI_Button_t*)HGE_GUI_GetCtl(gui, id))
+#define HGE_Slider_GetValue(gui,id) HGE_GUI_Slider_GetValue((HGE_GUI_Slider_t*)HGE_GUI_GetCtl(gui, id))
+#define HGE_Slider_SetValue(gui,id,f) HGE_GUI_Slider_SetValue((HGE_GUI_Slider_t*)HGE_GUI_GetCtl(gui, id), f)
+#define HGE_Text_GetCtrl(gui,id) ((HGE_GUI_Text_t*)HGE_GUI_GetCtl(gui, id))
+#define HGE_Listbox_GetCtrl(gui,id) ((HGE_GUI_Listbox_t*)HGE_GUI_GetCtl(gui, id))
 
 typedef struct HGE_Font_s HGE_Font_t;
 
