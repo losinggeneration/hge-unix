@@ -45,6 +45,7 @@ target_link_libraries(hge_c_tut05 hge_c m)
 
 #---------------------------------------------
 
+# Partially working
 # set(TUTORIAL06_SRCS
 #         tutorial06/hge_tut06.c
 #         tutorial06/menuitem.c
@@ -52,18 +53,18 @@ target_link_libraries(hge_c_tut05 hge_c m)
 #
 # add_executable(hge_c_tut06 ${TUTORIAL06_SRCS})
 # target_link_libraries(hge_c_tut06 hge_c m)
-#
-# #---------------------------------------------
-#
-# set(TUTORIAL07_SRCS
-#         tutorial07/hge_tut07.c
-# )
-#
-# add_executable(hge_c_tut07 ${TUTORIAL07_SRCS})
-# target_link_libraries(hge_c_tut07 hge_c)
-#
-# #---------------------------------------------
-#
+
+#---------------------------------------------
+
+set(TUTORIAL07_SRCS
+        tutorial07/hge_tut07.c
+)
+
+add_executable(hge_c_tut07 ${TUTORIAL07_SRCS})
+target_link_libraries(hge_c_tut07 hge_c)
+
+#---------------------------------------------
+
 # set(TUTORIAL08_SRCS
 #         tutorial08/hge_tut08.c
 # )
