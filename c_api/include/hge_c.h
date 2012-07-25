@@ -293,7 +293,6 @@ typedef struct HGE_InputEvent_s
 /*
  * * HGE Interface class
  */
-struct HGE_s;
 typedef struct HGE_s HGE_t;
 
 HGE_t* HGE_Create(int ver);
