@@ -1,13 +1,10 @@
 #include "hge.h"
 #include "hge_c.h"
+#include "hge_impl.h"
 
 #include <malloc.h>
 
 extern "C" {
-
-struct HGE_s {
-	HGE *h;
-};
 
 HGE_t * HGE_Create(int ver) {
 	HGE_t *hge = (HGE_t *)malloc(sizeof(HGE_t));
