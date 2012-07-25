@@ -76,6 +76,10 @@ float HGE_Color_RGB_GetA(HGE_Color_RGB_t *rgb) {
 	return rgb->rgb->a;
 }
 
+void HGE_Color_RGB_Set(HGE_Color_RGB_t *rgb, const HGE_Color_RGB_t *rgb2) {
+	*rgb->rgb = *rgb2->rgb;
+}
+
 void HGE_Color_RGB_Subtract(HGE_Color_RGB_t *rgb, const HGE_Color_RGB_t *rgb2) {
 	*rgb->rgb -= *rgb2->rgb;
 }

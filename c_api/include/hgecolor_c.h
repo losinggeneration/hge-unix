@@ -28,6 +28,7 @@ float HGE_Color_RGB_GetV(HGE_Color_RGB_t *rgb);
 void HGE_Color_RGB_SetA(HGE_Color_RGB_t *rgb, float a);
 float HGE_Color_RGB_GetA(HGE_Color_RGB_t *rgb);
 
+void HGE_Color_RGB_Set(HGE_Color_RGB_t *rgb1, const HGE_Color_RGB_t *rgb2);
 void HGE_Color_RGB_Subtract(HGE_Color_RGB_t *rgb1, const HGE_Color_RGB_t *rgb2);
 void HGE_Color_RGB_Add(HGE_Color_RGB_t *rgb1, const HGE_Color_RGB_t *rgb2);
 void HGE_Color_RGB_Multiply(HGE_Color_RGB_t *rgb1, const HGE_Color_RGB_t *rgb2);
