@@ -6,6 +6,7 @@ option(BUILD_TOOLS "Build the library tools" OFF)
 option(USE_INTERNAL_ZLIB "Use the internal ZLib" OFF)
 option(BUILD_SINGLE_LIB "Build a single library for HGE and Helpers" OFF)
 option(BUILD_C_API "Build a C api version of the library" OFF)
+option(BUILD_C_HEPLERS_API "Build a C api version of the helpers library" OFF)
 option(BUILD_C_TUTORIALS "Build the tutorials for the C api" OFF)
 
 if(UNIX OR APPLE)

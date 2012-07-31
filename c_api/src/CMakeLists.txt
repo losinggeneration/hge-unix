@@ -6,6 +6,7 @@ set(HGE_C_SRCS
 	hge.cpp
 )
 
+if(BUILD_C_HELPERS_API)
 set(HGE_C_HELPER_SRCS
 	hgeanim.cpp
 	hgecolor.cpp
@@ -20,6 +21,7 @@ set(HGE_C_HELPER_SRCS
 	hgestrings.cpp
 	hgevector.cpp
 )
+endif(BUILD_C_HELPERS_API)
 
 if(WIN32 OR ${BUILD_SINGLE_LIB})
 	add_library(hge_c ${USE_SHARED} ${HGE_C_SRCS} ${HGE_C_HELPER_SRCS})

@@ -17,7 +17,7 @@ add_executable(hge_c_tut02 ${TUTORIAL02_SRCS})
 target_link_libraries(hge_c_tut02 hge_c)
 
 #---------------------------------------------
-
+if(BUILD_C_HELPERS_API)
 set(TUTORIAL03_SRCS
         tutorial03/hge_tut03.c
 )
@@ -71,3 +71,5 @@ target_link_libraries(hge_c_tut07 hge_c)
 #
 # add_executable(hge_c_tut08 ${TUTORIAL08_SRCS})
 # target_link_libraries(hge_c_tut08 hge_c)
+
+endif(BUILD_C_HELPERS_API)
