@@ -37,13 +37,20 @@ else()
 	set(HGE_C_TARGETS hge_c hge_helpers_c)
 endif()
 
-install(TARGETS ${HGE_TARGETS}
+install(TARGETS ${HGE_C_TARGETS}
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 )
 
+if(BUILD_C_HELPERS_API)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/c_api/include/
 	DESTINATION include/hge/c
 	FILES_MATCHING PATTERN "*.h"
 )
+else(BUILD_C_HELPERS_API)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/c_api/include/
+	DESTINATION include/hge/c
+	FILES_MATCHING PATTERN "hge_c.h"
+)
+endif(BUILD_C_HELPERS_API)
