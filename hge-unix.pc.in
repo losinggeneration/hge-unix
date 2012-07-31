@@ -1,0 +1,14 @@
+# hge-unix pkg-config source file (based on sdl.pc)
+
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: hge-unix
+Description: Haaf's Game Engine: a hardware accelerated 2D games engine.
+Version: @HGE_VERSION@
+Requires: sdl
+Conflicts:
+Libs: -L${libdir} -lhge
+Cflags: -I${includedir}/hge

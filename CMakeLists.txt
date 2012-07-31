@@ -1,5 +1,6 @@
 project(hge_unix)
 cmake_minimum_required(VERSION 2.8)
+set(HGE_VERSION 1.8.1)
 
 option(BUILD_TUTORIALS "Build the tutorial samples" OFF)
 option(BUILD_TOOLS "Build the library tools" OFF)
@@ -101,10 +102,15 @@ else()
 	set(HGE_HELPER_LIBRARY hge_helpers ${HGE_LIBRARY})
 endif()
 
+configure_file(hge-unix.pc.in hge-unix.pc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/hge-unix.pc DESTINATION lib/pkgconfig)
+
 # Where HGE is located, this also builds the helper library
 add_subdirectory(src/core)
 
 if(BUILD_C_API)
+	configure_file(hge-unix-c.pc.in hge-unix-c.pc @ONLY)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/hge-unix-c.pc DESTINATION lib/pkgconfig)
 	add_subdirectory(c_api)
 endif(BUILD_C_API)
 
