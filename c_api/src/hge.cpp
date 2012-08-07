@@ -7,8 +7,13 @@
 extern "C" {
 
 HGE_t * HGE_Create(int ver) {
-	HGE_t *hge = (HGE_t *)malloc(sizeof(HGE_t));
-	hge->h = hgeCreate(ver);
+	static HGE_t *hge = NULL;
+
+	if (hge == NULL) {
+		hge = (HGE_t *)malloc(sizeof(HGE_t));
+		hge->h = hgeCreate(ver);
+	}
+
 	return hge;
 }
 
