@@ -3,6 +3,8 @@
 #include "hge_impl.h"
 
 #include <malloc.h>
+#include <string.h>
+#include <stdarg.h>
 
 extern "C" {
 
@@ -39,6 +41,24 @@ const char* HGE_System_GetErrorMessage(HGE_t *hge) {
 }
 
 void HGE_System_Log(HGE_t *hge, const char *format, ...) {
+	char *str;
+	// We'll try to be sufficiently large, but for long variable conversions,
+	// it may not be enough
+	int len = strlen(format)+1024;
+	str = (char *)malloc(len * sizeof(char));
+
+	va_list ap;
+	va_start(ap, format);
+	int n = vsnprintf(str, len, format, ap);
+	va_end(ap);
+
+	// Warn if we're at capacity for str
+	if(n < 0 || n == len) {
+		hge->h->System_Log("The following message may be truncated");
+	}
+
+	hge->h->System_Log(format);
+	free(str);
 }
 
 BOOL HGE_System_Launch(HGE_t *hge, const char *url) {
