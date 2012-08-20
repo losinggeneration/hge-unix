@@ -9,12 +9,14 @@
 extern "C" {
 
 HGE_t * HGE_Create(int ver) {
-	static HGE_t *hge = NULL;
+	HGE_t *hge = (HGE_t *)malloc(sizeof(HGE_t));
 
+	// Make sure malloc was successful
 	if (hge == NULL) {
-		hge = (HGE_t *)malloc(sizeof(HGE_t));
-		hge->h = hgeCreate(ver);
+		return NULL;
 	}
+
+	hge->h = hgeCreate(ver);
 
 	return hge;
 }
@@ -22,6 +24,7 @@ HGE_t * HGE_Create(int ver) {
 void HGE_Release(HGE_t *hge) {
 	hge->h->Release();
 	free(hge);
+	hge = NULL;
 }
 
 BOOL HGE_System_Initiate(HGE_t *hge) {
@@ -54,7 +57,7 @@ void HGE_System_Log(HGE_t *hge, const char *format, ...) {
 
 	// Warn if we're at capacity for str
 	if(n < 0 || n == len) {
-		hge->h->System_Log("The following message may be truncated");
+		hge->h->System_Log("The following message may be truncated because it's longer than format(%d) + 1024", strlen(format));
 	}
 
 	hge->h->System_Log(format);
