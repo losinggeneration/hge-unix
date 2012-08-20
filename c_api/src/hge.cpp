@@ -60,7 +60,7 @@ void HGE_System_Log(HGE_t *hge, const char *format, ...) {
 		hge->h->System_Log("The following message may be truncated because it's longer than format(%d) + 1024", strlen(format));
 	}
 
-	hge->h->System_Log(format);
+	hge->h->System_Log(str);
 	free(str);
 }
 
