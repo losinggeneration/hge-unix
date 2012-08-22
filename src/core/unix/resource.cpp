@@ -8,15 +8,6 @@
 
 #include "hge_impl.h"
 
-#ifndef strupr
-void strupr(char *s) {
-	while(*s) {
-		*s = toupper(*s);
-		s++;
-	}
-}
-#endif
-
 #include <zlib.h>  // the system version is better here. HGE's is out of date.
 
 #define NOCRYPT
@@ -31,7 +22,6 @@ bool CALL HGE_Impl::Resource_AttachPack(const char *filename, const char *passwo
 	unzFile zip;
 
 	szName=Resource_MakePath(filename);
-	strupr(szName);
 
 	while(resItem)
 	{
@@ -40,7 +30,10 @@ bool CALL HGE_Impl::Resource_AttachPack(const char *filename, const char *passwo
 	}
 
 	zip=unzOpen(szName);
-	if(!zip) return false;
+	if(!zip) {
+		System_Log("Unable to unzip: %s", szName);
+		return false;
+	}
 	unzClose(zip);
 
 	resItem=new CResourceList;
@@ -59,7 +52,6 @@ void CALL HGE_Impl::Resource_RemovePack(const char *filename)
 	CResourceList *resItem=res, *resPrev=0;
 
 	szName=Resource_MakePath(filename);
-	strupr(szName);
 
 	while(resItem)
 	{
@@ -108,7 +100,6 @@ void* CALL HGE_Impl::Resource_Load(const char *filename, DWORD *size)
 	// Load from pack
 
 	strcpy(szName,filename);
-	strupr(szName);
 	for(i=0; szName[i]; i++) { if(szName[i]=='/') szName[i]='\\'; }
 
 	while(resItem)
@@ -118,7 +109,6 @@ void* CALL HGE_Impl::Resource_Load(const char *filename, DWORD *size)
 		while(done==UNZ_OK)
 		{
 			unzGetCurrentFileInfo(zip, &file_info, szZipName, sizeof(szZipName), NULL, 0, NULL, 0);
-			strupr(szZipName);
 			for(i=0; szZipName[i]; i++)	{ if(szZipName[i]=='/') szZipName[i]='\\'; }
 			if(!strcmp(szName,szZipName))
 			{
