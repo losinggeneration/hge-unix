@@ -114,7 +114,7 @@ BOOL RenderFunc()
 #ifdef PLATFORM_UNIX
 int main(int argc, char *argv[])
 #else
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 #endif
 {
 	hge = HGE_Create(HGE_VERSION);

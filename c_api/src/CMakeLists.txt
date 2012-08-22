@@ -23,6 +23,8 @@ set(HGE_C_HELPER_SRCS
 )
 endif(BUILD_C_HELPERS_API)
 
+include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src/core ${CMAKE_SOURCE_DIR}/src/core/unix ${CMAKE_SOURCE_DIR}/src/core/windows)
+
 if(WIN32 OR ${BUILD_SINGLE_LIB})
 	add_library(hge_c ${USE_SHARED} ${HGE_C_SRCS} ${HGE_C_HELPER_SRCS})
 	target_link_libraries(hge_c hge)

@@ -70,9 +70,12 @@ elseif(WIN32)
 	add_definitions(-D_WINDOWS -D_WIN32)
 	set(USE_INTERNAL_ZLIB ON)
 
+	find_package(PNG REQUIRED)
+
 	set(HGE_LIBRARIES
 		d3d8
 		winmm
+		${PNG_LIBRARY}
 	)
 
 	if(MSVC AND NOT (CMAKE_BUILD_TYPE MATCHES Debug))

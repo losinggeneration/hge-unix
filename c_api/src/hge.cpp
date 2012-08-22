@@ -2,6 +2,7 @@
 #include "hge_c.h"
 #include "hge_impl.h"
 
+#include <stdio.h>
 #include <malloc.h>
 #include <string.h>
 #include <stdarg.h>
