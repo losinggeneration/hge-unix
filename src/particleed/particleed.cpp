@@ -122,11 +122,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 	hge = hgeCreate(HGE_VERSION);
 
+	hge->System_SetState(HGE_TITLE, "HGE Particle Systems Editor");
 	hge->System_SetState(HGE_INIFILE, "particleed.ini");
 	hge->System_SetState(HGE_LOGFILE, "particleed.log");
 	hge->System_SetState(HGE_FRAMEFUNC, FrameFunc);
 	hge->System_SetState(HGE_RENDERFUNC, RenderFunc);
-	hge->System_SetState(HGE_TITLE, "HGE Particle Systems Editor");
 	hge->System_SetState(HGE_SCREENWIDTH, 800);
 	hge->System_SetState(HGE_SCREENHEIGHT, 600);
 	hge->System_SetState(HGE_SCREENBPP, 32);
