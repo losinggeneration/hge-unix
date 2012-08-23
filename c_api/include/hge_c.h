@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-#ifdef _WINDOWS
+#if defined(_WINDOWS) || defined(WIN32)
 #include <windows.h>
 #endif
 
