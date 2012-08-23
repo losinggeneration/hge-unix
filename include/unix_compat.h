@@ -10,7 +10,7 @@
 #endif
 
 // Useful to sprinkle around the codebase without a bunch of #ifdefs...
-#ifdef _WINDOWS
+#if defined(_WINDOWS) || defined(WIN32)
 #define BYTESWAP(x)
 #define STUBBED(x)
 #endif

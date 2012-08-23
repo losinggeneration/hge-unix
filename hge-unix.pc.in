@@ -8,7 +8,7 @@ includedir=${prefix}/include
 Name: hge-unix
 Description: Haaf's Game Engine: a hardware accelerated 2D games engine.
 Version: @HGE_VERSION@
-Requires: sdl
+Requires: @HGE_REQUIRES@
 Conflicts:
 Libs: -L${libdir} -lhge
 Cflags: -I${includedir}/hge
