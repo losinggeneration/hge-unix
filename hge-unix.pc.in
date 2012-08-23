@@ -11,4 +11,4 @@ Version: @HGE_VERSION@
 Requires: @HGE_REQUIRES@
 Conflicts:
 Libs: -L${libdir} -lhge
-Cflags: -I${includedir}/hge
+Cflags: -I${includedir}/hge @HGE_CFLAGS@

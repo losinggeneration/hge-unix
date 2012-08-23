@@ -71,6 +71,7 @@ if(UNIX OR APPLE)
 elseif(WIN32)
 	# Windows
 	add_definitions(-D_WINDOWS -D_WIN32)
+	set(HGE_CFLAGS "-D_WINDOWS -D_WIN32 -mwindows")
 	set(USE_INTERNAL_ZLIB ON)
 
 	find_package(PNG REQUIRED)
