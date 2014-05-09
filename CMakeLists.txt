@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 option(BUILD_TUTORIALS "Build the tutorial samples" OFF)
 option(BUILD_TOOLS "Build the library tools" OFF)
 option(USE_INTERNAL_ZLIB "Use the internal ZLib" OFF)
-option(BUILD_SINGLE_LIB "Build a single library for HGE and Helpers" OFF)
+option(BUILD_SINGLE_LIB "Build a single library for HGE and Helpers" ON)
 
 if(UNIX OR APPLE)
 	# Needed for FindVorbis
