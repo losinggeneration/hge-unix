@@ -138,13 +138,22 @@ bool CALL HGE_Impl::System_Initiate()
 		return false;
 	}
 
-	const SDL_VideoInfo *vidinfo = SDL_GetVideoInfo();
-	nOrigScreenWidth = vidinfo->current_w;
-	nOrigScreenHeight = vidinfo->current_h;
-	System_Log("Screen: %dx%d\n", nOrigScreenWidth, nOrigScreenHeight);
+	SDL_DisplayMode *mode = NULL;
+	if (SDL_GetDisplayMode(0, 0, mode) < 0) {
+		char buffer[1024];
+		snprintf(buffer, sizeof (buffer), "SDL_GetDisplayMode() failed: %s\n", SDL_GetError());
+		_PostError(buffer);
+		SDL_Quit();
+		return false;
+	}
+	if (mode != NULL)
+	{
+		nOrigScreenWidth = mode->w;
+		nOrigScreenHeight = mode->h;
+		System_Log("Screen: %dx%d\n", nOrigScreenWidth, nOrigScreenHeight);
+	}
 
 	// Create window
-	SDL_WM_SetCaption(szWinTitle, szWinTitle);
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, nScreenBPP >= 32 ? 8 : 4);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, nScreenBPP >= 32 ? 8 : 4);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, nScreenBPP >= 32 ? 8 : 4);
@@ -152,19 +161,33 @@ bool CALL HGE_Impl::System_Initiate()
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, bZBuffer ? 16 : 0);
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, bVsync ? 1 : 0);
-	Uint32 flags = SDL_OPENGL;
+	// TODO left over from SDL 1.2
+	//SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, bVsync ? 1 : 0);
+	Uint32 flags = SDL_WINDOW_OPENGL;
 	if (!bWindowed)
-		flags |= SDL_FULLSCREEN;
-	hwnd = SDL_SetVideoMode(nScreenWidth, nScreenHeight, nScreenBPP, flags);
+		flags |= SDL_WINDOW_FULLSCREEN;
+
+	hwnd = SDL_CreateWindow(szWinTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+			nScreenWidth, nScreenHeight, flags);
 	if (!hwnd)
 	{
 		char buffer[1024];
-		snprintf(buffer, sizeof (buffer), "SDL_SetVideoMode() failed: %s\n", SDL_GetError());
+		snprintf(buffer, sizeof (buffer), "SDL_CreateWindow() failed: %s\n", SDL_GetError());
 		_PostError(buffer);
 		SDL_Quit();
 		return false;
 	}
+
+	hwndr = SDL_CreateRenderer((SDL_Window*)hwnd, -1, SDL_RENDERER_ACCELERATED);
+	if (!hwndr)
+	{
+		char buffer[1024];
+		snprintf(buffer, sizeof (buffer), "SDL_CreateRenderer() failed: %s\n", SDL_GetError());
+		_PostError(buffer);
+		SDL_Quit();
+		return false;
+	}
+
 
 	if (!bWindowed)
 	{
@@ -179,8 +202,9 @@ bool CALL HGE_Impl::System_Initiate()
 	SDL_Surface *icon = SDL_LoadBMP("hgeicon.bmp");  // HACK.
 	if (icon)
 	{
-		SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 255, 0, 255));
-		SDL_WM_SetIcon(icon, NULL);
+		// TODO left over from SDL 1.2
+		//SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 255, 0, 255));
+		SDL_SetWindowIcon((SDL_Window*)hwnd, icon);
 		SDL_FreeSurface(icon);
 	}
 #endif
@@ -378,10 +402,13 @@ void CALL HGE_Impl::System_SetStateBool(hgeBoolState state, bool value)
 									//if(_format_id(d3dpp->BackBufferFormat) < 4) nScreenBPP=16;
 									//else nScreenBPP=32;
 
-									Uint32 flags = SDL_OPENGL;
+									Uint32 flags = 0;
 									if (!bWindowed)
-										flags |= SDL_FULLSCREEN;
-									hwnd = SDL_SetVideoMode(nScreenWidth, nScreenHeight, nScreenBPP, flags);
+										flags |= SDL_WINDOW_FULLSCREEN;
+									if (SDL_SetWindowFullscreen((SDL_Window*)hwnd, flags) < 0) {
+										System_Log("Unable to change fullscreen");
+										System_Log(SDL_GetError());
+									}
 									_GfxRestore();
 									if (!bWindowed)
 									{
@@ -475,7 +502,8 @@ void CALL HGE_Impl::System_SetStateInt(hgeIntState state, int value)
 								break;
 
 		case HGE_FPS:			bVsync = (value==HGEFPS_VSYNC);
-								if(pOpenGLDevice) SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, bVsync ? 1 : 0);
+								// TODO left over from SDL 1.2
+								//if(pOpenGLDevice) SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, bVsync ? 1 : 0);
 								nHGEFPS=value;
 								if(nHGEFPS>0) nFixedDelta=int(1000.0f/value);
 								else nFixedDelta=0;
@@ -494,7 +522,7 @@ void CALL HGE_Impl::System_SetStateString(hgeStringState state, const char *valu
 								//if(pHGE->hwnd) SetClassLong(pHGE->hwnd, GCL_HICON, (LONG)LoadIcon(pHGE->hInstance, szIcon));
 								break;
 		case HGE_TITLE:			strcpy(szWinTitle,value);
-								if(pHGE->hwnd) SDL_WM_SetCaption(value, value);
+								if(pHGE->hwnd) SDL_SetWindowTitle((SDL_Window*)hwnd, value);
 								break;
 		case HGE_INIFILE:		if(value) { strcpy(szIniFile,Resource_MakePath(value)); _LoadIniFile(szIniFile); }
 								else szIniFile[0]=0;
@@ -657,7 +685,7 @@ void CALL HGE_Impl::System_Snapshot(const char *filename)
 		#endif
 
 		pOpenGLDevice->glFinish();  // make sure screenshot is ready.
-		SDL_Surface *screen = SDL_GetVideoSurface();
+		SDL_Surface *screen = SDL_GetWindowSurface((SDL_Window*)hwnd);
 		SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE, screen->w, screen->h, 24, rmask, gmask, bmask, 0);
 		pOpenGLDevice->glReadPixels(0, 0, screen->w, screen->h, GL_RGB, GL_UNSIGNED_BYTE, surface->pixels);
 		STUBBED("image is probably upside down");
@@ -777,21 +805,40 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 {
 	switch(e.type)
 	{
-		case SDL_VIDEOEXPOSE:
-			if(pHGE->procRenderFunc && pHGE->bWindowed) procRenderFunc();
-			break;
-
 		case SDL_QUIT:
 			if(pHGE->procExitFunc && !pHGE->procExitFunc()) break;
 			return false;
 
-		case SDL_ACTIVEEVENT: {
-			const bool bActivating = (e.active.gain != 0);
-			if (e.active.state & SDL_APPINPUTFOCUS) {
-				if(pHGE->bActive != bActivating) pHGE->_FocusChange(bActivating);
-			}
-			if (e.active.state & SDL_APPMOUSEFOCUS) {
-				bMouseOver = bActivating;
+		case SDL_WINDOWEVENT: {
+			// FIXME I'm not sure if this is /really/ what's supposed to happen here... [losinggeneration]
+			switch(e.window.event) {
+				case SDL_WINDOWEVENT_EXPOSED:
+					if(pHGE->procRenderFunc && pHGE->bWindowed) procRenderFunc();
+					break;
+
+				case SDL_WINDOWEVENT_HIDDEN:
+					pHGE->_FocusChange(false);
+					break;
+
+				case SDL_WINDOWEVENT_SHOWN:
+					pHGE->_FocusChange(true);
+					break;
+
+				case SDL_WINDOWEVENT_FOCUS_GAINED:
+					pHGE->_FocusChange(true);
+					break;
+
+				case SDL_WINDOWEVENT_FOCUS_LOST:
+					pHGE->_FocusChange(false);
+					break;
+
+				case SDL_WINDOWEVENT_ENTER:
+					bMouseOver = true;
+					break;
+
+				case SDL_WINDOWEVENT_LEAVE:
+					bMouseOver = false;
+					break;
 			}
 			break;
 		}
@@ -840,9 +887,11 @@ bool HGE_Impl::_ProcessSDLEvent(const SDL_Event &e)
 				pHGE->_BuildEvent(INPUT_MBUTTONDOWN, HGEK_RBUTTON, 0, 0, e.button.x, e.button.y);
 			else if (e.button.button == SDL_BUTTON_MIDDLE)
 				pHGE->_BuildEvent(INPUT_MBUTTONDOWN, HGEK_MBUTTON, 0, 0, e.button.x, e.button.y);
-			else if (e.button.button == SDL_BUTTON_WHEELUP)
+			break;
+		case SDL_MOUSEWHEEL:
+			if (e.wheel.y > 0)
 				pHGE->_BuildEvent(INPUT_MOUSEWHEEL, 1, 0, 0, e.button.x, e.button.y);
-			else if (e.button.button == SDL_BUTTON_WHEELDOWN)
+			else if (e.wheel.y < 0)
 				pHGE->_BuildEvent(INPUT_MOUSEWHEEL, -1, 0, 0, e.button.x, e.button.y);
 			break;
 

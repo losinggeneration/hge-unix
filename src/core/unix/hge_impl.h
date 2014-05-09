@@ -243,6 +243,7 @@ public:
 
 	long				MacOSXVersion;
 	HWND				hwnd;
+	SDL_Renderer*		hwndr;
 	bool				bActive;
 	char				szError[256];
 	char				szAppPath[_MAX_PATH];
@@ -359,7 +360,7 @@ public:
 	int					Zpos;
 	float				Xpos;
 	float				Ypos;
-	SDLMod				keymods;
+	SDL_Keycode			keymods;
 	bool				bMouseOver;
 	bool				bCaptured;
 	char				keyz[256];
