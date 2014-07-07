@@ -62,13 +62,13 @@ static int SDLKeyToHGEKey(const int sdlkey)
 		case SDLK_RCTRL: return HGEK_CTRL;
 		case SDLK_LALT: return HGEK_ALT;
 		case SDLK_RALT: return HGEK_ALT;
-		case SDLK_LMETA: return HGEK_LWIN;
-		case SDLK_RMETA: return HGEK_RWIN;
+		case SDLK_LGUI: return HGEK_LWIN;
+		case SDLK_RGUI: return HGEK_RWIN;
 		//case SDLK_APPS: return HGEK_APPS;
 		case SDLK_PAUSE: return HGEK_PAUSE;
 		case SDLK_CAPSLOCK: return HGEK_CAPSLOCK;
-		case SDLK_NUMLOCK: return HGEK_NUMLOCK;
-		case SDLK_SCROLLOCK: return HGEK_SCROLLLOCK;
+		case SDLK_NUMLOCKCLEAR: return HGEK_NUMLOCK;
+		case SDLK_SCROLLLOCK: return HGEK_SCROLLLOCK;
 		case SDLK_PAGEUP: return HGEK_PGUP;
 		case SDLK_PAGEDOWN: return HGEK_PGDN;
 		case SDLK_HOME: return HGEK_HOME;
@@ -126,16 +126,16 @@ static int SDLKeyToHGEKey(const int sdlkey)
 		case SDLK_COMMA: return HGEK_COMMA;
 		case SDLK_PERIOD: return HGEK_PERIOD;
 		case SDLK_SLASH: return HGEK_SLASH;
-		case SDLK_KP0: return HGEK_NUMPAD0;
-		case SDLK_KP1: return HGEK_NUMPAD1;
-		case SDLK_KP2: return HGEK_NUMPAD2;
-		case SDLK_KP3: return HGEK_NUMPAD3;
-		case SDLK_KP4: return HGEK_NUMPAD4;
-		case SDLK_KP5: return HGEK_NUMPAD5;
-		case SDLK_KP6: return HGEK_NUMPAD6;
-		case SDLK_KP7: return HGEK_NUMPAD7;
-		case SDLK_KP8: return HGEK_NUMPAD8;
-		case SDLK_KP9: return HGEK_NUMPAD9;
+		case SDLK_KP_0: return HGEK_NUMPAD0;
+		case SDLK_KP_1: return HGEK_NUMPAD1;
+		case SDLK_KP_2: return HGEK_NUMPAD2;
+		case SDLK_KP_3: return HGEK_NUMPAD3;
+		case SDLK_KP_4: return HGEK_NUMPAD4;
+		case SDLK_KP_5: return HGEK_NUMPAD5;
+		case SDLK_KP_6: return HGEK_NUMPAD6;
+		case SDLK_KP_7: return HGEK_NUMPAD7;
+		case SDLK_KP_8: return HGEK_NUMPAD8;
+		case SDLK_KP_9: return HGEK_NUMPAD9;
 		case SDLK_KP_MULTIPLY: return HGEK_MULTIPLY;
 		case SDLK_KP_DIVIDE: return HGEK_DIVIDE;
 		case SDLK_KP_PLUS: return HGEK_ADD;
@@ -184,7 +184,7 @@ void CALL HGE_Impl::Input_GetMousePos(float *x, float *y)
 
 void CALL HGE_Impl::Input_SetMousePos(float x, float y)
 {
-	SDL_WarpMouse(x, y);
+	SDL_WarpMouseInWindow((SDL_Window*)hwnd, x, y);
 }
 
 int CALL HGE_Impl::Input_GetMouseWheel()

@@ -322,7 +322,7 @@ void CALL HGE_Impl::Gfx_EndScene()
 		delete[] pixels;
 	}
 
-	if(!pCurTarget) SDL_GL_SwapBuffers();
+	if(!pCurTarget) SDL_GL_SwapWindow((SDL_Window*)hwnd);
 	//const GLenum err = pOpenGLDevice->glGetError();
 	//if (err != GL_NO_ERROR) printf("GL error! 0x%X\n", (int) err);
 	//Gfx_Clear(0xFF | (0xFF<<24) | (random() & 0xFF << 16) | (random() & 0xFF << 8));
@@ -1294,7 +1294,7 @@ bool HGE_Impl::_GfxInit()
 	if (!_LoadOpenGLEntryPoints())
 		return false;   // already called _PostError().
 
-	nScreenBPP=SDL_GetVideoSurface()->format->BitsPerPixel;
+	nScreenBPP=SDL_GetWindowSurface((SDL_Window*)hwnd)->format->BitsPerPixel;
 
 	_AdjustWindow();
 
@@ -1312,9 +1312,9 @@ bool HGE_Impl::_GfxInit()
 
 	// make sure the framebuffers are cleared and force to screen
 	pOpenGLDevice->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow((SDL_Window*)hwnd);
 	pOpenGLDevice->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow((SDL_Window*)hwnd);
 
 	return true;
 }

@@ -17,7 +17,7 @@ if(UNIX OR APPLE)
 	# Add our option  for using CxImage,  default is on
 	option(USE_CXIMAGE "Use CXImage (no)" ON)
 
-	find_package(SDL REQUIRED)
+	find_package(SDL2 REQUIRED)
 	find_package(OpenAL REQUIRED)
 	find_package(Vorbis REQUIRED)
 	find_package(JPEG REQUIRED)
@@ -39,7 +39,7 @@ if(UNIX OR APPLE)
 	endif(USE_CXIMAGE)
 
 	include_directories(
-		${SDL_INCLUDE_DIR}
+		${SDL2_INCLUDE_DIR}
 		${OPENAL_INCLUDE_DIR}
 		${VORBIS_INCLUDE_DIR}
 		${IL_INCLUDE_DIR}
@@ -54,7 +54,7 @@ if(UNIX OR APPLE)
 
 	# The libraries to link against for HGE, and also for applications using it
 	set(HGE_LIBRARIES
-		${SDL_LIBRARY}
+		${SDL2_LIBRARY}
 		${OPENAL_LIBRARY}
 		${VORBISFILE_LIBRARY}
 		${IL_LIBRARIES}
