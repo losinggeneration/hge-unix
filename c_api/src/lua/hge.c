@@ -2,13 +2,38 @@
 
 #include "hge_lua.h"
 
-/* HGE_t* HGE_Create(int ver); */
-int system_create(lua_State *L) {
-	return 0;
+void register_resource(lua_State *L);
+void register_ini(lua_State *L);
+void register_random(lua_State *L);
+void register_timer(lua_State *L);
+void register_effect(lua_State *L);
+void register_music(lua_State *L);
+void register_stream(lua_State *L);
+void register_channel(lua_State *L);
+void register_input(lua_State *L);
+void register_gfx(lua_State *L);
+void register_target(lua_State *L);
+void register_texture(lua_State *L);
+
+inline void add_function(lua_State *L, const char *name, lua_CFunction f) {
+	lua_pushstring(L, name);
+	lua_pushcfunction(L, f);
+	lua_settable(L, -3);
+}
+
+inline void add_garbage(lua_State *L, lua_CFunction f) {
+	if(lua_getmetatable(L, -3) == 0) {
+		lua_newtable(L);
+	}
+
+	add_function(L, "__gc", f);
+
+	lua_setmetatable(L, -2);
 }
 
 /* void HGE_Release(HGE_t *hge); */
 int system_release(lua_State *L) {
+	printf("free: system_release\n");
 	return 0;
 }
 
@@ -98,7 +123,6 @@ int system_get_state_string(lua_State *L) {
 }
 
 luaL_Reg hge_reg[] = {
-	{ "create", system_create },
 	{ "free", system_release },
 	{ "shutdown", system_shutdown },
 	{ "start", system_start },
@@ -118,14 +142,37 @@ luaL_Reg hge_reg[] = {
 	NULL,
 };
 
-void register_hge(lua_State *L) {
+/* HGE_t* HGE_Create(int ver); */
+int hge_create(lua_State *L) {
 	lua_newtable(L);
 	luaL_register(L, NULL, hge_reg);
+
+	register_resource(L);
+	register_ini(L);
+	register_random(L);
+	register_timer(L);
+	register_effect(L);
+	register_music(L);
+	register_stream(L);
+	register_channel(L);
+	register_input(L);
+	register_gfx(L);
+	register_target(L);
+	register_texture(L);
+
+	add_garbage(L, system_release);
+
+	return 1;
 }
 
-/* void* HGE_Resource_Load(HGE_t *hge, const char *filename, DWORD *size); */
-int resource_load(lua_State *L) {
-	return 0;
+void register_hge(lua_State *L) {
+	lua_newtable(L);
+
+	// Add the new function to the table
+	add_function(L, "new", hge_create);
+
+	// Pop's the hge table off the stack
+	lua_setglobal(L, "hge");
 }
 
 /* void HGE_Resource_Free(HGE_t *hge, void *res); */
@@ -164,7 +211,6 @@ int resource_enum_folders(lua_State *L) {
 }
 
 luaL_Reg resource_reg[] = {
-	{ "load", resource_load },
 	{ "free", resource_free },
 	{ "attach_pack", resource_attach_pack },
 	{ "remove_pack", resource_remove_pack },
@@ -175,10 +221,22 @@ luaL_Reg resource_reg[] = {
 	NULL,
 };
 
+/* void* HGE_Resource_Load(HGE_t *hge, const char *filename, DWORD *size); */
+int resource_load(lua_State *L) {
+	lua_newtable(L);
+	luaL_register(L, NULL, resource_reg);
+
+	add_garbage(L, resource_free);
+
+	return 1;
+}
+
 void register_resource(lua_State *L) {
 	lua_pushstring(L, "resource");
 	lua_newtable(L);
-	luaL_register(L, NULL, resource_reg);
+
+	add_function(L, "new", resource_load);
+
 	lua_settable(L, -3);
 }
 
@@ -225,10 +283,11 @@ luaL_Reg ini_reg[] = {
 void register_ini(lua_State *L) {
 	lua_pushstring(L, "ini");
 	lua_newtable(L);
+
 	luaL_register(L, NULL, ini_reg);
+
 	lua_settable(L, -3);
 }
-
 
 /* void HGE_Random_Seed(HGE_t *hge, int seed); */
 int random_seed(lua_State *L) {
@@ -255,10 +314,11 @@ luaL_Reg random_reg[] = {
 void register_random(lua_State *L) {
 	lua_pushstring(L, "random");
 	lua_newtable(L);
+
 	luaL_register(L, NULL, random_reg);
+
 	lua_settable(L, -3);
 }
-
 
 /* float HGE_Timer_GetTime(HGE_t *hge); */
 int timer_get_time(lua_State *L) {
@@ -289,11 +349,6 @@ void register_timer(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-/* HEFFECT HGE_Effect_Load(HGE_t *hge, const char *filename, DWORD size); */
-int effect_load(lua_State *L) {
-	return 0;
-}
-
 /* void HGE_Effect_Free(HGE_t *hge, HEFFECT eff); */
 int effect_free(lua_State *L) {
 	return 0;
@@ -310,23 +365,29 @@ int effect_play_ex(lua_State *L) {
 }
 
 luaL_Reg effect_reg[] = {
-	{ "load", effect_load },
 	{ "free", effect_free },
 	{ "play", effect_play },
 	{ "play_ex", effect_play_ex },
 	NULL,
 };
 
+/* HEFFECT HGE_Effect_Load(HGE_t *hge, const char *filename, DWORD size); */
+int effect_load(lua_State *L) {
+	lua_newtable(L);
+	luaL_register(L, NULL, effect_reg);
+
+	add_garbage(L, effect_free);
+
+	return 1;
+}
+
 void register_effect(lua_State *L) {
 	lua_pushstring(L, "effect");
 	lua_newtable(L);
-	luaL_register(L, NULL, effect_reg);
-	lua_settable(L, -3);
-}
 
-/* HMUSIC HGE_Music_Load(HGE_t *hge, const char *filename, DWORD size); */
-int music_load(lua_State *L) {
-	return 0;
+	add_function(L, "new", effect_load);
+
+	lua_settable(L, -3);
 }
 
 /* void HGE_Music_Free(HGE_t *hge, HMUSIC mus); */
@@ -385,7 +446,6 @@ int music_get_channel_volume(lua_State *L) {
 }
 
 luaL_Reg music_reg[] = {
-	{ "load", music_load },
 	{ "free", music_free },
 	{ "play", music_play },
 	{ "set_amplification", music_set_amplification },
@@ -400,16 +460,23 @@ luaL_Reg music_reg[] = {
 	NULL,
 };
 
+/* HMUSIC HGE_Music_Load(HGE_t *hge, const char *filename, DWORD size); */
+int music_load(lua_State *L) {
+	lua_newtable(L);
+	luaL_register(L, NULL, music_reg);
+
+	add_garbage(L, music_free);
+
+	return 1;
+}
+
 void register_music(lua_State *L) {
 	lua_pushstring(L, "music");
 	lua_newtable(L);
-	luaL_register(L, NULL, music_reg);
-	lua_settable(L, -3);
-}
 
-/* HSTREAM HGE_Stream_Load(HGE_t *hge, const char *filename, DWORD size); */
-int stream_load(lua_State *L) {
-	return 0;
+	add_function(L, "new", music_load);
+
+	lua_settable(L, -3);
 }
 
 /* void HGE_Stream_Free(HGE_t *hge, HSTREAM stream); */
@@ -423,16 +490,26 @@ int stream_play(lua_State *L) {
 }
 
 luaL_Reg stream_reg[] = {
-	{ "load", stream_load },
 	{ "free", stream_free },
 	{ "play", stream_play },
 	NULL,
 };
 
+/* HSTREAM HGE_Stream_Load(HGE_t *hge, const char *filename, DWORD size); */
+int stream_load(lua_State *L) {
+	lua_newtable(L);
+	luaL_register(L, NULL, stream_reg);
+
+	add_garbage(L, stream_free);
+
+	return 1;
+}
+
 void register_stream(lua_State *L) {
 	lua_pushstring(L, "stream");
 	lua_newtable(L);
-	luaL_register(L, NULL, stream_reg);
+
+	add_function(L, "new", stream_load);
 	lua_settable(L, -3);
 }
 
@@ -685,11 +762,6 @@ void register_gfx(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-/* HTARGET HGE_Target_Create(HGE_t *hge, int width, int height, BOOL zbuffer); */
-int target_create(lua_State *L) {
-	return 0;
-}
-
 /* void HGE_Target_Free(HGE_t *hge, HTARGET target); */
 int target_free(lua_State *L) {
 	return 0;
@@ -701,31 +773,33 @@ int target_get_texture(lua_State *L) {
 }
 
 luaL_Reg target_reg[] = {
-	{ "create", target_create },
 	{ "free", target_free },
 	{ "get_texture", target_get_texture },
 	NULL,
 };
 
+/* HTARGET HGE_Target_Create(HGE_t *hge, int width, int height, BOOL zbuffer); */
+int target_create(lua_State *L) {
+	lua_newtable(L);
+	luaL_register(L, NULL, target_reg);
+
+	add_garbage(L, target_free);
+
+	return 1;
+}
+
 void register_target(lua_State *L) {
 	lua_pushstring(L, "target");
 	lua_newtable(L);
-	luaL_register(L, NULL, target_reg);
+
+	add_function(L, "new", target_create);
+
 	lua_settable(L, -3);
-}
-
-/* HTEXTURE HGE_Texture_Create(HGE_t *hge, int width, int height); */
-int texture_create(lua_State *L) {
-	return 0;
-}
-
-/* HTEXTURE HGE_Texture_Load(HGE_t *hge, const char *filename, DWORD size, BOOL bMipmap); */
-int texture_load(lua_State *L) {
-	return 0;
 }
 
 /* void HGE_Texture_Free(HGE_t *hge, HTEXTURE tex); */
 int texture_free(lua_State *L) {
+	printf("freeing texture\n");
 	return 0;
 }
 
@@ -749,9 +823,7 @@ int texture_unlock(lua_State *L) {
 	return 0;
 }
 
-luaL_Reg texture_reg[] = {
-	{ "create", texture_create },
-	{ "load", texture_load },
+luaL_Reg texture_instance_reg[] = {
 	{ "free", texture_free },
 	{ "get_width", texture_get_width },
 	{ "get_height", texture_get_height },
@@ -760,27 +832,43 @@ luaL_Reg texture_reg[] = {
 	NULL,
 };
 
+/* Leaves an new texture instance table on the top of the stack */
+void texture_new(lua_State *L) {
+	lua_newtable(L);
+	luaL_register(L, NULL, texture_instance_reg);
+
+	add_garbage(L, texture_free);
+}
+
+/* HTEXTURE HGE_Texture_Create(HGE_t *hge, int width, int height); */
+int texture_create(lua_State *L) {
+	texture_new(L);
+
+	return 1;
+}
+
+/* HTEXTURE HGE_Texture_Load(HGE_t *hge, const char *filename, DWORD size, BOOL bMipmap); */
+int texture_load(lua_State *L) {
+	texture_new(L);
+
+	return 1;
+}
+
+luaL_Reg texture_reg[] = {
+	{ "new", texture_create },
+	{ "load", texture_load },
+	NULL,
+};
+
 void register_texture(lua_State *L) {
 	lua_pushstring(L, "texture");
 	lua_newtable(L);
+
 	luaL_register(L, NULL, texture_reg);
+
 	lua_settable(L, -3);
 }
 
 void luaopen_hge(lua_State *L) {
 	register_hge(L);
-	register_resource(L);
-	register_ini(L);
-	register_random(L);
-	register_timer(L);
-	register_effect(L);
-	register_music(L);
-	register_stream(L);
-	register_channel(L);
-	register_input(L);
-	register_gfx(L);
-	register_target(L);
-	register_texture(L);
-	// Pop the hge table off the stack
-	lua_setglobal(L, "hge");
 }
