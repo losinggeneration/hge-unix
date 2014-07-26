@@ -38,6 +38,76 @@ inline void add_meta_function(lua_State *L, const char *metatable, const char *m
 #define add_newindex(L, m, f) add_meta_function(L, m, "__newindex", f)
 #define add_tostring(L, m, f) add_meta_function(L, m, "__tostring", f)
 
+inline void add_constant(lua_State *L, const char *name, int value) {
+	lua_pushstring(L, name);
+	lua_pushnumber(L, value);
+	lua_settable(L, -3);
+}
+
+void add_hge_constants(lua_State *L) {
+	lua_pushstring(L, "bool");
+	lua_newtable(L);
+	add_constant(L, "windowed", HGE_C_WINDOWED);
+	add_constant(L, "zbuffer", HGE_C_ZBUFFER);
+	add_constant(L, "texturefilter", HGE_C_TEXTUREFILTER);
+	add_constant(L, "usesound", HGE_C_USESOUND);
+	add_constant(L, "dontsuspend", HGE_C_DONTSUSPEND);
+	add_constant(L, "hidemouse", HGE_C_HIDEMOUSE);
+	add_constant(L, "showsplash", HGE_C_SHOWSPLASH);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "func");
+	lua_newtable(L);
+	add_constant(L, "framefunc", HGE_C_FRAMEFUNC);
+	add_constant(L, "renderfunc", HGE_C_RENDERFUNC);
+	add_constant(L, "focuslostfunc", HGE_C_FOCUSLOSTFUNC);
+	add_constant(L, "focusgainfunc", HGE_C_FOCUSGAINFUNC);
+	add_constant(L, "gfxrestorefunc", HGE_C_GFXRESTOREFUNC);
+	add_constant(L, "exitfunc", HGE_C_EXITFUNC);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "hwnd");
+	lua_newtable(L);
+	add_constant(L, "hwnd", HGE_C_HWND);
+	add_constant(L, "hwndparent", HGE_C_HWNDPARENT);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "int");
+	lua_newtable(L);
+	add_constant(L, "screenwidth", HGE_C_SCREENWIDTH);
+	add_constant(L, "screenheight", HGE_C_SCREENHEIGHT);
+	add_constant(L, "screenbpp", HGE_C_SCREENBPP);
+	add_constant(L, "samplerate", HGE_C_SAMPLERATE);
+	add_constant(L, "fxvolume", HGE_C_FXVOLUME);
+	add_constant(L, "musvolume", HGE_C_MUSVOLUME);
+	add_constant(L, "streamvolume", HGE_C_STREAMVOLUME);
+	add_constant(L, "fps", HGE_C_FPS);
+	add_constant(L, "powerstatus", HGE_C_POWERSTATUS);
+	add_constant(L, "origscreenwidth", HGE_C_ORIGSCREENWIDTH);
+	add_constant(L, "origscreenheight", HGE_C_ORIGSCREENHEIGHT);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "string");
+	lua_newtable(L);
+	add_constant(L, "icon", HGE_C_ICON);
+	add_constant(L, "title", HGE_C_TITLE);
+	add_constant(L, "inifile", HGE_C_INIFILE);
+	add_constant(L, "logfile", HGE_C_LOGFILE);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "fps");
+	lua_newtable(L);
+	add_constant(L, "unlimited", HGE_FPS_UNLIMITED);
+	add_constant(L, "vsync", HGE_FPS_VSYNC);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "pwd");
+	lua_newtable(L);
+	add_constant(L, "ac", HGE_PWR_AC);
+	add_constant(L, "unsupported", HGE_PWR_UNSUPPORTED);
+	lua_settable(L, -3);
+}
+
 /* Check the first argument is userdata and return it */
 hge_t *hge_param_check(lua_State *L) {
 	if(lua_isuserdata(L, 1) == 0) {
@@ -194,7 +264,12 @@ int system_set_state_string(lua_State *L) {
 /* BOOL HGE_System_GetStateBool(HGE_t *hge, HGE_BoolState_t state); */
 int system_get_state_bool(lua_State *L) {
 	hge_t *h = hge_check(L);
-	return 0;
+
+	HGE_BoolState_t state = lua_tonumber(L, 2);
+	BOOL value = HGE_System_GetStateBool(h->hge, state);
+	lua_pushboolean(L, value);
+
+	return 1;
 }
 
 /* HGE_Callback HGE_System_GetStateFunc(HGE_t *hge, HGE_FuncState_t state); */
@@ -212,13 +287,23 @@ int system_get_state_hwnd(lua_State *L) {
 /* int HGE_System_GetStateInt(HGE_t *hge, HGE_IntState_t state); */
 int system_get_state_int(lua_State *L) {
 	hge_t *h = hge_check(L);
-	return 0;
+
+	HGE_IntState_t state = lua_tonumber(L, 2);
+	int value = HGE_System_GetStateInt(h->hge, state);
+	lua_pushnumber(L, value);
+
+	return 1;
 }
 
 /* const char* HGE_System_GetStateString(HGE_t *hge, HGE_StringState_t state); */
 int system_get_state_string(lua_State *L) {
 	hge_t *h = hge_check(L);
-	return 0;
+
+	HGE_StringState_t state = lua_tonumber(L, 2);
+	const char *value = HGE_System_GetStateString(h->hge, state);
+	lua_pushstring(L, value);
+
+	return 1;
 }
 
 luaL_Reg hge_reg[] = {
@@ -288,6 +373,7 @@ void register_hge(lua_State *L) {
 
 	lua_setmetatable(L, -2); // setmetatable(hge, metatable)
 
+	add_hge_constants(L);
 	// Pop's the hge table off the stack
 	lua_setglobal(L, "hge");
 }
