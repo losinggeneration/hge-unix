@@ -51,7 +51,7 @@ void add_hge_constants(lua_State *L) {
 	add_constant(L, "windowed", HGE_WINDOWED);
 	add_constant(L, "zbuffer", HGE_ZBUFFER);
 	add_constant(L, "texture_filter", HGE_TEXTUREFILTER);
-	add_constant(L, "use_sound", HGE_USESOUND);
+	add_constant(L, "sound", HGE_USESOUND);
 	add_constant(L, "dont_suspend", HGE_DONTSUSPEND);
 	add_constant(L, "hide_mouse", HGE_HIDEMOUSE);
 	add_constant(L, "show_splash", HGE_SHOWSPLASH);
