@@ -44,17 +44,14 @@ const char* HGE_System_GetErrorMessage(HGE_t *hge) {
 	return hge->h->System_GetErrorMessage();
 }
 
-void HGE_System_Log(HGE_t *hge, const char *format, ...) {
+void HGE_System_Logv(HGE_t *hge, const char *format, va_list ap) {
 	char *str;
 	// We'll try to be sufficiently large, but for long variable conversions,
 	// it may not be enough
 	int len = strlen(format)+1024;
 	str = (char *)malloc(len * sizeof(char));
 
-	va_list ap;
-	va_start(ap, format);
 	int n = vsnprintf(str, len, format, ap);
-	va_end(ap);
 
 	// Warn if we're at capacity for str
 	if(n < 0 || n == len) {
@@ -63,6 +60,13 @@ void HGE_System_Log(HGE_t *hge, const char *format, ...) {
 
 	hge->h->System_Log(str);
 	free(str);
+}
+
+void HGE_System_Log(HGE_t *hge, const char *format, ...) {
+	va_list ap;
+	va_start(ap, format);
+	HGE_System_Logv(hge, format, ap);
+	va_end(ap);
 }
 
 BOOL HGE_System_Launch(HGE_t *hge, const char *url) {

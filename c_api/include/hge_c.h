@@ -303,6 +303,7 @@ void HGE_System_Shutdown(HGE_t *hge);
 BOOL HGE_System_Start(HGE_t *hge);
 const char* HGE_System_GetErrorMessage(HGE_t *hge);
 void HGE_System_Log(HGE_t *hge, const char *format, ...);
+void HGE_System_Logv(HGE_t *hge, const char *format,va_list ap);
 BOOL HGE_System_Launch(HGE_t *hge, const char *url);
 void HGE_System_Snapshot(HGE_t *hge, const char *filename);
 void HGE_System_SetStateBool(HGE_t *hge, HGE_BoolState_t state, BOOL value);
