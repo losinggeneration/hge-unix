@@ -1,10 +1,6 @@
-#include "hge_c.h"
+#include "hge.h"
 
 #include "hge_lua.h"
-
-typedef struct {
-	HGE_t *hge;
-} hge_t;
 
 void register_resource(lua_State *L);
 void register_ini(lua_State *L);
@@ -52,82 +48,82 @@ inline void add_constant(lua_State *L, const char *name, int value) {
 void add_hge_constants(lua_State *L) {
 	lua_pushstring(L, "bool");
 	lua_newtable(L);
-	add_constant(L, "windowed", HGE_C_WINDOWED);
-	add_constant(L, "zbuffer", HGE_C_ZBUFFER);
-	add_constant(L, "texturefilter", HGE_C_TEXTUREFILTER);
-	add_constant(L, "usesound", HGE_C_USESOUND);
-	add_constant(L, "dontsuspend", HGE_C_DONTSUSPEND);
-	add_constant(L, "hidemouse", HGE_C_HIDEMOUSE);
-	add_constant(L, "showsplash", HGE_C_SHOWSPLASH);
+	add_constant(L, "windowed", HGE_WINDOWED);
+	add_constant(L, "zbuffer", HGE_ZBUFFER);
+	add_constant(L, "texturefilter", HGE_TEXTUREFILTER);
+	add_constant(L, "usesound", HGE_USESOUND);
+	add_constant(L, "dontsuspend", HGE_DONTSUSPEND);
+	add_constant(L, "hidemouse", HGE_HIDEMOUSE);
+	add_constant(L, "showsplash", HGE_SHOWSPLASH);
 	lua_settable(L, -3);
 
 	lua_pushstring(L, "func");
 	lua_newtable(L);
-	add_constant(L, "framefunc", HGE_C_FRAMEFUNC);
-	add_constant(L, "renderfunc", HGE_C_RENDERFUNC);
-	add_constant(L, "focuslostfunc", HGE_C_FOCUSLOSTFUNC);
-	add_constant(L, "focusgainfunc", HGE_C_FOCUSGAINFUNC);
-	add_constant(L, "gfxrestorefunc", HGE_C_GFXRESTOREFUNC);
-	add_constant(L, "exitfunc", HGE_C_EXITFUNC);
+	add_constant(L, "framefunc", HGE_FRAMEFUNC);
+	add_constant(L, "renderfunc", HGE_RENDERFUNC);
+	add_constant(L, "focuslostfunc", HGE_FOCUSLOSTFUNC);
+	add_constant(L, "focusgainfunc", HGE_FOCUSGAINFUNC);
+	add_constant(L, "gfxrestorefunc", HGE_GFXRESTOREFUNC);
+	add_constant(L, "exitfunc", HGE_EXITFUNC);
 	lua_settable(L, -3);
 
 	lua_pushstring(L, "hwnd");
 	lua_newtable(L);
-	add_constant(L, "hwnd", HGE_C_HWND);
-	add_constant(L, "hwndparent", HGE_C_HWNDPARENT);
+	add_constant(L, "hwnd", HGE_HWND);
+	add_constant(L, "hwndparent", HGE_HWNDPARENT);
 	lua_settable(L, -3);
 
 	lua_pushstring(L, "int");
 	lua_newtable(L);
-	add_constant(L, "screenwidth", HGE_C_SCREENWIDTH);
-	add_constant(L, "screenheight", HGE_C_SCREENHEIGHT);
-	add_constant(L, "screenbpp", HGE_C_SCREENBPP);
-	add_constant(L, "samplerate", HGE_C_SAMPLERATE);
-	add_constant(L, "fxvolume", HGE_C_FXVOLUME);
-	add_constant(L, "musvolume", HGE_C_MUSVOLUME);
-	add_constant(L, "streamvolume", HGE_C_STREAMVOLUME);
-	add_constant(L, "fps", HGE_C_FPS);
-	add_constant(L, "powerstatus", HGE_C_POWERSTATUS);
-	add_constant(L, "origscreenwidth", HGE_C_ORIGSCREENWIDTH);
-	add_constant(L, "origscreenheight", HGE_C_ORIGSCREENHEIGHT);
+	add_constant(L, "screenwidth", HGE_SCREENWIDTH);
+	add_constant(L, "screenheight", HGE_SCREENHEIGHT);
+	add_constant(L, "screenbpp", HGE_SCREENBPP);
+	add_constant(L, "samplerate", HGE_SAMPLERATE);
+	add_constant(L, "fxvolume", HGE_FXVOLUME);
+	add_constant(L, "musvolume", HGE_MUSVOLUME);
+	add_constant(L, "streamvolume", HGE_STREAMVOLUME);
+	add_constant(L, "fps", HGE_FPS);
+	add_constant(L, "powerstatus", HGE_POWERSTATUS);
+	add_constant(L, "origscreenwidth", HGE_ORIGSCREENWIDTH);
+	add_constant(L, "origscreenheight", HGE_ORIGSCREENHEIGHT);
 	lua_settable(L, -3);
 
 	lua_pushstring(L, "string");
 	lua_newtable(L);
-	add_constant(L, "icon", HGE_C_ICON);
-	add_constant(L, "title", HGE_C_TITLE);
-	add_constant(L, "inifile", HGE_C_INIFILE);
-	add_constant(L, "logfile", HGE_C_LOGFILE);
+	add_constant(L, "icon", HGE_ICON);
+	add_constant(L, "title", HGE_TITLE);
+	add_constant(L, "inifile", HGE_INIFILE);
+	add_constant(L, "logfile", HGE_LOGFILE);
 	lua_settable(L, -3);
 
 	lua_pushstring(L, "fps");
 	lua_newtable(L);
-	add_constant(L, "unlimited", HGE_FPS_UNLIMITED);
-	add_constant(L, "vsync", HGE_FPS_VSYNC);
+	add_constant(L, "unlimited", HGEFPS_UNLIMITED);
+	add_constant(L, "vsync", HGEFPS_VSYNC);
 	lua_settable(L, -3);
 
 	lua_pushstring(L, "pwd");
 	lua_newtable(L);
-	add_constant(L, "ac", HGE_PWR_AC);
-	add_constant(L, "unsupported", HGE_PWR_UNSUPPORTED);
+	add_constant(L, "ac", HGEPWR_AC);
+	add_constant(L, "unsupported", HGEPWR_UNSUPPORTED);
 	lua_settable(L, -3);
 }
 
 /* Check the first argument is userdata and return it */
-hge_t *hge_param_check(lua_State *L) {
+HGE *hge_param_check(lua_State *L) {
 	if(lua_isuserdata(L, 1) == 0) {
 		error(L, "Expected type(hge)");
 		return NULL;
 	}
 
-	return (hge_t *)lua_touserdata(L, 1);
+	return *((HGE **)lua_touserdata(L, 1));
 }
 
 /* check that the first argument is a userdata & make sure it's not free'd */
-hge_t *hge_check(lua_State *L) {
-	hge_t *h = hge_param_check(L);
+HGE *hge_check(lua_State *L) {
+	HGE *h = hge_param_check(L);
 
-	if(h == NULL || h->hge == NULL) {
+	if(h == NULL) {
 		error(L, "Cannot use a free'd type(hge)");
 		return NULL;
 	}
@@ -135,95 +131,100 @@ hge_t *hge_check(lua_State *L) {
 	return h;
 }
 
-/* void HGE_Release(HGE_t *hge); */
+/* void HGE->Release(); */
 int system_release(lua_State *L) {
-	hge_t *h = hge_param_check(L);
+	HGE *h = hge_param_check(L);
 
 	if(h != NULL) {
-		if(h->hge != NULL) {
-			HGE_Release(h->hge);
-			h->hge = NULL;
-		}
+		h->Release();
 		h = NULL;
 	}
 	return 0;
 }
 
-/* BOOL HGE_System_Initiate(HGE_t *hge); */
+/* bool HGE->System_Initiate(); */
 int system_initiate(lua_State *L) {
-	hge_t *h = hge_check(L);
+	HGE *h = hge_check(L);
 
-	BOOL b = HGE_System_Initiate(h->hge);
+	bool b = h->System_Initiate();
 
 	lua_pushboolean(L, b);
 
 	return 1;
 }
 
-/* void HGE_System_Shutdown(HGE_t *hge); */
+/* void HGE->System_Shutdown(); */
 int system_shutdown(lua_State *L) {
-	hge_t *h = hge_check(L);
+	HGE *h = hge_check(L);
 
-	HGE_System_Shutdown(h->hge);
+	h->System_Shutdown();
 
 	return 0;
 }
 
-/* BOOL HGE_System_Start(HGE_t *hge); */
+/* bool HGE->System_Start(); */
 int system_start(lua_State *L) {
-	hge_t *h = hge_check(L);
+	HGE *h = hge_check(L);
 
-	BOOL b = HGE_System_Start(h->hge);
+	bool b = h->System_Start();
 	lua_pushboolean(L, b);
 
 	return 1;
 }
 
-/* const char* HGE_System_GetErrorMessage(HGE_t *hge); */
+/* const char* HGE->System_GetErrorMessage(); */
 int system_get_error_message(lua_State *L) {
-	hge_t *h = hge_check(L);
+	HGE *h = hge_check(L);
 
-	const char *err = HGE_System_GetErrorMessage(h->hge);
+	const char *err = h->System_GetErrorMessage();
 	lua_pushstring(L, err);
 
 	return 1;
 }
 
-/* void HGE_System_Log(HGE_t *hge, const char *format, ...); */
+/* void HGE->System_Log(const char *format, ...); */
 int system_log(lua_State *L) {
-	hge_t *h = hge_check(L);
+	HGE *h = hge_check(L);
 	const char *fmt = lua_tostring(L, 2);
 	int i;
 	for(i = 3; i <= lua_gettop(L); i++);
 	return 0;
 }
 
-/* BOOL HGE_System_Launch(HGE_t *hge, const char *url); */
+/* bool HGE->System_Launch(const char *url); */
 int system_launch(lua_State *L) {
-	hge_t *h = hge_check(L);
+	HGE *h = hge_check(L);
+
+	const char *url = lua_tostring(L, 2);
+	h->System_Launch(url);
+
 	return 0;
 }
 
-/* void HGE_System_Snapshot(HGE_t *hge, const char *filename); */
+/* void HGE->System_Snapshot(const char *filename); */
 int system_snapshot(lua_State *L) {
-	hge_t *h = hge_check(L);
+	HGE *h = hge_check(L);
+
+	const char *filename = lua_tostring(L, 2);
+	h->System_Snapshot(filename);
+
 	return 0;
 }
 
-/* void HGE_System_SetStateFunc(HGE_t *hge, HGE_FuncState_t state, HGE_Callback value); */
+/* void HGE->System_SetStateFunc(HGE->FuncState_t state, HGE->Callback value); */
 int system_set_state_func(lua_State *L) {
-	hge_t *h = hge_check(L);
+	HGE *h = hge_check(L);
 	return 0;
 }
 
-/* HGE_Callback HGE_System_GetStateFunc(HGE_t *hge, HGE_FuncState_t state); */
+/* HGE->Callback HGE->System_GetStateFunc(HGE->FuncState_t state); */
 int system_get_state_func(lua_State *L) {
-	hge_t *h = hge_check(L);
+	HGE *h = hge_check(L);
 	return 0;
 }
 
 int system_set_state(lua_State *L) {
-	hge_t *h = hge_check(L);
+	HGE *h = hge_check(L);
 
 	if(lua_gettop(L) != 3 || !lua_isnumber(L, 2)) {
 		error(L, "Expected three arguments: type(hge), number(state), boolean(value)");
@@ -234,42 +235,42 @@ int system_set_state(lua_State *L) {
 	switch(lua_type(L, 3)) {
 		case LUA_TNUMBER:
 			{
-				HGE_IntState_t is = state;
+				hgeIntState is = (hgeIntState)state;
 				if(is != state) {
 					error(L, "Invalid int state");
 				}
 
 				lua_Integer i = lua_tointeger(L, 3);
 
-				HGE_System_SetStateInt(h->hge, is, i);
+				h->System_SetState(is, (int)i);
 			}
 			break;
 		case LUA_TSTRING:
 			{
-				HGE_StringState_t ss = state;
+				hgeStringState ss = (hgeStringState)state;
 				if(ss != state) {
 					error(L, "Invalid string state");
 				}
 
 				const char *s = lua_tostring(L, 3);
 
-				HGE_System_SetStateString(h->hge, ss, s);
+				h->System_SetState(ss, s);
 			}
 			break;
 		case LUA_TBOOLEAN:
 			{
-				HGE_BoolState_t bs = state;
+				hgeBoolState bs = (hgeBoolState)state;
 				if(bs != state) {
 					error(L, "Invalid bool state");
 				}
 
-				BOOL b = lua_toboolean(L, 3);
+				bool b = lua_toboolean(L, 3);
 
-				HGE_System_SetStateBool(h->hge, bs, b);
+				h->System_SetState(bs, b);
 			}
 			break;
 		default:
-			error(L, "Unsupported typed passed as third argument");
+			error(L, "Unsupported typed passed as third argument to set_state");
 			break;
 	}
 
@@ -277,7 +278,7 @@ int system_set_state(lua_State *L) {
 }
 
 int system_get_state(lua_State *L) {
-	hge_t *h = hge_check(L);
+	HGE *h = hge_check(L);
 
 	if(lua_gettop(L) != 2 || !lua_isnumber(L, 2)) {
 		error(L, "A state constant must be specified");
@@ -293,7 +294,7 @@ int system_get_state(lua_State *L) {
 		case HGE_DONTSUSPEND:
 		case HGE_HIDEMOUSE:
 		case HGE_SHOWSPLASH:
-			lua_pushboolean(L, HGE_System_GetStateBool(h->hge, state));
+			lua_pushboolean(L, h->System_GetState((hgeBoolState)state));
 			break;
 
 		case HGE_SCREENWIDTH:
@@ -307,19 +308,20 @@ int system_get_state(lua_State *L) {
 		case HGE_POWERSTATUS:
 		case HGE_ORIGSCREENWIDTH:
 		case HGE_ORIGSCREENHEIGHT:
-			lua_pushinteger(L, HGE_System_GetStateInt(h->hge, state));
+			lua_pushinteger(L, h->System_GetState((hgeIntState)state));
 			break;
 
 		case HGE_ICON:
 		case HGE_TITLE:
 		case HGE_INIFILE:
 		case HGE_LOGFILE:
-			lua_pushstring(L, HGE_System_GetStateString(h->hge, state));
+			lua_pushstring(L, h->System_GetState((hgeStringState)state));
 			break;
 
 		default:
 			error(L, "Unsupported type for get_state");
 	}
+
 	return 1;
 }
 
@@ -345,10 +347,10 @@ int hge_tostring(lua_State *L) {
 	return 1;
 }
 
-/* HGE_t* HGE_Create(int ver); */
+/* HGE->t* HGE->Create(int ver); */
 int hge_create(lua_State *L) {
-	hge_t *hge = (hge_t *) lua_newuserdata(L, sizeof(hge_t));
-	hge->hge = HGE_Create(HGE_VERSION);
+	HGE **hge = (HGE **) lua_newuserdata(L, sizeof(HGE **));
+	*hge = hgeCreate(HGE_VERSION);
 
 	add_garbage(L, "hge.hge", system_release);
 	add_tostring(L, "hge.hge", hge_tostring);
@@ -389,37 +391,37 @@ void register_hge(lua_State *L) {
 	lua_setglobal(L, "hge");
 }
 
-/* void HGE_Resource_Free(HGE_t *hge, void *res); */
+/* void HGE->Resource_Free(void *res); */
 int resource_free(lua_State *L) {
 	return 0;
 }
 
-/* BOOL HGE_Resource_AttachPack(HGE_t *hge, const char *filename, const char *password); */
+/* bool HGE->Resource_AttachPack(const char *filename, const char *password); */
 int resource_attach_pack(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Resource_RemovePack(HGE_t *hge, const char *filename); */
+/* void HGE->Resource_RemovePack(const char *filename); */
 int resource_remove_pack(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Resource_RemoveAllPacks(HGE_t *hge); */
+/* void HGE->Resource_RemoveAllPacks(); */
 int resource_remove_all_packs(lua_State *L) {
 	return 0;
 }
 
-/* char* HGE_Resource_MakePath(HGE_t *hge, const char *filename); */
+/* char* HGE->Resource_MakePath(const char *filename); */
 int resource_make_path(lua_State *L) {
 	return 0;
 }
 
-/* char* HGE_Resource_EnumFiles(HGE_t *hge, const char *wildcard); */
+/* char* HGE->Resource_EnumFiles(const char *wildcard); */
 int resource_enum_files(lua_State *L) {
 	return 0;
 }
 
-/* char* HGE_Resource_EnumFolders(HGE_t *hge, const char *wildcard); */
+/* char* HGE->Resource_EnumFolders(const char *wildcard); */
 int resource_enum_folders(lua_State *L) {
 	return 0;
 }
@@ -435,7 +437,7 @@ luaL_Reg resource_reg[] = {
 	NULL,
 };
 
-/* void* HGE_Resource_Load(HGE_t *hge, const char *filename, DWORD *size); */
+/* void* HGE->Resource_Load(const char *filename, DWORD *size); */
 int resource_load(lua_State *L) {
 	lua_newtable(L);
 	luaL_register(L, NULL, resource_reg);
@@ -454,32 +456,32 @@ void register_resource(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-/* void HGE_Ini_SetInt(HGE_t *hge, const char *section, const char *name, int value); */
+/* void HGE->Ini_SetInt(const char *section, const char *name, int value); */
 int ini_set_int(lua_State *L) {
 	return 0;
 }
 
-/* int HGE_Ini_GetInt(HGE_t *hge, const char *section, const char *name, int def_val); */
+/* int HGE->Ini_GetInt(const char *section, const char *name, int def_val); */
 int ini_get_int(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Ini_SetFloat(HGE_t *hge, const char *section, const char *name, float value); */
+/* void HGE->Ini_SetFloat(const char *section, const char *name, float value); */
 int ini_set_float(lua_State *L) {
 	return 0;
 }
 
-/* float HGE_Ini_GetFloat(HGE_t *hge, const char *section, const char *name, float def_val); */
+/* float HGE->Ini_GetFloat(const char *section, const char *name, float def_val); */
 int ini_get_float(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Ini_SetString(HGE_t *hge, const char *section, const char *name, const char *value); */
+/* void HGE->Ini_SetString(const char *section, const char *name, const char *value); */
 int ini_set_string(lua_State *L) {
 	return 0;
 }
 
-/* char* HGE_Ini_GetString(HGE_t *hge, const char *section, const char *name, const char *def_val); */
+/* char* HGE->Ini_GetString(const char *section, const char *name, const char *def_val); */
 int ini_get_string(lua_State *L) {
 	return 0;
 }
@@ -503,17 +505,17 @@ void register_ini(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-/* void HGE_Random_Seed(HGE_t *hge, int seed); */
+/* void HGE->Random_Seed(int seed); */
 int random_seed(lua_State *L) {
 	return 0;
 }
 
-/* int HGE_Random_Int(HGE_t *hge, int min, int max); */
+/* int HGE->Random_Int(int min, int max); */
 int random_int(lua_State *L) {
 	return 0;
 }
 
-/* float HGE_Random_Float(HGE_t *hge, float min, float max); */
+/* float HGE->Random_Float(float min, float max); */
 int random_float(lua_State *L) {
 	return 0;
 }
@@ -534,17 +536,17 @@ void register_random(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-/* float HGE_Timer_GetTime(HGE_t *hge); */
+/* float HGE->Timer_GetTime(); */
 int timer_get_time(lua_State *L) {
 	return 0;
 }
 
-/* float HGE_Timer_GetDelta(HGE_t *hge); */
+/* float HGE->Timer_GetDelta(); */
 int timer_get_delta(lua_State *L) {
 	return 0;
 }
 
-/* int HGE_Timer_GetFPS(HGE_t *hge); */
+/* int HGE->Timer_GetFPS(); */
 int timer_get_fps(lua_State *L) {
 	return 0;
 }
@@ -563,17 +565,17 @@ void register_timer(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-/* void HGE_Effect_Free(HGE_t *hge, HEFFECT eff); */
+/* void HGE->Effect_Free(HEFFECT eff); */
 int effect_free(lua_State *L) {
 	return 0;
 }
 
-/* HCHANNEL HGE_Effect_Play(HGE_t *hge, HEFFECT eff); */
+/* HCHANNEL HGE->Effect_Play(HEFFECT eff); */
 int effect_play(lua_State *L) {
 	return 0;
 }
 
-/* HCHANNEL HGE_Effect_PlayEx(HGE_t *hge, HEFFECT eff, int volume, int pan, float pitch, BOOL loop); */
+/* HCHANNEL HGE->Effect_PlayEx(HEFFECT eff, int volume, int pan, float pitch, bool loop); */
 int effect_play_ex(lua_State *L) {
 	return 0;
 }
@@ -585,7 +587,7 @@ luaL_Reg effect_reg[] = {
 	NULL,
 };
 
-/* HEFFECT HGE_Effect_Load(HGE_t *hge, const char *filename, DWORD size); */
+/* HEFFECT HGE->Effect_Load(const char *filename, DWORD size); */
 int effect_load(lua_State *L) {
 	lua_newtable(L);
 	luaL_register(L, NULL, effect_reg);
@@ -604,57 +606,57 @@ void register_effect(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-/* void HGE_Music_Free(HGE_t *hge, HMUSIC mus); */
+/* void HGE->Music_Free(HMUSIC mus); */
 int music_free(lua_State *L) {
 	return 0;
 }
 
-/* HCHANNEL HGE_Music_Play(HGE_t *hge, HMUSIC mus, BOOL loop, int volume, int order, int row); */
+/* HCHANNEL HGE->Music_Play(HMUSIC mus, bool loop, int volume, int order, int row); */
 int music_play(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Music_SetAmplification(HGE_t *hge, HMUSIC music, int ampl); */
+/* void HGE->Music_SetAmplification(HMUSIC music, int ampl); */
 int music_set_amplification(lua_State *L) {
 	return 0;
 }
 
-/* int HGE_Music_GetAmplification(HGE_t *hge, HMUSIC music); */
+/* int HGE->Music_GetAmplification(HMUSIC music); */
 int music_get_amplification(lua_State *L) {
 	return 0;
 }
 
-/* int HGE_Music_GetLength(HGE_t *hge, HMUSIC music); */
+/* int HGE->Music_GetLength(HMUSIC music); */
 int music_get_length(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Music_SetPos(HGE_t *hge, HMUSIC music, int order, int row); */
+/* void HGE->Music_SetPos(HMUSIC music, int order, int row); */
 int music_set_pos(lua_State *L) {
 	return 0;
 }
 
-/* BOOL HGE_Music_GetPos(HGE_t *hge, HMUSIC music, int *order, int *row); */
+/* bool HGE->Music_GetPos(HMUSIC music, int *order, int *row); */
 int music_get_pos(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Music_SetInstrVolume(HGE_t *hge, HMUSIC music, int instr, int volume); */
+/* void HGE->Music_SetInstrVolume(HMUSIC music, int instr, int volume); */
 int music_set_instr_volume(lua_State *L) {
 	return 0;
 }
 
-/* int HGE_Music_GetInstrVolume(HGE_t *hge, HMUSIC music, int instr); */
+/* int HGE->Music_GetInstrVolume(HMUSIC music, int instr); */
 int music_get_instr_volume(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Music_SetChannelVolume(HGE_t *hge, HMUSIC music, int channel, int volume); */
+/* void HGE->Music_SetChannelVolume(HMUSIC music, int channel, int volume); */
 int music_set_channel_volume(lua_State *L) {
 	return 0;
 }
 
-/* int HGE_Music_GetChannelVolume(HGE_t *hge, HMUSIC music, int channel); */
+/* int HGE->Music_GetChannelVolume(HMUSIC music, int channel); */
 int music_get_channel_volume(lua_State *L) {
 	return 0;
 }
@@ -674,7 +676,7 @@ luaL_Reg music_reg[] = {
 	NULL,
 };
 
-/* HMUSIC HGE_Music_Load(HGE_t *hge, const char *filename, DWORD size); */
+/* HMUSIC HGE->Music_Load(const char *filename, DWORD size); */
 int music_load(lua_State *L) {
 	lua_newtable(L);
 	luaL_register(L, NULL, music_reg);
@@ -693,12 +695,12 @@ void register_music(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-/* void HGE_Stream_Free(HGE_t *hge, HSTREAM stream); */
+/* void HGE->Stream_Free(HSTREAM stream); */
 int stream_free(lua_State *L) {
 	return 0;
 }
 
-/* HCHANNEL HGE_Stream_Play(HGE_t *hge, HSTREAM stream, BOOL loop, int volume); */
+/* HCHANNEL HGE->Stream_Play(HSTREAM stream, bool loop, int volume); */
 int stream_play(lua_State *L) {
 	return 0;
 }
@@ -709,7 +711,7 @@ luaL_Reg stream_reg[] = {
 	NULL,
 };
 
-/* HSTREAM HGE_Stream_Load(HGE_t *hge, const char *filename, DWORD size); */
+/* HSTREAM HGE->Stream_Load(const char *filename, DWORD size); */
 int stream_load(lua_State *L) {
 	lua_newtable(L);
 	luaL_register(L, NULL, stream_reg);
@@ -727,77 +729,77 @@ void register_stream(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-/* void HGE_Channel_SetPanning(HGE_t *hge, HCHANNEL chn, int pan); */
+/* void HGE->Channel_SetPanning(HCHANNEL chn, int pan); */
 int channel_set_panning(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Channel_SetVolume(HGE_t *hge, HCHANNEL chn, int volume); */
+/* void HGE->Channel_SetVolume(HCHANNEL chn, int volume); */
 int channel_set_volume(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Channel_SetPitch(HGE_t *hge, HCHANNEL chn, float pitch); */
+/* void HGE->Channel_SetPitch(HCHANNEL chn, float pitch); */
 int channel_set_pitch(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Channel_Pause(HGE_t *hge, HCHANNEL chn); */
+/* void HGE->Channel_Pause(HCHANNEL chn); */
 int channel_pause(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Channel_Resume(HGE_t *hge, HCHANNEL chn); */
+/* void HGE->Channel_Resume(HCHANNEL chn); */
 int channel_resume(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Channel_Stop(HGE_t *hge, HCHANNEL chn); */
+/* void HGE->Channel_Stop(HCHANNEL chn); */
 int channel_stop(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Channel_PauseAll(HGE_t *hge); */
+/* void HGE->Channel_PauseAll(); */
 int channel_pause_all(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Channel_ResumeAll(HGE_t *hge); */
+/* void HGE->Channel_ResumeAll(); */
 int channel_resume_all(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Channel_StopAll(HGE_t *hge); */
+/* void HGE->Channel_StopAll(); */
 int channel_stop_all(lua_State *L) {
 	return 0;
 }
 
-/* BOOL HGE_Channel_IsPlaying(HGE_t *hge, HCHANNEL chn); */
+/* bool HGE->Channel_IsPlaying(HCHANNEL chn); */
 int channel_is_playing(lua_State *L) {
 	return 0;
 }
 
-/* float HGE_Channel_GetLength(HGE_t *hge, HCHANNEL chn); */
+/* float HGE->Channel_GetLength(HCHANNEL chn); */
 int channel_get_length(lua_State *L) {
 	return 0;
 }
 
-/* float HGE_Channel_GetPos(HGE_t *hge, HCHANNEL chn); */
+/* float HGE->Channel_GetPos(HCHANNEL chn); */
 int channel_get_pos(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Channel_SetPos(HGE_t *hge, HCHANNEL chn, float fSeconds); */
+/* void HGE->Channel_SetPos(HCHANNEL chn, float fSeconds); */
 int channel_set_pos(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Channel_SlideTo(HGE_t *hge, HCHANNEL channel, float time, int volume, int pan, float pitch); */
+/* void HGE->Channel_SlideTo(HCHANNEL channel, float time, int volume, int pan, float pitch); */
 int channel_slide_to(lua_State *L) {
 	return 0;
 }
 
-/* BOOL HGE_Channel_IsSliding(HGE_t *hge, HCHANNEL channel); */
+/* bool HGE->Channel_IsSliding(HCHANNEL channel); */
 int channel_is_sliding(lua_State *L) {
 	return 0;
 }
@@ -828,57 +830,57 @@ void register_channel(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-/* void HGE_Input_GetMousePos(HGE_t *hge, float *x, float *y); */
+/* void HGE->Input_GetMousePos(float *x, float *y); */
 int input_get_mouse_pos(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Input_SetMousePos(HGE_t *hge, float x, float y); */
+/* void HGE->Input_SetMousePos(float x, float y); */
 int input_set_mouse_pos(lua_State *L) {
 	return 0;
 }
 
-/* int HGE_Input_GetMouseWheel(HGE_t *hge); */
+/* int HGE->Input_GetMouseWheel(); */
 int input_get_mouse_wheel(lua_State *L) {
 	return 0;
 }
 
-/* BOOL HGE_Input_IsMouseOver(HGE_t *hge); */
+/* bool HGE->Input_IsMouseOver(); */
 int input_is_mouse_over(lua_State *L) {
 	return 0;
 }
 
-/* BOOL HGE_Input_KeyDown(HGE_t *hge, int key); */
+/* bool HGE->Input_KeyDown(int key); */
 int input_key_down(lua_State *L) {
 	return 0;
 }
 
-/* BOOL HGE_Input_KeyUp(HGE_t *hge, int key); */
+/* bool HGE->Input_KeyUp(int key); */
 int input_key_up(lua_State *L) {
 	return 0;
 }
 
-/* BOOL HGE_Input_GetKeyState(HGE_t *hge, int key); */
+/* bool HGE->Input_GetKeyState(int key); */
 int input_get_key_state(lua_State *L) {
 	return 0;
 }
 
-/* const char* HGE_Input_GetKeyName(HGE_t *hge, int key); */
+/* const char* HGE->Input_GetKeyName(int key); */
 int input_get_key_name(lua_State *L) {
 	return 0;
 }
 
-/* int HGE_Input_GetKey(HGE_t *hge); */
+/* int HGE->Input_GetKey(); */
 int input_get_key(lua_State *L) {
 	return 0;
 }
 
-/* int HGE_Input_GetChar(HGE_t *hge); */
+/* int HGE->Input_GetChar(); */
 int input_get_char(lua_State *L) {
 	return 0;
 }
 
-/* BOOL HGE_Input_GetEvent(HGE_t *hge, HGE_InputEvent_t *event); */
+/* bool HGE->Input_GetEvent(HGE->InputEvent_t *event); */
 int input_get_event(lua_State *L) {
 	return 0;
 }
@@ -905,52 +907,52 @@ void register_input(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-/* BOOL HGE_Gfx_BeginScene(HGE_t *hge, HTARGET target); */
+/* bool HGE->Gfx_BeginScene(HTARGET target); */
 int gfx_begin_scene(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Gfx_EndScene(HGE_t *hge); */
+/* void HGE->Gfx_EndScene(); */
 int gfx_end_scene(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Gfx_Clear(HGE_t *hge, DWORD color); */
+/* void HGE->Gfx_Clear(DWORD color); */
 int gfx_clear(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Gfx_RenderLine(HGE_t *hge, float x1, float y1, float x2, float y2, DWORD color, float z); */
+/* void HGE->Gfx_RenderLine(float x1, float y1, float x2, float y2, DWORD color, float z); */
 int gfx_render_line(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Gfx_RenderTriple(HGE_t *hge, const HGE_Triple_t *triple); */
+/* void HGE->Gfx_RenderTriple(const HGE->Triple_t *triple); */
 int gfx_render_triple(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Gfx_RenderQuad(HGE_t *hge, const HGE_Quad_t *quad); */
+/* void HGE->Gfx_RenderQuad(const HGE->Quad_t *quad); */
 int gfx_render_quad(lua_State *L) {
 	return 0;
 }
 
-/* HGE_Vertex_t* HGE_Gfx_StartBatch(HGE_t *hge, int prim_type, HTEXTURE tex, int blend, int *max_prim); */
+/* HGE->Vertex_t* HGE->Gfx_StartBatch(int prim_type, HTEXTURE tex, int blend, int *max_prim); */
 int gfx_start_batch(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Gfx_FinishBatch(HGE_t *hge, int nprim); */
+/* void HGE->Gfx_FinishBatch(int nprim); */
 int gfx_finish_batch(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Gfx_SetClipping(HGE_t *hge, int x, int y, int w, int h); */
+/* void HGE->Gfx_SetClipping(int x, int y, int w, int h); */
 int gfx_set_clipping(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Gfx_SetTransform(HGE_t *hge, float x, float y, float dx, float dy, float rot, float hscale, float vscale); */
+/* void HGE->Gfx_SetTransform(float x, float y, float dx, float dy, float rot, float hscale, float vscale); */
 int gfx_set_transform(lua_State *L) {
 	return 0;
 }
@@ -976,12 +978,12 @@ void register_gfx(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-/* void HGE_Target_Free(HGE_t *hge, HTARGET target); */
+/* void HGE->Target_Free(HTARGET target); */
 int target_free(lua_State *L) {
 	return 0;
 }
 
-/* HTEXTURE HGE_Target_GetTexture(HGE_t *hge, HTARGET target); */
+/* HTEXTURE HGE->Target_GetTexture(HTARGET target); */
 int target_get_texture(lua_State *L) {
 	return 0;
 }
@@ -992,7 +994,7 @@ luaL_Reg target_reg[] = {
 	NULL,
 };
 
-/* HTARGET HGE_Target_Create(HGE_t *hge, int width, int height, BOOL zbuffer); */
+/* HTARGET HGE->Target_Create(int width, int height, bool zbuffer); */
 int target_create(lua_State *L) {
 	lua_newtable(L);
 	luaL_register(L, NULL, target_reg);
@@ -1011,28 +1013,27 @@ void register_target(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-/* void HGE_Texture_Free(HGE_t *hge, HTEXTURE tex); */
+/* void HGE->Texture_Free(HTEXTURE tex); */
 int texture_free(lua_State *L) {
-	printf("freeing texture\n");
 	return 0;
 }
 
-/* int HGE_Texture_GetWidth(HGE_t *hge, HTEXTURE tex, BOOL bOriginal); */
+/* int HGE->Texture_GetWidth(HTEXTURE tex, bool bOriginal); */
 int texture_get_width(lua_State *L) {
 	return 0;
 }
 
-/* int HGE_Texture_GetHeight(HGE_t *hge, HTEXTURE tex, BOOL bOriginal); */
+/* int HGE->Texture_GetHeight(HTEXTURE tex, bool bOriginal); */
 int texture_get_height(lua_State *L) {
 	return 0;
 }
 
-/* DWORD* HGE_Texture_Lock(HGE_t *hge, HTEXTURE tex, BOOL bReadOnly, int left, int top, int width, int height); */
+/* DWORD* HGE->Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int top, int width, int height); */
 int texture_lock(lua_State *L) {
 	return 0;
 }
 
-/* void HGE_Texture_Unlock(HGE_t *hge, HTEXTURE tex); */
+/* void HGE->Texture_Unlock(HTEXTURE tex); */
 int texture_unlock(lua_State *L) {
 	return 0;
 }
@@ -1054,14 +1055,14 @@ void texture_new(lua_State *L) {
 	add_garbage(L, "hge.texture", texture_free);
 }
 
-/* HTEXTURE HGE_Texture_Create(HGE_t *hge, int width, int height); */
+/* HTEXTURE HGE->Texture_Create(int width, int height); */
 int texture_create(lua_State *L) {
 	texture_new(L);
 
 	return 1;
 }
 
-/* HTEXTURE HGE_Texture_Load(HGE_t *hge, const char *filename, DWORD size, BOOL bMipmap); */
+/* HTEXTURE HGE->Texture_Load(const char *filename, DWORD size, bool bMipmap); */
 int texture_load(lua_State *L) {
 	texture_new(L);
 
@@ -1083,6 +1084,6 @@ void register_texture(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-void luaopen_hge(lua_State *L) {
+extern "C" void luaopen_hge(lua_State *L) {
 	register_hge(L);
 }

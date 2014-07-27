@@ -128,12 +128,19 @@ set(HGE_HELPER_SRCS
 	${HS}/resources.cpp
 )
 
+if(LUA_SCRIPTING)
+	set(LS ${CMAKE_SOURCE_DIR}/src/lua)
+	set(HGE_LUA_SRCS
+		${LS}/hge.cpp
+	)
+endif(LUA_SCRIPTING)
+
 if(WIN32 OR ${BUILD_SINGLE_LIB})
-	add_library(hge ${USE_SHARED} ${HGE_SRCS} ${HGE_HELPER_SRCS})
+	add_library(hge ${USE_SHARED} ${HGE_SRCS} ${HGE_HELPER_SRCS} ${HGE_LUA_SRCS})
 	target_link_libraries(hge ${HGE_LIBRARIES})
 	set(HGE_TARGETS hge)
 else()
-	add_library(hge ${USE_SHARED} ${HGE_SRCS})
+	add_library(hge ${USE_SHARED} ${HGE_SRCS} ${HGE_LUA_SRCS})
 	target_link_libraries(hge ${HGE_LIBRARIES})
 
 	add_library(hge_helpers ${USE_SHARED} ${HGE_HELPER_SRCS})

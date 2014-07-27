@@ -23,31 +23,10 @@ if(BUILD_C_HELPERS_API)
 	)
 endif(BUILD_C_HELPERS_API)
 
-if(LUA_SCRIPTING)
-	set(HGE_LUA_SRCS
-		lua/hge.c
-	)
-
-	if(BUILD_C_HELPERS_API)
-		list(APPEND HGE_LUA_SRCS
-			lua/hgecolor.c
-			lua/hgedistort.c
-			lua/hgefont.c
-			lua/hgegui.c
-			lua/hgeparticle.c
-			lua/hgerect.c
-			lua/hgeresource.c
-			lua/hgesprite.c
-			lua/hgestrings.c
-			lua/hgevector.c
-		)
-	endif(BUILD_C_HELPERS_API)
-endif(LUA_SCRIPTING)
-
 include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src/core ${CMAKE_SOURCE_DIR}/src/core/unix ${CMAKE_SOURCE_DIR}/src/core/windows)
 
 if(WIN32 OR ${BUILD_SINGLE_LIB})
-	add_library(hge_c ${USE_SHARED} ${HGE_C_SRCS} ${HGE_C_HELPER_SRCS} ${HGE_LUA_SRCS})
+	add_library(hge_c ${USE_SHARED} ${HGE_C_SRCS} ${HGE_C_HELPER_SRCS})
 	target_link_libraries(hge_c hge)
 	set(HGE_C_TARGETS hge_c)
 else()

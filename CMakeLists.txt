@@ -9,10 +9,9 @@ option(BUILD_SINGLE_LIB "Build a single library for HGE and Helpers" ON)
 option(BUILD_C_API "Build a C api version of the library" OFF)
 option(BUILD_C_HELPERS_API "Build a C api version of the helpers library" OFF)
 option(BUILD_C_TUTORIALS "Build the tutorials for the C api" OFF)
-option(LUA_SCRIPTING "Build with Lua scripting (requires C_API)" OFF)
+option(LUA_SCRIPTING "Build with Lua scripting" OFF)
 
 if(LUA_SCRIPTING)
-	set(BUILD_C_API ON)
 	find_package(Lua51 REQUIRED)
 
 	include_directories(${LUA_INCLUDE_DIR})
