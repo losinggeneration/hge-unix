@@ -310,6 +310,7 @@ public:
 	virtual bool		CALL	System_Start() = 0;
 	virtual const char*	CALL	System_GetErrorMessage() = 0;
 	virtual	void		CALL	System_Log(const char *format, ...) = 0;
+	virtual	void		CALL	System_Logv(const char *format, va_list ap) = 0;
 	virtual bool		CALL	System_Launch(const char *url) = 0;
 	virtual void		CALL	System_Snapshot(const char *filename=0) = 0;
 

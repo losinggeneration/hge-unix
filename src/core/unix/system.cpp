@@ -623,17 +623,22 @@ const char* CALL HGE_Impl::System_GetErrorMessage()
 
 void CALL HGE_Impl::System_Log(const char *szFormat, ...)
 {
-	FILE *hf = NULL;
 	va_list ap;
+	va_start(ap, szFormat);
+	System_Logv(szFormat, ap);
+	va_end(ap);
+}
+
+void CALL HGE_Impl::System_Logv(const char *szFormat, va_list ap)
+{
+	FILE *hf = NULL;
 
 	if(!szLogFile[0]) return;
 
 	hf = fopen(szLogFile, "a");
 	if(!hf) return;
 
-	va_start(ap, szFormat);
 	vfprintf(hf, szFormat, ap);
-	va_end(ap);
 
 	fprintf(hf, "\n");
 

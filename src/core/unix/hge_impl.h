@@ -127,6 +127,7 @@ public:
 	virtual const char*	CALL	System_GetStateString(hgeStringState);
 	virtual const char*	CALL	System_GetErrorMessage();
 	virtual	void		CALL	System_Log(const char *format, ...);
+	virtual	void		CALL	System_Logv(const char *format, va_list ap);
 	virtual bool		CALL	System_Launch(const char *url);
 	virtual void		CALL	System_Snapshot(const char *filename=0);
 
