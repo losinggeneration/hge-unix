@@ -1,3 +1,5 @@
+#include <string>
+
 #include "hge.h"
 
 #include "hge_lua.h"
@@ -16,6 +18,16 @@ void register_target(lua_State *L);
 void register_texture(lua_State *L);
 
 #define DEBUG_STACK(L) do { printf("stack: %s:%d => %d\n", __FILE__, __LINE__, lua_gettop(L)); } while(0)
+#define DEBUG_ARGS(L, fn) do { \
+	printf("%s(", fn); \
+	for(int i = 1; i <= lua_gettop(L); i++) { \
+		printf("%s", lua_typename(L, lua_type(L, i))); \
+		if(i != lua_gettop(L)) { \
+			printf(", "); \
+		} \
+	} \
+	printf(")\n"); \
+} while(0)
 
 inline void error(lua_State *L, const char *msg) {
 	lua_pushstring(L, msg);
@@ -38,6 +50,57 @@ inline void add_meta_function(lua_State *L, const char *metatable, const char *m
 #define add_index(L, m, f) add_meta_function(L, m, "__index", f)
 #define add_newindex(L, m, f) add_meta_function(L, m, "__newindex", f)
 #define add_tostring(L, m, f) add_meta_function(L, m, "__tostring", f)
+
+lua_State *global_state;
+
+/* These are the callbacks. These call the Lua registry functions defined as hge.func_name */
+bool hge_func(const char *f) {
+	std::string fn = std::string() + "hge." + f + "func";
+	lua_getfield(global_state, LUA_REGISTRYINDEX, fn.c_str());
+
+	if(!lua_isfunction(global_state, -1)) {
+		return false;
+	}
+
+	lua_call(global_state, 0, 1);
+
+	bool is_nil = lua_isnoneornil(global_state, -1);
+	if(!lua_isboolean(global_state, -1) && !is_nil) {
+		std::string err = std::string() + "Expected a boolean to be returned from " + f + " function";
+		error(global_state, err.c_str());
+		return true;
+	}
+
+	if(is_nil) {
+		return false;
+	}
+
+	return lua_toboolean(global_state, -1);
+}
+
+bool hge_framefunc() {
+	return hge_func("frame");
+}
+
+bool hge_renderfunc() {
+	return hge_func("render");
+}
+
+bool hge_focuslostfunc() {
+	return hge_func("focuslost");
+}
+
+bool hge_focusgainfunc() {
+	return hge_func("focusgain");
+}
+
+bool hge_gfxrestorefunc() {
+	return hge_func("gfxrestore");
+}
+
+bool hge_exitfunc() {
+	return hge_func("exit");
+}
 
 inline void add_constant(lua_State *L, const char *name, int value) {
 	lua_pushstring(L, name);
@@ -212,22 +275,102 @@ int system_snapshot(lua_State *L) {
 }
 
 /* void HGE->System_SetStateFunc(HGE->FuncState_t state, HGE->Callback value); */
-int system_set_state_func(lua_State *L) {
-	HGE *h = hge_check(L);
-	return 0;
+void system_set_state_func(lua_State *L, HGE *h) {
+	if(!lua_isnumber(L, 2)) {
+		DEBUG_ARGS(L, "set_state_func");
+		error(L, "Expected second argument to be a number");
+		return;
+	}
+
+	bool is_nil = lua_isnoneornil(L, 3);
+	if(!lua_isfunction(L, 3) && !is_nil) {
+		DEBUG_ARGS(L, "set_state_func");
+		error(L, "Expected callback to be a function or nil");
+		return;
+	}
+
+	std::string func_name;
+	hgeCallback cb;
+
+	hgeFuncState state = (hgeFuncState)lua_tointeger(L, 2);
+	switch(state) {
+		case HGE_FRAMEFUNC:
+			func_name = "hge.framefunc";
+			cb = hge_framefunc;
+			break;
+		case HGE_RENDERFUNC:
+			func_name = "hge.renderfunc";
+			cb = hge_renderfunc;
+			break;
+		case HGE_FOCUSLOSTFUNC:
+			func_name = "hge.focuslostfunc";
+			cb = hge_focuslostfunc;
+			break;
+		case HGE_FOCUSGAINFUNC:
+			func_name = "hge.focusgainfunc";
+			cb = hge_focusgainfunc;
+			break;
+		case HGE_GFXRESTOREFUNC:
+			func_name = "hge.gfxrestorefunc";
+			cb = hge_gfxrestorefunc;
+			break;
+		case HGE_EXITFUNC:
+			func_name = "hge.exitfunc";
+			cb = hge_exitfunc;
+			break;
+		default:
+			error(L, "function callback not implemented");
+			return;
+	}
+
+	// make sure the function is on the top of the stack
+	lua_pushvalue(L, 3);
+	lua_setfield(L, LUA_REGISTRYINDEX, func_name.c_str());
+
+	if(is_nil) {
+		h->System_SetState(state, NULL);
+	} else {
+		h->System_SetState(state, cb);
+	}
 }
 
 /* HGE->Callback HGE->System_GetStateFunc(HGE->FuncState_t state); */
-int system_get_state_func(lua_State *L) {
-	HGE *h = hge_check(L);
-	return 0;
+void system_get_state_func(lua_State *L, HGE *h) {
+	std::string func_name;
+	hgeFuncState state = (hgeFuncState)lua_tointeger(L, 2);
+	switch(state) {
+		case HGE_FRAMEFUNC:
+			func_name = "hge.framefunc";
+			break;
+		case HGE_RENDERFUNC:
+			func_name = "hge.renderfunc";
+			break;
+		case HGE_FOCUSLOSTFUNC:
+			func_name = "hge.focuslostfunc";
+			break;
+		case HGE_FOCUSGAINFUNC:
+			func_name = "hge.focusgainfunc";
+			break;
+		case HGE_GFXRESTOREFUNC:
+			func_name = "hge.gfxrestorefunc";
+			break;
+		case HGE_EXITFUNC:
+			func_name = "hge.exitfunc";
+			break;
+		default:
+			error(L, "function callback not implemented");
+			return;
+	}
+
+	lua_getfield(L, LUA_REGISTRYINDEX, func_name.c_str());
 }
 
 int system_set_state(lua_State *L) {
 	HGE *h = hge_check(L);
 
 	if(lua_gettop(L) != 3 || !lua_isnumber(L, 2)) {
-		error(L, "Expected three arguments: type(hge), number(state), boolean(value)");
+		DEBUG_ARGS(L, "got: set_state");
+		error(L, "Expected three arguments: type(hge), number(state), value");
 	}
 
 	int state = lua_tointeger(L, 2);
@@ -268,6 +411,9 @@ int system_set_state(lua_State *L) {
 
 				h->System_SetState(bs, b);
 			}
+			break;
+		case LUA_TFUNCTION:
+			system_set_state_func(L, h);
 			break;
 		default:
 			error(L, "Unsupported typed passed as third argument to set_state");
@@ -318,8 +464,17 @@ int system_get_state(lua_State *L) {
 			lua_pushstring(L, h->System_GetState((hgeStringState)state));
 			break;
 
+		case HGE_FRAMEFUNC:
+		case HGE_RENDERFUNC:
+		case HGE_FOCUSLOSTFUNC:
+		case HGE_FOCUSGAINFUNC:
+		case HGE_GFXRESTOREFUNC:
+		case HGE_EXITFUNC:
+			system_get_state_func(L, h);
+			break;
 		default:
 			error(L, "Unsupported type for get_state");
+			break;
 	}
 
 	return 1;
@@ -336,8 +491,6 @@ luaL_Reg hge_reg[] = {
 	{ "snapshot", system_snapshot },
 	{ "set_state", system_set_state },
 	{ "get_state", system_get_state },
-	{ "set_state_func", system_set_state_func },
-	{ "get_state_func", system_get_state_func },
 	NULL,
 };
 
@@ -359,6 +512,9 @@ int hge_create(lua_State *L) {
 }
 
 void register_hge(lua_State *L) {
+	// required for the callback functions
+	global_state = L;
+
 	lua_newtable(L);
 	// Add the new function to the table
 	add_function(L, "new", hge_create);
