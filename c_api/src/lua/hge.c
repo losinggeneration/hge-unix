@@ -21,6 +21,11 @@ void register_texture(lua_State *L);
 
 #define DEBUG_STACK(L) do { printf("stack: %s:%d => %d\n", __FILE__, __LINE__, lua_gettop(L)); } while(0)
 
+inline void error(lua_State *L, const char *msg) {
+	lua_pushstring(L, msg);
+	lua_error(L);
+}
+
 inline void add_function(lua_State *L, const char *name, lua_CFunction f) {
 	lua_pushstring(L, name);
 	lua_pushcfunction(L, f);
@@ -111,8 +116,7 @@ void add_hge_constants(lua_State *L) {
 /* Check the first argument is userdata and return it */
 hge_t *hge_param_check(lua_State *L) {
 	if(lua_isuserdata(L, 1) == 0) {
-		lua_pushstring(L, "Expected type(hge)");
-		lua_error(L);
+		error(L, "Expected type(hge)");
 		return NULL;
 	}
 
@@ -124,8 +128,7 @@ hge_t *hge_check(lua_State *L) {
 	hge_t *h = hge_param_check(L);
 
 	if(h == NULL || h->hge == NULL) {
-		lua_pushstring(L, "Cannot use a free'd type(hge)");
-		lua_error(L);
+		error(L, "Cannot use a free'd type(hge)");
 		return NULL;
 	}
 
@@ -189,7 +192,6 @@ int system_get_error_message(lua_State *L) {
 /* void HGE_System_Log(HGE_t *hge, const char *format, ...); */
 int system_log(lua_State *L) {
 	hge_t *h = hge_check(L);
-	HGE_System_Log(h->hge, "Test %s", "Testing");
 	const char *fmt = lua_tostring(L, 2);
 	int i;
 	for(i = 3; i <= lua_gettop(L); i++);
@@ -208,74 +210,10 @@ int system_snapshot(lua_State *L) {
 	return 0;
 }
 
-void system_set_state_check(lua_State *L) {
-	if(lua_gettop(L) != 3) {
-		lua_pushstring(L, "Expected three arguments: type(hge), number(state), boolean(value)");
-		lua_error(L);
-	}
-}
-
-/* void HGE_System_SetStateBool(HGE_t *hge, HGE_BoolState_t state, BOOL value); */
-int system_set_state_bool(lua_State *L) {
-	hge_t *h = hge_check(L);
-
-	system_set_state_check(L);
-
-	HGE_BoolState_t state = lua_tointeger(L, 2);
-	BOOL value = lua_toboolean(L, 3);
-
-	HGE_System_SetStateBool(h->hge, state, value);
-
-	return 0;
-}
-
 /* void HGE_System_SetStateFunc(HGE_t *hge, HGE_FuncState_t state, HGE_Callback value); */
 int system_set_state_func(lua_State *L) {
 	hge_t *h = hge_check(L);
 	return 0;
-}
-
-/* void HGE_System_SetStateHwnd(HGE_t *hge, HGE_HwndState_t state, HWND value); */
-int system_set_state_hwnd(lua_State *L) {
-	hge_t *h = hge_check(L);
-	return 0;
-}
-
-/* void HGE_System_SetStateInt (HGE_t *hge, HGE_IntState_t state, int value); */
-int system_set_state_int(lua_State *L) {
-	hge_t *h = hge_check(L);
-	system_set_state_check(L);
-
-	HGE_IntState_t state = lua_tointeger(L, 2);
-	lua_Integer value = lua_tointeger(L, 3);
-
-	HGE_System_SetStateInt(h->hge, state, value);
-
-	return 0;
-}
-
-/* void HGE_System_SetStateString(HGE_t *hge, HGE_StringState_t state, const char *value); */
-int system_set_state_string(lua_State *L) {
-	hge_t *h = hge_check(L);
-	system_set_state_check(L);
-
-	HGE_StringState_t state = lua_tointeger(L, 2);
-	const char *value = lua_tostring(L, 3);
-
-	HGE_System_SetStateString(h->hge, state, value);
-
-	return 0;
-}
-
-/* BOOL HGE_System_GetStateBool(HGE_t *hge, HGE_BoolState_t state); */
-int system_get_state_bool(lua_State *L) {
-	hge_t *h = hge_check(L);
-
-	HGE_BoolState_t state = lua_tointeger(L, 2);
-	BOOL value = HGE_System_GetStateBool(h->hge, state);
-	lua_pushboolean(L, value);
-
-	return 1;
 }
 
 /* HGE_Callback HGE_System_GetStateFunc(HGE_t *hge, HGE_FuncState_t state); */
@@ -284,62 +222,54 @@ int system_get_state_func(lua_State *L) {
 	return 0;
 }
 
-/* HWND HGE_System_GetStateHwnd(HGE_t *hge, HGE_HwndState_t state); */
-int system_get_state_hwnd(lua_State *L) {
-	hge_t *h = hge_check(L);
-	return 0;
-}
-
-/* int HGE_System_GetStateInt(HGE_t *hge, HGE_IntState_t state); */
-int system_get_state_int(lua_State *L) {
-	hge_t *h = hge_check(L);
-
-	HGE_IntState_t state = lua_tointeger(L, 2);
-	int value = HGE_System_GetStateInt(h->hge, state);
-	lua_pushinteger(L, value);
-
-	return 1;
-}
-
-/* const char* HGE_System_GetStateString(HGE_t *hge, HGE_StringState_t state); */
-int system_get_state_string(lua_State *L) {
-	hge_t *h = hge_check(L);
-
-	HGE_StringState_t state = lua_tointeger(L, 2);
-	const char *value = HGE_System_GetStateString(h->hge, state);
-	lua_pushstring(L, value);
-
-	return 1;
-}
-
 int system_set_state(lua_State *L) {
 	hge_t *h = hge_check(L);
-	system_set_state_check(L);
+
+	if(lua_gettop(L) != 3 || !lua_isnumber(L, 2)) {
+		error(L, "Expected three arguments: type(hge), number(state), boolean(value)");
+	}
+
+	int state = lua_tointeger(L, 2);
 
 	switch(lua_type(L, 3)) {
 		case LUA_TNUMBER:
 			{
-				HGE_IntState_t state = lua_tointeger(L, 2);
-				lua_Integer value = lua_tonumber(L, 3);
+				HGE_IntState_t is = state;
+				if(is != state) {
+					error(L, "Invalid int state");
+				}
 
-				HGE_System_SetStateInt(h->hge, state, value);
+				lua_Integer i = lua_tointeger(L, 3);
+
+				HGE_System_SetStateInt(h->hge, is, i);
 			}
 			break;
 		case LUA_TSTRING:
 			{
-				HGE_StringState_t state = lua_tointeger(L, 2);
-				const char *value = lua_tostring(L, 3);
+				HGE_StringState_t ss = state;
+				if(ss != state) {
+					error(L, "Invalid string state");
+				}
 
-				HGE_System_SetStateString(h->hge, state, value);
+				const char *s = lua_tostring(L, 3);
+
+				HGE_System_SetStateString(h->hge, ss, s);
 			}
 			break;
 		case LUA_TBOOLEAN:
 			{
-				HGE_BoolState_t state = lua_tointeger(L, 2);
-				BOOL value = lua_toboolean(L, 3);
+				HGE_BoolState_t bs = state;
+				if(bs != state) {
+					error(L, "Invalid bool state");
+				}
 
-				HGE_System_SetStateBool(h->hge, state, value);
+				BOOL b = lua_toboolean(L, 3);
+
+				HGE_System_SetStateBool(h->hge, bs, b);
 			}
+			break;
+		default:
+			error(L, "Unsupported typed passed as third argument");
 			break;
 	}
 
@@ -349,30 +279,47 @@ int system_set_state(lua_State *L) {
 int system_get_state(lua_State *L) {
 	hge_t *h = hge_check(L);
 
-	switch(lua_type(L, 3)) {
-		case LUA_TNUMBER:
-			{
-				HGE_IntState_t state = lua_tointeger(L, 2);
-				int value = HGE_System_GetStateInt(h->hge, state);
-				lua_pushinteger(L, value);
-			}
-			break;
-		case LUA_TSTRING:
-			{
-				HGE_StringState_t state = lua_tointeger(L, 2);
-				const char *value = HGE_System_GetStateString(h->hge, state);
-				lua_pushstring(L, value);
-			}
-			break;
-		case LUA_TBOOLEAN:
-			{
-				HGE_BoolState_t state = lua_tointeger(L, 2);
-				BOOL value = HGE_System_GetStateBool(h->hge, state);
-				lua_pushboolean(L, value);
-			}
-			break;
+	if(lua_gettop(L) != 2 || !lua_isnumber(L, 2)) {
+		error(L, "A state constant must be specified");
 	}
 
+	int state = lua_tonumber(L, 2);
+
+	switch(state) {
+		case HGE_WINDOWED:
+		case HGE_ZBUFFER:
+		case HGE_TEXTUREFILTER:
+		case HGE_USESOUND:
+		case HGE_DONTSUSPEND:
+		case HGE_HIDEMOUSE:
+		case HGE_SHOWSPLASH:
+			lua_pushboolean(L, HGE_System_GetStateBool(h->hge, state));
+			break;
+
+		case HGE_SCREENWIDTH:
+		case HGE_SCREENHEIGHT:
+		case HGE_SCREENBPP:
+		case HGE_SAMPLERATE:
+		case HGE_FXVOLUME:
+		case HGE_MUSVOLUME:
+		case HGE_STREAMVOLUME:
+		case HGE_FPS:
+		case HGE_POWERSTATUS:
+		case HGE_ORIGSCREENWIDTH:
+		case HGE_ORIGSCREENHEIGHT:
+			lua_pushinteger(L, HGE_System_GetStateInt(h->hge, state));
+			break;
+
+		case HGE_ICON:
+		case HGE_TITLE:
+		case HGE_INIFILE:
+		case HGE_LOGFILE:
+			lua_pushstring(L, HGE_System_GetStateString(h->hge, state));
+			break;
+
+		default:
+			error(L, "Unsupported type for get_state");
+	}
 	return 1;
 }
 
@@ -387,16 +334,8 @@ luaL_Reg hge_reg[] = {
 	{ "snapshot", system_snapshot },
 	{ "set_state", system_set_state },
 	{ "get_state", system_get_state },
-	{ "set_state_bool", system_set_state_bool },
 	{ "set_state_func", system_set_state_func },
-	{ "set_state_hwnd", system_set_state_hwnd },
-	{ "set_state_int", system_set_state_int },
-	{ "set_state_string", system_set_state_string },
-	{ "get_state_bool", system_get_state_bool },
 	{ "get_state_func", system_get_state_func },
-	{ "get_state_hwnd", system_get_state_hwnd },
-	{ "get_state_int", system_get_state_int },
-	{ "get_state_string", system_get_state_string },
 	NULL,
 };
 
