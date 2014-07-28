@@ -4,18 +4,18 @@
 
 #include "hge_lua.h"
 
-void register_resource(lua_State *L);
-void register_ini(lua_State *L);
-void register_random(lua_State *L);
-void register_timer(lua_State *L);
-void register_effect(lua_State *L);
-void register_music(lua_State *L);
-void register_stream(lua_State *L);
-void register_channel(lua_State *L);
-void register_input(lua_State *L);
-void register_gfx(lua_State *L);
-void register_target(lua_State *L);
-void register_texture(lua_State *L);
+void register_resource(lua_State *L, HGE *hge);
+void register_ini(lua_State *L, HGE *hge);
+void register_random(lua_State *L, HGE *hge);
+void register_timer(lua_State *L, HGE *hge);
+void register_effect(lua_State *L, HGE *hge);
+void register_music(lua_State *L, HGE *hge);
+void register_stream(lua_State *L, HGE *hge);
+void register_channel(lua_State *L, HGE *hge);
+void register_input(lua_State *L, HGE *hge);
+void register_gfx(lua_State *L, HGE *hge);
+void register_target(lua_State *L, HGE *hge);
+void register_texture(lua_State *L, HGE *hge);
 
 #define DEBUG_STACK(L) do { printf("stack: %s:%d => %d\n", __FILE__, __LINE__, lua_gettop(L)); } while(0)
 #define DEBUG_ARGS(L, fn) do { \
@@ -27,6 +27,17 @@ void register_texture(lua_State *L);
 		} \
 	} \
 	printf(")\n"); \
+} while(0)
+
+#define STRINGIFY(x) #x
+#define REGISTER_HGE_LIGHTUSERDATA(name) do { \
+	lua_pushlightuserdata(L, hge); \
+	luaL_newmetatable(L, "hge.hge_pointer"); \
+	lua_pushvalue(L, -1); \
+	lua_setfield(L, -2, "__index"); \
+	luaL_register(L, NULL, name##_reg); \
+	lua_setmetatable(L, -2); \
+	lua_setfield(L, -2, STRINGIFY(name)); \
 } while(0)
 
 inline void error(lua_State *L, const char *msg) {
@@ -172,8 +183,8 @@ void add_hge_constants(lua_State *L) {
 	lua_settable(L, -3);
 }
 
-/* Check the first argument is userdata and return it */
-HGE *hge_param_check(lua_State *L) {
+/* Check the first argument is full userdata and return it */
+HGE *hge_param_userdata_check(lua_State *L) {
 	if(lua_isuserdata(L, 1) == 0) {
 		error(L, "Expected type(hge)");
 		return NULL;
@@ -183,8 +194,29 @@ HGE *hge_param_check(lua_State *L) {
 }
 
 /* check that the first argument is a userdata & make sure it's not free'd */
+HGE *hge_userdata_check(lua_State *L) {
+	HGE *h = hge_param_userdata_check(L);
+
+	if(h == NULL) {
+		error(L, "Cannot use a free'd type(hge)");
+		return NULL;
+	}
+
+	return h;
+}
+
+HGE * hge_param_lightuserdata_check(lua_State *L) {
+	if(lua_isuserdata(L, 1) == 0) {
+		error(L, "Expected type(hge)");
+		return NULL;
+	}
+
+	return (HGE *)lua_touserdata(L, 1);
+}
+
+/* check that the first argument is a lightuserdata & make sure it's not free'd */
 HGE *hge_check(lua_State *L) {
-	HGE *h = hge_param_check(L);
+	HGE *h = hge_param_lightuserdata_check(L);
 
 	if(h == NULL) {
 		error(L, "Cannot use a free'd type(hge)");
@@ -196,7 +228,7 @@ HGE *hge_check(lua_State *L) {
 
 /* void HGE->Release(); */
 int system_release(lua_State *L) {
-	HGE *h = hge_param_check(L);
+	HGE *h = hge_param_userdata_check(L);
 
 	if(h != NULL) {
 		h->Release();
@@ -207,7 +239,7 @@ int system_release(lua_State *L) {
 
 /* bool HGE->System_Initiate(); */
 int system_initiate(lua_State *L) {
-	HGE *h = hge_check(L);
+	HGE *h = hge_userdata_check(L);
 
 	bool b = h->System_Initiate();
 
@@ -218,7 +250,7 @@ int system_initiate(lua_State *L) {
 
 /* void HGE->System_Shutdown(); */
 int system_shutdown(lua_State *L) {
-	HGE *h = hge_check(L);
+	HGE *h = hge_userdata_check(L);
 
 	h->System_Shutdown();
 
@@ -227,7 +259,7 @@ int system_shutdown(lua_State *L) {
 
 /* bool HGE->System_Start(); */
 int system_start(lua_State *L) {
-	HGE *h = hge_check(L);
+	HGE *h = hge_userdata_check(L);
 
 	bool b = h->System_Start();
 	lua_pushboolean(L, b);
@@ -237,7 +269,7 @@ int system_start(lua_State *L) {
 
 /* const char* HGE->System_GetErrorMessage(); */
 int system_get_error_message(lua_State *L) {
-	HGE *h = hge_check(L);
+	HGE *h = hge_userdata_check(L);
 
 	const char *err = h->System_GetErrorMessage();
 	lua_pushstring(L, err);
@@ -247,7 +279,7 @@ int system_get_error_message(lua_State *L) {
 
 /* void HGE->System_Log(const char *format, ...); */
 int system_log(lua_State *L) {
-	HGE *h = hge_check(L);
+	HGE *h = hge_userdata_check(L);
 	const char *fmt = lua_tostring(L, 2);
 	int i;
 	for(i = 3; i <= lua_gettop(L); i++);
@@ -256,7 +288,7 @@ int system_log(lua_State *L) {
 
 /* bool HGE->System_Launch(const char *url); */
 int system_launch(lua_State *L) {
-	HGE *h = hge_check(L);
+	HGE *h = hge_userdata_check(L);
 
 	const char *url = lua_tostring(L, 2);
 	h->System_Launch(url);
@@ -266,7 +298,7 @@ int system_launch(lua_State *L) {
 
 /* void HGE->System_Snapshot(const char *filename); */
 int system_snapshot(lua_State *L) {
-	HGE *h = hge_check(L);
+	HGE *h = hge_userdata_check(L);
 
 	const char *filename = lua_tostring(L, 2);
 	h->System_Snapshot(filename);
@@ -366,7 +398,7 @@ void system_get_state_func(lua_State *L, HGE *h) {
 }
 
 int system_set_state(lua_State *L) {
-	HGE *h = hge_check(L);
+	HGE *h = hge_userdata_check(L);
 
 	if(lua_gettop(L) != 3 || !lua_isnumber(L, 2)) {
 		DEBUG_ARGS(L, "got: set_state");
@@ -424,7 +456,7 @@ int system_set_state(lua_State *L) {
 }
 
 int system_get_state(lua_State *L) {
-	HGE *h = hge_check(L);
+	HGE *h = hge_userdata_check(L);
 
 	if(lua_gettop(L) != 2 || !lua_isnumber(L, 2)) {
 		error(L, "A state constant must be specified");
@@ -495,7 +527,7 @@ luaL_Reg hge_reg[] = {
 };
 
 int hge_tostring(lua_State *L) {
-	hge_check(L);
+	hge_userdata_check(L);
 	lua_pushstring(L, "type(hge)");
 	return 1;
 }
@@ -508,6 +540,23 @@ int hge_create(lua_State *L) {
 	add_garbage(L, "hge.hge", system_release);
 	add_tostring(L, "hge.hge", hge_tostring);
 
+	luaL_newmetatable(L, "hge.hge");
+
+	register_resource(L, *hge);
+	register_ini(L, *hge);
+	register_random(L, *hge);
+	register_timer(L, *hge);
+	register_effect(L, *hge);
+	register_music(L, *hge);
+	register_stream(L, *hge);
+	register_channel(L, *hge);
+	register_input(L, *hge);
+	register_gfx(L, *hge);
+	register_target(L, *hge);
+	register_texture(L, *hge);
+
+	lua_setmetatable(L, -2);
+
 	return 1;
 }
 
@@ -519,6 +568,14 @@ void register_hge(lua_State *L) {
 	// Add the new function to the table
 	add_function(L, "new", hge_create);
 
+	// Setup the hge metatable for the userdata
+	luaL_newmetatable(L, "hge.hge");
+	// push the metatable
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index"); // metatable[__index] = metatable
+	luaL_register(L, NULL, hge_reg);
+
+	/*
 	register_resource(L);
 	register_ini(L);
 	register_random(L);
@@ -531,14 +588,7 @@ void register_hge(lua_State *L) {
 	register_gfx(L);
 	register_target(L);
 	register_texture(L);
-
-	// Setup the hge metatable for the userdata
-	luaL_newmetatable(L, "hge.hge");
-	lua_pushstring(L, "__index");
-	// push the metatable
-	lua_pushvalue(L, -2);
-	lua_settable(L, -3); // metatable[__index] = metatable
-	luaL_register(L, NULL, hge_reg);
+	*/
 
 	lua_setmetatable(L, -2); // setmetatable(hge, metatable)
 
@@ -603,7 +653,7 @@ int resource_load(lua_State *L) {
 	return 1;
 }
 
-void register_resource(lua_State *L) {
+void register_resource(lua_State *L, HGE *hge) {
 	lua_pushstring(L, "resource");
 	lua_newtable(L);
 
@@ -652,28 +702,58 @@ luaL_Reg ini_reg[] = {
 	NULL,
 };
 
-void register_ini(lua_State *L) {
-	lua_pushstring(L, "ini");
-	lua_newtable(L);
-
-	luaL_register(L, NULL, ini_reg);
-
-	lua_settable(L, -3);
+void register_ini(lua_State *L, HGE *hge) {
+	REGISTER_HGE_LIGHTUSERDATA(ini);
 }
 
 /* void HGE->Random_Seed(int seed); */
 int random_seed(lua_State *L) {
+	HGE *h = hge_check(L);
+
+	if(!lua_isnumber(L, 2)) {
+		error(L, "Expected seed to be an integer");
+		return 0;
+	}
+
+	h->Random_Seed(lua_tonumber(L, 2));
+
 	return 0;
 }
 
 /* int HGE->Random_Int(int min, int max); */
 int random_int(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	if(!lua_isnumber(L, 2) || !lua_isnumber(L, 3)) {
+		error(L, "Expected min & max to be integers");
+		return 0;
+	}
+
+	int min, max;
+	min = lua_tointeger(L, 2);
+	max = lua_tointeger(L, 3);
+	int i = h->Random_Int(min, max);
+	lua_pushinteger(L, i);
+
+	return 1;
 }
 
 /* float HGE->Random_Float(float min, float max); */
 int random_float(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	if(!lua_isnumber(L, 2) || !lua_isnumber(L, 3)) {
+		error(L, "Expected min & max to be floats");
+		return 0;
+	}
+
+	float min, max;
+	min = lua_tonumber(L, 2);
+	max = lua_tonumber(L, 3);
+	float i = h->Random_Float(min, max);
+	lua_pushnumber(L, i);
+
+	return 1;
 }
 
 luaL_Reg random_reg[] = {
@@ -683,42 +763,46 @@ luaL_Reg random_reg[] = {
 	NULL,
 };
 
-void register_random(lua_State *L) {
-	lua_pushstring(L, "random");
-	lua_newtable(L);
-
-	luaL_register(L, NULL, random_reg);
-
-	lua_settable(L, -3);
+void register_random(lua_State *L, HGE *hge) {
+	REGISTER_HGE_LIGHTUSERDATA(random);
 }
 
 /* float HGE->Timer_GetTime(); */
 int timer_get_time(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	lua_pushnumber(L, h->Timer_GetTime());
+
+	return 1;
 }
 
 /* float HGE->Timer_GetDelta(); */
 int timer_get_delta(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	lua_pushnumber(L, h->Timer_GetDelta());
+
+	return 1;
 }
 
 /* int HGE->Timer_GetFPS(); */
 int timer_get_fps(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	lua_pushnumber(L, h->Timer_GetFPS());
+
+	return 1;
 }
 
 luaL_Reg timer_reg[] = {
-	{ "get_time", timer_get_time },
-	{ "get_delta", timer_get_delta },
-	{ "get_fps", timer_get_fps },
+	{ "time", timer_get_time },
+	{ "delta", timer_get_delta },
+	{ "fps", timer_get_fps },
 	NULL,
 };
 
-void register_timer(lua_State *L) {
-	lua_pushstring(L, "timer");
-	lua_newtable(L);
-	luaL_register(L, NULL, timer_reg);
-	lua_settable(L, -3);
+void register_timer(lua_State *L, HGE *hge) {
+	REGISTER_HGE_LIGHTUSERDATA(timer);
 }
 
 /* void HGE->Effect_Free(HEFFECT eff); */
@@ -753,7 +837,7 @@ int effect_load(lua_State *L) {
 	return 1;
 }
 
-void register_effect(lua_State *L) {
+void register_effect(lua_State *L, HGE *hge) {
 	lua_pushstring(L, "effect");
 	lua_newtable(L);
 
@@ -842,7 +926,7 @@ int music_load(lua_State *L) {
 	return 1;
 }
 
-void register_music(lua_State *L) {
+void register_music(lua_State *L, HGE *hge) {
 	lua_pushstring(L, "music");
 	lua_newtable(L);
 
@@ -877,7 +961,7 @@ int stream_load(lua_State *L) {
 	return 1;
 }
 
-void register_stream(lua_State *L) {
+void register_stream(lua_State *L, HGE *hge) {
 	lua_pushstring(L, "stream");
 	lua_newtable(L);
 
@@ -979,7 +1063,7 @@ luaL_Reg channel_reg[] = {
 	NULL,
 };
 
-void register_channel(lua_State *L) {
+void register_channel(lua_State *L, HGE *hge) {
 	lua_pushstring(L, "channel");
 	lua_newtable(L);
 	luaL_register(L, NULL, channel_reg);
@@ -988,57 +1072,157 @@ void register_channel(lua_State *L) {
 
 /* void HGE->Input_GetMousePos(float *x, float *y); */
 int input_get_mouse_pos(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	float x, y;
+	h->Input_GetMousePos(&x, &y);
+
+	lua_pushnumber(L, x);
+	lua_pushnumber(L, y);
+
+	return 2;
 }
 
 /* void HGE->Input_SetMousePos(float x, float y); */
 int input_set_mouse_pos(lua_State *L) {
+	HGE *h = hge_check(L);
+
+	if(!lua_isnumber(L, 2) || !lua_isnumber(L, 3)) {
+		error(L, "Expected two numbers pased to set_mouse_pos");
+		return 0;
+	}
+
+	float x, y;
+	x = lua_tonumber(L, 2);
+	y = lua_tonumber(L, 3);
+	h->Input_SetMousePos(x, y);
+
 	return 0;
 }
 
 /* int HGE->Input_GetMouseWheel(); */
 int input_get_mouse_wheel(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	lua_pushinteger(L, h->Input_GetMouseWheel());
+
+	return 1;
 }
 
 /* bool HGE->Input_IsMouseOver(); */
 int input_is_mouse_over(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	lua_pushboolean(L, h->Input_IsMouseOver());
+
+	return 1;
 }
 
 /* bool HGE->Input_KeyDown(int key); */
 int input_key_down(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	if(!lua_isnumber(L, 2)) {
+		error(L, "Expected integer argument to key_down");
+		return 0;
+	}
+
+	int key = lua_tointeger(L, 2);
+	lua_pushboolean(L, h->Input_KeyDown(key));
+
+	return 1;
 }
 
 /* bool HGE->Input_KeyUp(int key); */
 int input_key_up(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	if(!lua_isnumber(L, 2)) {
+		error(L, "Expected integer argument to key_up");
+		return 0;
+	}
+
+	int key = lua_tointeger(L, 2);
+	lua_pushboolean(L, h->Input_KeyUp(key));
+
+	return 1;
 }
 
 /* bool HGE->Input_GetKeyState(int key); */
 int input_get_key_state(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	if(!lua_isnumber(L, 2)) {
+		error(L, "Expected integer argument to get_key_state");
+		return 0;
+	}
+
+	int key = lua_tointeger(L, 2);
+	lua_pushboolean(L, h->Input_GetKeyState(key));
+
+	return 1;
 }
 
 /* const char* HGE->Input_GetKeyName(int key); */
 int input_get_key_name(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	if(!lua_isnumber(L, 2)) {
+		error(L, "Expected integer argument to get_key_name");
+		return 0;
+	}
+
+	int key = lua_tointeger(L, 2);
+	lua_pushstring(L, h->Input_GetKeyName(key));
+
+	return 1;
 }
 
 /* int HGE->Input_GetKey(); */
 int input_get_key(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	lua_pushnumber(L, h->Input_GetKey());
+
+	return 1;
 }
 
 /* int HGE->Input_GetChar(); */
 int input_get_char(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	lua_pushnumber(L, h->Input_GetChar());
+
+	return 1;
 }
 
 /* bool HGE->Input_GetEvent(HGE->InputEvent_t *event); */
 int input_get_event(lua_State *L) {
-	return 0;
+	HGE *h = hge_check(L);
+
+	hgeInputEvent e;
+	bool r = h->Input_GetEvent(&e);
+	lua_pushboolean(L, r);
+	if(r) {
+		lua_newtable(L);
+		lua_pushinteger(L, e.type);
+		lua_setfield(L, -2, "type");
+		lua_pushinteger(L, e.key);
+		lua_setfield(L, -2, "key");
+		lua_pushinteger(L, e.flags);
+		lua_setfield(L, -2, "flags");
+		lua_pushinteger(L, e.chr);
+		lua_setfield(L, -2, "character");
+		lua_pushinteger(L, e.wheel);
+		lua_setfield(L, -2, "wheel");
+		lua_pushnumber(L, e.x);
+		lua_setfield(L, -2, "x");
+		lua_pushnumber(L, e.y);
+		lua_setfield(L, -2, "y");
+		return 2;
+	}
+
+	return 1;
 }
 
 luaL_Reg input_reg[] = {
@@ -1056,11 +1240,8 @@ luaL_Reg input_reg[] = {
 	NULL,
 };
 
-void register_input(lua_State *L) {
-	lua_pushstring(L, "input");
-	lua_newtable(L);
-	luaL_register(L, NULL, input_reg);
-	lua_settable(L, -3);
+void register_input(lua_State *L, HGE *hge) {
+	REGISTER_HGE_LIGHTUSERDATA(input);
 }
 
 /* bool HGE->Gfx_BeginScene(HTARGET target); */
@@ -1127,11 +1308,8 @@ luaL_Reg gfx_reg[] = {
 	NULL,
 };
 
-void register_gfx(lua_State *L) {
-	lua_pushstring(L, "gfx");
-	lua_newtable(L);
-	luaL_register(L, NULL, gfx_reg);
-	lua_settable(L, -3);
+void register_gfx(lua_State *L, HGE *hge) {
+	REGISTER_HGE_LIGHTUSERDATA(gfx);
 }
 
 /* void HGE->Target_Free(HTARGET target); */
@@ -1160,7 +1338,7 @@ int target_create(lua_State *L) {
 	return 1;
 }
 
-void register_target(lua_State *L) {
+void register_target(lua_State *L, HGE *hge) {
 	lua_pushstring(L, "target");
 	lua_newtable(L);
 
@@ -1231,7 +1409,7 @@ luaL_Reg texture_reg[] = {
 	NULL,
 };
 
-void register_texture(lua_State *L) {
+void register_texture(lua_State *L, HGE *hge) {
 	lua_pushstring(L, "texture");
 	lua_newtable(L);
 
