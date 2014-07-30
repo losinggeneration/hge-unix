@@ -4,18 +4,19 @@
 
 #include "hge_lua.h"
 
-void register_resource(lua_State *L, HGE *hge);
-void register_ini(lua_State *L, HGE *hge);
-void register_random(lua_State *L, HGE *hge);
-void register_timer(lua_State *L, HGE *hge);
-void register_effect(lua_State *L, HGE *hge);
-void register_music(lua_State *L, HGE *hge);
-void register_stream(lua_State *L, HGE *hge);
-void register_channel(lua_State *L, HGE *hge);
-void register_input(lua_State *L, HGE *hge);
-void register_gfx(lua_State *L, HGE *hge);
-void register_target(lua_State *L, HGE *hge);
-void register_texture(lua_State *L, HGE *hge);
+void register_resource(lua_State *L);
+void register_ini(lua_State *L);
+void register_random(lua_State *L);
+void register_timer(lua_State *L);
+void register_effect(lua_State *L);
+void register_music(lua_State *L);
+void register_stream(lua_State *L);
+void register_channel(lua_State *L);
+void register_input(lua_State *L);
+void register_gfx(lua_State *L);
+void register_target(lua_State *L);
+void register_texture(lua_State *L);
+void add_meta_function(lua_State *L, const char *metatable, const char *metafunction, lua_CFunction f);
 
 #define DEBUG_STACK(L) do { printf("stack: %s:%d => %d\n", __FILE__, __LINE__, lua_gettop(L)); } while(0)
 #define DEBUG_ARGS(L, fn) do { \
@@ -30,11 +31,19 @@ void register_texture(lua_State *L, HGE *hge);
 } while(0)
 
 #define STRINGIFY(x) #x
-#define REGISTER_HGE_LIGHTUSERDATA(name) do { \
-	lua_pushlightuserdata(L, hge); \
-	luaL_newmetatable(L, "hge.hge_pointer"); \
+
+#define add_garbage(L, m, f) add_meta_function(L, m, "__gc", f)
+#define add_index(L, m, f) add_meta_function(L, m, "__index", f)
+#define add_newindex(L, m, f) add_meta_function(L, m, "__newindex", f)
+#define add_tostring(L, m, f) add_meta_function(L, m, "__tostring", f)
+
+#define REGISTER_HGE_USERDATA(name) do { \
+	HGE **h = (HGE **)lua_newuserdata(L, sizeof(HGE **)); \
+	*h = hgeCreate(HGE_VERSION); \
+	luaL_newmetatable(L, STRINGIFY(hge.name)); \
 	lua_pushvalue(L, -1); \
 	lua_setfield(L, -2, "__index"); \
+	add_garbage(L, STRINGIFY(hge.name), system_free); \
 	luaL_register(L, NULL, name##_reg); \
 	lua_setmetatable(L, -2); \
 	lua_setfield(L, -2, STRINGIFY(name)); \
@@ -57,10 +66,6 @@ inline void add_meta_function(lua_State *L, const char *metatable, const char *m
 	lua_setmetatable(L, -2);
 }
 
-#define add_garbage(L, m, f) add_meta_function(L, m, "__gc", f)
-#define add_index(L, m, f) add_meta_function(L, m, "__index", f)
-#define add_newindex(L, m, f) add_meta_function(L, m, "__newindex", f)
-#define add_tostring(L, m, f) add_meta_function(L, m, "__tostring", f)
 
 lua_State *global_state;
 
@@ -194,29 +199,8 @@ HGE *hge_param_userdata_check(lua_State *L) {
 }
 
 /* check that the first argument is a userdata & make sure it's not free'd */
-HGE *hge_userdata_check(lua_State *L) {
-	HGE *h = hge_param_userdata_check(L);
-
-	if(h == NULL) {
-		error(L, "Cannot use a free'd type(hge)");
-		return NULL;
-	}
-
-	return h;
-}
-
-HGE * hge_param_lightuserdata_check(lua_State *L) {
-	if(lua_isuserdata(L, 1) == 0) {
-		error(L, "Expected type(hge)");
-		return NULL;
-	}
-
-	return (HGE *)lua_touserdata(L, 1);
-}
-
-/* check that the first argument is a lightuserdata & make sure it's not free'd */
 HGE *hge_check(lua_State *L) {
-	HGE *h = hge_param_lightuserdata_check(L);
+	HGE *h = hge_param_userdata_check(L);
 
 	if(h == NULL) {
 		error(L, "Cannot use a free'd type(hge)");
@@ -240,7 +224,7 @@ int system_free(lua_State *L) {
 
 /* bool HGE->System_Initiate(); */
 int system_initiate(lua_State *L) {
-	HGE *h = hge_userdata_check(L);
+	HGE *h = hge_check(L);
 
 	bool b = h->System_Initiate();
 
@@ -251,7 +235,7 @@ int system_initiate(lua_State *L) {
 
 /* void HGE->System_Shutdown(); */
 int system_shutdown(lua_State *L) {
-	HGE *h = hge_userdata_check(L);
+	HGE *h = hge_check(L);
 
 	h->System_Shutdown();
 
@@ -260,7 +244,7 @@ int system_shutdown(lua_State *L) {
 
 /* bool HGE->System_Start(); */
 int system_start(lua_State *L) {
-	HGE *h = hge_userdata_check(L);
+	HGE *h = hge_check(L);
 
 	bool b = h->System_Start();
 	lua_pushboolean(L, b);
@@ -270,7 +254,7 @@ int system_start(lua_State *L) {
 
 /* const char* HGE->System_GetErrorMessage(); */
 int system_get_error_message(lua_State *L) {
-	HGE *h = hge_userdata_check(L);
+	HGE *h = hge_check(L);
 
 	const char *err = h->System_GetErrorMessage();
 	lua_pushstring(L, err);
@@ -280,7 +264,7 @@ int system_get_error_message(lua_State *L) {
 
 /* void HGE->System_Log(const char *format, ...); */
 int system_log(lua_State *L) {
-	HGE *h = hge_userdata_check(L);
+	HGE *h = hge_check(L);
 	const char *fmt = lua_tostring(L, 2);
 	int i;
 	for(i = 3; i <= lua_gettop(L); i++);
@@ -289,7 +273,7 @@ int system_log(lua_State *L) {
 
 /* bool HGE->System_Launch(const char *url); */
 int system_launch(lua_State *L) {
-	HGE *h = hge_userdata_check(L);
+	HGE *h = hge_check(L);
 
 	const char *url = lua_tostring(L, 2);
 	h->System_Launch(url);
@@ -299,7 +283,7 @@ int system_launch(lua_State *L) {
 
 /* void HGE->System_Snapshot(const char *filename); */
 int system_snapshot(lua_State *L) {
-	HGE *h = hge_userdata_check(L);
+	HGE *h = hge_check(L);
 
 	const char *filename = lua_tostring(L, 2);
 	h->System_Snapshot(filename);
@@ -399,7 +383,7 @@ void system_get_state_func(lua_State *L, HGE *h) {
 }
 
 int system_set_state(lua_State *L) {
-	HGE *h = hge_userdata_check(L);
+	HGE *h = hge_check(L);
 
 	if(lua_gettop(L) != 3 || !lua_isnumber(L, 2)) {
 		DEBUG_ARGS(L, "got: set_state");
@@ -457,7 +441,7 @@ int system_set_state(lua_State *L) {
 }
 
 int system_get_state(lua_State *L) {
-	HGE *h = hge_userdata_check(L);
+	HGE *h = hge_check(L);
 
 	if(lua_gettop(L) != 2 || !lua_isnumber(L, 2)) {
 		error(L, "A state constant must be specified");
@@ -527,7 +511,7 @@ luaL_Reg hge_reg[] = {
 };
 
 int hge_tostring(lua_State *L) {
-	hge_userdata_check(L);
+	hge_check(L);
 	lua_pushstring(L, "type(hge)");
 	return 1;
 }
@@ -542,18 +526,18 @@ int hge_create(lua_State *L) {
 
 	luaL_newmetatable(L, "hge.hge");
 
-	register_resource(L, *hge);
-	register_ini(L, *hge);
-	register_random(L, *hge);
-	register_timer(L, *hge);
-	register_effect(L, *hge);
-	register_music(L, *hge);
-	register_stream(L, *hge);
-	register_channel(L, *hge);
-	register_input(L, *hge);
-	register_gfx(L, *hge);
-	register_target(L, *hge);
-	register_texture(L, *hge);
+	register_resource(L);
+	register_ini(L);
+	register_random(L);
+	register_timer(L);
+	register_effect(L);
+	register_music(L);
+	register_stream(L);
+	register_channel(L);
+	register_input(L);
+	register_gfx(L);
+	register_target(L);
+	register_texture(L);
 
 	lua_setmetatable(L, -2);
 
@@ -653,7 +637,7 @@ int resource_load(lua_State *L) {
 	return 1;
 }
 
-void register_resource(lua_State *L, HGE *hge) {
+void register_resource(lua_State *L) {
 	lua_pushstring(L, "resource");
 	lua_newtable(L);
 
@@ -702,8 +686,8 @@ luaL_Reg ini_reg[] = {
 	NULL,
 };
 
-void register_ini(lua_State *L, HGE *hge) {
-	REGISTER_HGE_LIGHTUSERDATA(ini);
+void register_ini(lua_State *L) {
+	REGISTER_HGE_USERDATA(ini);
 }
 
 /* void HGE->Random_Seed(int seed); */
@@ -763,8 +747,8 @@ luaL_Reg random_reg[] = {
 	NULL,
 };
 
-void register_random(lua_State *L, HGE *hge) {
-	REGISTER_HGE_LIGHTUSERDATA(random);
+void register_random(lua_State *L) {
+	REGISTER_HGE_USERDATA(random);
 }
 
 /* float HGE->Timer_GetTime(); */
@@ -801,8 +785,8 @@ luaL_Reg timer_reg[] = {
 	NULL,
 };
 
-void register_timer(lua_State *L, HGE *hge) {
-	REGISTER_HGE_LIGHTUSERDATA(timer);
+void register_timer(lua_State *L) {
+	REGISTER_HGE_USERDATA(timer);
 }
 
 /* void HGE->Effect_Free(HEFFECT eff); */
@@ -837,7 +821,7 @@ int effect_load(lua_State *L) {
 	return 1;
 }
 
-void register_effect(lua_State *L, HGE *hge) {
+void register_effect(lua_State *L) {
 	lua_pushstring(L, "effect");
 	lua_newtable(L);
 
@@ -926,7 +910,7 @@ int music_load(lua_State *L) {
 	return 1;
 }
 
-void register_music(lua_State *L, HGE *hge) {
+void register_music(lua_State *L) {
 	lua_pushstring(L, "music");
 	lua_newtable(L);
 
@@ -961,7 +945,7 @@ int stream_load(lua_State *L) {
 	return 1;
 }
 
-void register_stream(lua_State *L, HGE *hge) {
+void register_stream(lua_State *L) {
 	lua_pushstring(L, "stream");
 	lua_newtable(L);
 
@@ -1063,7 +1047,7 @@ luaL_Reg channel_reg[] = {
 	NULL,
 };
 
-void register_channel(lua_State *L, HGE *hge) {
+void register_channel(lua_State *L) {
 	lua_pushstring(L, "channel");
 	lua_newtable(L);
 	luaL_register(L, NULL, channel_reg);
@@ -1240,8 +1224,8 @@ luaL_Reg input_reg[] = {
 	NULL,
 };
 
-void register_input(lua_State *L, HGE *hge) {
-	REGISTER_HGE_LIGHTUSERDATA(input);
+void register_input(lua_State *L) {
+	REGISTER_HGE_USERDATA(input);
 }
 
 /* bool HGE->Gfx_BeginScene(HTARGET target); */
@@ -1308,43 +1292,97 @@ luaL_Reg gfx_reg[] = {
 	NULL,
 };
 
-void register_gfx(lua_State *L, HGE *hge) {
-	REGISTER_HGE_LIGHTUSERDATA(gfx);
+void register_gfx(lua_State *L) {
+	REGISTER_HGE_USERDATA(gfx);
+}
+
+HTARGET *target_check(lua_State *L) {
+	if(!lua_isuserdata(L, 1)) {
+		lua_pushstring(L, "Expected userdata type(target)");
+		lua_error(L);
+		return NULL;
+	}
+
+	HTARGET *target = (HTARGET *)lua_touserdata(L, 1);
+	if(target == NULL) {
+		lua_pushstring(L, "Unable to get userdata type(target)");
+		lua_error(L);
+		return NULL;
+	}
+
+	return target;
 }
 
 /* void HGE->Target_Free(HTARGET target); */
 int target_free(lua_State *L) {
+	HTARGET *target = target_check(L);
+
+	HGE *h = hgeCreate(HGE_VERSION);
+	h->Target_Free(*target);
+
 	return 0;
 }
 
 /* HTEXTURE HGE->Target_GetTexture(HTARGET target); */
 int target_get_texture(lua_State *L) {
-	return 0;
+	HTARGET *target = target_check(L);
+
+	HGE *h = hgeCreate(HGE_VERSION);
+	HTEXTURE tex = h->Target_GetTexture(*target);
+
+	lua_pushlightuserdata(L, &tex);
+	luaL_newmetatable(L, "hge.texture_instance");
+	lua_setmetatable(L, -2);
+
+	return 1;
 }
 
-luaL_Reg target_reg[] = {
-	{ "free", target_free },
+luaL_Reg target_interface_reg[] = {
 	{ "get_texture", target_get_texture },
 	NULL,
 };
 
 /* HTARGET HGE->Target_Create(int width, int height, bool zbuffer); */
 int target_create(lua_State *L) {
-	lua_newtable(L);
-	luaL_register(L, NULL, target_reg);
+	HGE *h = hge_check(L);
 
-	add_garbage(L, "hge.target", target_free);
+	if(!lua_isnumber(L, 2) || !lua_isnumber(L, 3) || !lua_isboolean(L, 4)) {
+		lua_pushstring(L, "Expected target:new expeted width, height, zbuffer");
+		lua_error(L);
+		return 0;
+	}
+
+	int width = lua_tointeger(L, 2);
+	int height = lua_tointeger(L, 3);
+	bool zbuffer = lua_toboolean(L, 4);
+
+	HTARGET *target = (HTARGET *)lua_newuserdata(L, sizeof(HTARGET *));
+	*target = h->Target_Create(width, height, zbuffer);
+
+	luaL_newmetatable(L, "hge.target");
+	lua_setmetatable(L, -2);
 
 	return 1;
 }
 
-void register_target(lua_State *L, HGE *hge) {
-	lua_pushstring(L, "target");
-	lua_newtable(L);
+luaL_Reg target_reg[] = {
+	{ "new", target_create },
+	NULL,
+};
 
-	add_function(L, "new", target_create);
+void register_target(lua_State *L) {
+	REGISTER_HGE_USERDATA(target);
 
-	lua_settable(L, -3);
+	// Setup the target metatable
+	luaL_newmetatable(L, "hge.target");
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -1, "__index");
+
+	luaL_register(L, NULL, target_interface_reg);
+
+	add_garbage(L, "hge.target", target_free);
+
+	lua_pop(L, 1);
 }
 
 inline HTEXTURE *texture_check(lua_State *L) {
@@ -1430,14 +1468,7 @@ luaL_Reg texture_instance_reg[] = {
 HTEXTURE *texture_new(lua_State *L) {
 	HTEXTURE *tex = (HTEXTURE *)lua_newuserdata(L, sizeof(HTEXTURE *));
 
-	luaL_newmetatable(L, "hge.texture");
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -1, "__index");
-
-	add_garbage(L, "hge.texture", texture_free);
-
-	luaL_register(L, NULL, texture_instance_reg);
-
+	luaL_newmetatable(L, "hge.texture_instance");
 	lua_setmetatable(L, -2);
 
 	return tex;
@@ -1449,7 +1480,7 @@ int texture_create(lua_State *L) {
 	int width, height;
 
 	if(!lua_isnumber(L, 2) || !lua_isnumber(L, 3)) {
-		lua_pushstring(L, "texture:create expects a width & height");
+		lua_pushstring(L, "texture:new expects a width & height");
 		lua_error(L);
 		return 0;
 	}
@@ -1489,8 +1520,18 @@ luaL_Reg texture_reg[] = {
 	NULL,
 };
 
-void register_texture(lua_State *L, HGE *hge) {
-	REGISTER_HGE_LIGHTUSERDATA(texture);
+void register_texture(lua_State *L) {
+	// Setup the texture_instance metatable
+	luaL_newmetatable(L, "hge.texture_instance");
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -1, "__index");
+
+	add_garbage(L, "hge.texture_instance", texture_free);
+
+	luaL_register(L, NULL, texture_instance_reg);
+	lua_pop(L, 1);
+
+	REGISTER_HGE_USERDATA(texture);
 }
 
 extern "C" void luaopen_hge(lua_State *L) {
