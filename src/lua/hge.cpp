@@ -227,13 +227,14 @@ HGE *hge_check(lua_State *L) {
 }
 
 /* void HGE->Release(); */
-int system_release(lua_State *L) {
+int system_free(lua_State *L) {
 	HGE *h = hge_param_userdata_check(L);
 
 	if(h != NULL) {
 		h->Release();
 		h = NULL;
 	}
+
 	return 0;
 }
 
@@ -513,7 +514,6 @@ int system_get_state(lua_State *L) {
 }
 
 luaL_Reg hge_reg[] = {
-	{ "free", system_release },
 	{ "initiate", system_initiate },
 	{ "shutdown", system_shutdown },
 	{ "start", system_start },
@@ -537,7 +537,7 @@ int hge_create(lua_State *L) {
 	HGE **hge = (HGE **) lua_newuserdata(L, sizeof(HGE **));
 	*hge = hgeCreate(HGE_VERSION);
 
-	add_garbage(L, "hge.hge", system_release);
+	add_garbage(L, "hge.hge", system_free);
 	add_tostring(L, "hge.hge", hge_tostring);
 
 	luaL_newmetatable(L, "hge.hge");
@@ -1347,19 +1347,60 @@ void register_target(lua_State *L, HGE *hge) {
 	lua_settable(L, -3);
 }
 
+inline HTEXTURE *texture_check(lua_State *L) {
+	if(!lua_isuserdata(L, 1)) {
+		lua_pushstring(L, "Expected userdata of type(texture)");
+		lua_error(L);
+		return NULL;
+	}
+	HTEXTURE *tex = (HTEXTURE *)lua_touserdata(L, 1);
+	if(tex == NULL) {
+		lua_pushstring(L, "Unable to get userdata of type(texture)");
+		lua_error(L);
+		return NULL;
+	}
+
+	return tex;
+}
+
 /* void HGE->Texture_Free(HTEXTURE tex); */
 int texture_free(lua_State *L) {
+	HGE *h = hgeCreate(HGE_VERSION);
+	HTEXTURE *tex = texture_check(L);
+	h->Texture_Free(*tex);
+	h->Release();
+
 	return 0;
 }
 
 /* int HGE->Texture_GetWidth(HTEXTURE tex, bool bOriginal); */
 int texture_get_width(lua_State *L) {
-	return 0;
+	HTEXTURE *tex = texture_check(L);
+
+	bool original = true;
+	if(lua_isboolean(L, 2)) {
+		original = lua_toboolean(L, 2);
+	}
+
+	HGE *h = hgeCreate(HGE_VERSION);
+	lua_pushnumber(L, h->Texture_GetWidth(*tex, original));
+
+	return 1;
 }
 
 /* int HGE->Texture_GetHeight(HTEXTURE tex, bool bOriginal); */
 int texture_get_height(lua_State *L) {
-	return 0;
+	HTEXTURE *tex = texture_check(L);
+
+	bool original = true;
+	if(lua_isboolean(L, 2)) {
+		original = lua_toboolean(L, 2);
+	}
+
+	HGE *h = hgeCreate(HGE_VERSION);
+	lua_pushnumber(L, h->Texture_GetHeight(*tex, original));
+
+	return 1;
 }
 
 /* DWORD* HGE->Texture_Lock(HTEXTURE tex, bool bReadOnly, int left, int top, int width, int height); */
@@ -1369,11 +1410,15 @@ int texture_lock(lua_State *L) {
 
 /* void HGE->Texture_Unlock(HTEXTURE tex); */
 int texture_unlock(lua_State *L) {
+	HTEXTURE *tex = texture_check(L);
+	HGE *h = hgeCreate(HGE_VERSION);
+
+	h->Texture_Unlock(*tex);
+
 	return 0;
 }
 
 luaL_Reg texture_instance_reg[] = {
-	{ "free", texture_free },
 	{ "get_width", texture_get_width },
 	{ "get_height", texture_get_height },
 	{ "lock", texture_lock },
@@ -1382,23 +1427,58 @@ luaL_Reg texture_instance_reg[] = {
 };
 
 /* Leaves an new texture instance table on the top of the stack */
-void texture_new(lua_State *L) {
-	lua_newtable(L);
-	luaL_register(L, NULL, texture_instance_reg);
+HTEXTURE *texture_new(lua_State *L) {
+	HTEXTURE *tex = (HTEXTURE *)lua_newuserdata(L, sizeof(HTEXTURE *));
+
+	luaL_newmetatable(L, "hge.texture");
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -1, "__index");
 
 	add_garbage(L, "hge.texture", texture_free);
+
+	luaL_register(L, NULL, texture_instance_reg);
+
+	lua_setmetatable(L, -2);
+
+	return tex;
 }
 
 /* HTEXTURE HGE->Texture_Create(int width, int height); */
 int texture_create(lua_State *L) {
-	texture_new(L);
+	HGE *h = hge_check(L);
+	int width, height;
+
+	if(!lua_isnumber(L, 2) || !lua_isnumber(L, 3)) {
+		lua_pushstring(L, "texture:create expects a width & height");
+		lua_error(L);
+		return 0;
+	}
+
+	width = lua_tointeger(L, 2);
+	height = lua_tointeger(L, 3);
+
+	HTEXTURE *tex = texture_new(L);
+	*tex = h->Texture_Create(width, height);
 
 	return 1;
 }
 
 /* HTEXTURE HGE->Texture_Load(const char *filename, DWORD size, bool bMipmap); */
 int texture_load(lua_State *L) {
-	texture_new(L);
+	HGE *h = hge_check(L);
+
+	if(!lua_isstring(L, 2) || !lua_isnumber(L, 3) || !lua_isboolean(L, 4)) {
+		lua_pushstring(L, "texture:load expects a filename, size, & is_mipmap");
+		lua_error(L);
+		return 0;
+	}
+
+	const char *filename = lua_tostring(L, 2);
+	DWORD size = lua_tointeger(L, 3);
+	bool mipmap = lua_toboolean(L, 4);
+
+	HTEXTURE *tex = texture_new(L);
+	*tex = h->Texture_Load(filename, size, mipmap);
 
 	return 1;
 }
@@ -1410,12 +1490,7 @@ luaL_Reg texture_reg[] = {
 };
 
 void register_texture(lua_State *L, HGE *hge) {
-	lua_pushstring(L, "texture");
-	lua_newtable(L);
-
-	luaL_register(L, NULL, texture_reg);
-
-	lua_settable(L, -3);
+	REGISTER_HGE_LIGHTUSERDATA(texture);
 }
 
 extern "C" void luaopen_hge(lua_State *L) {
