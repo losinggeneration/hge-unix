@@ -18,6 +18,8 @@ void register_target(lua_State *L);
 void register_texture(lua_State *L);
 
 HTEXTURE *texture_check(lua_State *L);
+HTARGET *target_check(lua_State *L);
+HTARGET *target_isuserdata(lua_State *L);
 
 void add_meta_function(lua_State *L, const char *metatable, const char *metafunction, lua_CFunction f);
 
@@ -52,15 +54,17 @@ void add_meta_function(lua_State *L, const char *metatable, const char *metafunc
 	lua_setfield(L, -2, STRINGIFY(name)); \
 } while(0)
 
-#define CHECK_USERDATA_TYPE(name) do { \
+#define IS_USERDATA(name, fatal) do { \
 	if(lua_isuserdata(L, 1) == 0) { \
 		const char *t = lua_tostring(L, 1); \
 		if(t == NULL || std::string(t) != name##_TYPE) { \
-			error(L, "Expected type " name##_TYPE); \
+			if(fatal) { error(L, "Expected type " name##_TYPE); } \
 			return NULL; \
 		} \
 	} \
 } while(0)
+
+#define CHECK_USERDATA_TYPE(name) IS_USERDATA(name, true)
 
 #define CHECK_USERDATA(name) do { \
 	CHECK_USERDATA_TYPE(name); \
@@ -1300,10 +1304,11 @@ void register_input(lua_State *L) {
 int gfx_begin_scene(lua_State *L) {
 	HGE *h = hge_check(L);
 
-	lua_settop(L, 2);
-	HTARGET *target = texture_check(L);
+	lua_remove(L, 1);
+	HTARGET *t = target_isuserdata(L);
+	HTARGET target = t == NULL ? 0 : *t;
 
-	lua_pushboolean(L, h->Gfx_BeginScene(*target));
+	lua_pushboolean(L, h->Gfx_BeginScene(target));
 
 	return 1;
 }
@@ -1354,6 +1359,7 @@ int gfx_render_line(lua_State *L) {
 
 		p[i] = lua_tonumber(L, 2+i);
 	}
+
 	if(lua_isnumber(L, 6)) {
 		color = lua_tointeger(L, 6);
 	}
@@ -1460,6 +1466,10 @@ void register_gfx(lua_State *L) {
 
 HTARGET *target_check(lua_State *L) {
 	CHECK_USERDATA(HTARGET);
+}
+
+HTARGET *target_isuserdata(lua_State *L) {
+	IS_USERDATA(HTARGET, false);
 }
 
 /* void Target_Free(HTARGET target); */
