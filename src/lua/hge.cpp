@@ -704,16 +704,16 @@ void register_ini(lua_State *L) {
 	REGISTER_HGE_USERDATA(ini);
 }
 
-/* void Random_Seed(int seed); */
+/* void Random_Seed(int seed=0); */
 int random_seed(lua_State *L) {
 	HGE *h = hge_check(L);
 
-	if(!lua_isnumber(L, 2)) {
-		error(L, "Expected seed to be an integer");
-		return 0;
+	int seed = 0;
+	if(lua_isnumber(L, 2)) {
+		seed = lua_tointeger(L, 2);
 	}
 
-	h->Random_Seed(lua_tonumber(L, 2));
+	h->Random_Seed(seed);
 
 	return 0;
 }
