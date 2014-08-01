@@ -661,42 +661,91 @@ void register_resource(lua_State *L) {
 }
 
 /* void Ini_SetInt(const char *section, const char *name, int value); */
-int ini_set_int(lua_State *L) {
+/* void Ini_SetFloat(const char *section, const char *name, float value); */
+/* void Ini_SetString(const char *section, const char *name, const char *value); */
+int ini_set(lua_State *L) {
+	HGE *h = hge_check(L);
+	if(!lua_isstring(L, 2) || !lua_isstring(L, 3)) {
+		DEBUG_ARGS(L, "ini:set");
+		error(L, "Expected section, name, value");
+		return 0;
+	}
+
+	const char *section = lua_tostring(L, 2);
+	const char *name = lua_tostring(L, 3);
+	switch(lua_type(L, 4)) {
+		case LUA_TNUMBER:
+			{
+				bool is_int = true;
+				if(lua_isboolean(L, 5)) {
+					is_int = lua_toboolean(L, 5);
+				}
+				if(is_int) {
+					h->Ini_SetInt(section, name, lua_tointeger(L, 4));
+				} else {
+					h->Ini_SetFloat(section, name, lua_tonumber(L, 4));
+				}
+			}
+			break;
+
+		case LUA_TSTRING:
+			h->Ini_SetString(section, name, lua_tostring(L, 4));
+			break;
+
+		default:
+			DEBUG_ARGS(L, "ini:set");
+			error(L, "Expected string, string, (number|string), [bool:is_int=true]");
+			return 0;
+	}
+
 	return 0;
 }
 
 /* int Ini_GetInt(const char *section, const char *name, int def_val); */
-int ini_get_int(lua_State *L) {
-	return 0;
-}
-
-/* void Ini_SetFloat(const char *section, const char *name, float value); */
-int ini_set_float(lua_State *L) {
-	return 0;
-}
-
 /* float Ini_GetFloat(const char *section, const char *name, float def_val); */
-int ini_get_float(lua_State *L) {
-	return 0;
-}
-
-/* void Ini_SetString(const char *section, const char *name, const char *value); */
-int ini_set_string(lua_State *L) {
-	return 0;
-}
-
 /* char* Ini_GetString(const char *section, const char *name, const char *def_val); */
-int ini_get_string(lua_State *L) {
-	return 0;
+int ini_get(lua_State *L) {
+	HGE *h = hge_check(L);
+
+	if(!lua_isstring(L, 2) || !lua_isstring(L, 3)) {
+		DEBUG_ARGS(L, "ini:get");
+		error(L, "Expected section, name, default_value");
+		return 0;
+	}
+
+	const char *section = lua_tostring(L, 2);
+	const char *name = lua_tostring(L, 3);
+	switch(lua_type(L, 4)) {
+		case LUA_TNUMBER:
+			{
+				bool is_int = true;
+				if(lua_isboolean(L, 5)) {
+					is_int = lua_toboolean(L, 5);
+				}
+				if(is_int) {
+					lua_pushinteger(L, h->Ini_GetInt(section, name, lua_tointeger(L, 4)));
+				} else {
+					lua_pushnumber(L, h->Ini_GetFloat(section, name, lua_tonumber(L, 4)));
+				}
+			}
+			break;
+
+		case LUA_TSTRING:
+			lua_pushstring(L, h->Ini_GetString(section, name, lua_tostring(L, 4)));
+			break;
+
+		default:
+			DEBUG_ARGS(L, "ini:get");
+			error(L, "Expected string, string, (number|string), [bool:is_int=true]");
+			return 0;
+	}
+
+	return 1;
 }
 
 luaL_Reg ini_reg[] = {
-	{ "get_int", ini_get_int},
-	{ "get_float", ini_get_float},
-	{ "get_string", ini_get_string},
-	{ "set_int", ini_set_int},
-	{ "set_float", ini_set_float},
-	{ "set_string", ini_set_string},
+	{ "get", ini_get},
+	{ "set", ini_set},
 	NULL,
 };
 
