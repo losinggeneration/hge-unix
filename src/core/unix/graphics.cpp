@@ -1294,7 +1294,9 @@ bool HGE_Impl::_GfxInit()
 	if (!_LoadOpenGLEntryPoints())
 		return false;   // already called _PostError().
 
-	nScreenBPP=SDL_GetWindowSurface((SDL_Window*)hwnd)->format->BitsPerPixel;
+	SDL_Surface *surface = SDL_GetWindowSurface((SDL_Window*)hwnd);
+	if (surface != NULL)
+		nScreenBPP=surface->format->BitsPerPixel;
 
 	_AdjustWindow();
 
