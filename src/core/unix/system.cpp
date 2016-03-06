@@ -60,11 +60,11 @@ bool CALL HGE_Impl::System_Initiate()
 
 	// Log system info
 	System_Log("");
-	System_Log("-------------------------------------------------------------------");
-	System_Log("       hge-unix can be found at http://icculus.org/hge-unix/");
-	System_Log("  Please don't bother Relish Games about the Unix version of HGE.");
-	System_Log("   They are responsible for the Windows version, not this build.");
-	System_Log("-------------------------------------------------------------------");
+	System_Log("------------------------------------------------------------------------");
+	System_Log(" Relish Games do not maintain this version of HGE.");
+	System_Log(" This port is located at https://github.com/losinggeneration/hge-unix/");
+	System_Log(" Bugs in HGE can be filed on the issue tracker on the above link.");
+	System_Log("------------------------------------------------------------------------");
 	System_Log("");
 
 	System_Log("HGE Started...");
