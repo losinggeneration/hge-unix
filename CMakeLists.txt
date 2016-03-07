@@ -67,7 +67,7 @@ if(UNIX OR APPLE)
 	set(USE_SHARED SHARED)
 
 	# Set the pkg-config requirements
-	set(HGE_REQUIRES sdl)
+	set(HGE_REQUIRES sdl2)
 elseif(WIN32)
 	# Windows
 	add_definitions(-D_WINDOWS -D_WIN32)
