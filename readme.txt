@@ -1,11 +1,14 @@
+This is a continuation of the work done by Ryan C. Gordon adding things I
+find useful. Some things already in progress is a C API, which, at the time
+it was started, made it easier to get Go bindings working. I've also put
+some work into Lua bindings, as well. I come back to this every now and then.
+Don't expect anything ground breaking though.
+
+-- losinggeneration
 
 This is a Mac and Unix port of HGE. Ryan C. Gordon did the initial porting
 work for Red Marble Games, and it is shipping in the Mac versions of several
 of their games.
-
-Questions about this library on Mac and Linux can be sent to Ryan:
-
-    icculus@icculus.org
 
 I don't know anything about the Windows version of HGE.
 
@@ -26,13 +29,13 @@ genres: you could create everything from a simple puzzle to advanced
 multilayered platformer or strategy without even thinking of any non
 game logic code! And you don't have to know anything about "window
 messages", DirectX programming and all that stuff. Instead you can
-start developing your own game within 15 minutes! 
+start developing your own game within 15 minutes!
 
 HGE runs on Microsoft Windows 98, 2000, NT, ME, XP and requires
 DirectX 8.0. It will run even on low-end video cards, including
 built in video cards such as Intel Solano (i815 chipset). HGE can
 be used with virtually any C++ compiler including Visual C++,
-Borland C++, MinGW and Metrowerks Codewarrior. 
+Borland C++, MinGW and Metrowerks Codewarrior.
 
 See documentation for details.
 See license.txt for licensing information.

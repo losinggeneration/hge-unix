@@ -4,7 +4,7 @@ http://www.opensource.org/licenses/zlib-license.php
 
 Copyright (c) 2003-2008 Relish Games
 Copyright (c) 2008-2011 Ryan C. Gordon
-Copyright (c) 2011-2014 Harley Laue
+Copyright (c) 2011-2016 Harley Laue
 
 
 This software is provided 'as-is', without any express or implied warranty.
@@ -31,7 +31,7 @@ freely, subject to the following restrictions:
 WARNING!!! BASS Audio Library is not a part of HGE and is licensed separately.
 It is free for non-commercial uses, but if you want to use HGE with BASS in a
 commercial or shareware application you must purchase BASS.
-See http://www.un4seen.com for details. 
+See http://www.un4seen.com for details.
 
 You may choose not to use BASS in your application and replace it with your
-own code or any other audio routines, either free or licensed to you. 
+own code or any other audio routines, either free or licensed to you.
