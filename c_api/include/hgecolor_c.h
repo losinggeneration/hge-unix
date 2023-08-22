@@ -44,7 +44,7 @@ DWORD HGE_Color_RGB_GetHWColor(HGE_Color_RGB_t *rgb);
 HGE_Color_HSV_t *HGE_Color_HSV_New(float h, float s, float v, float a);
 HGE_Color_HSV_t *HGE_Color_HSV_NewColor(DWORD col);
 HGE_Color_HSV_t *HGE_Color_HSV_NewEmpty();
-HGE_Color_HSV_t *HGE_Color_HSV_Free(HGE_Color_HSV_t *hsv);
+void HGE_Color_HSV_Free(HGE_Color_HSV_t *hsv);
 
 void HGE_Color_HSV_SetH(HGE_Color_HSV_t *hsv, float h);
 float HGE_Color_HSV_GetH(HGE_Color_HSV_t *hsv);

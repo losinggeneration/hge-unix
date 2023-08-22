@@ -148,7 +148,7 @@ HGE_Color_HSV_t *HGE_Color_HSV_NewEmpty() {
 	return hsv;
 }
 
-HGE_Color_HSV_t *HGE_Color_HSV_Free(HGE_Color_HSV_t *hsv) {
+void HGE_Color_HSV_Free(HGE_Color_HSV_t *hsv) {
 	delete hsv->hsv;
 	free(hsv);
 }

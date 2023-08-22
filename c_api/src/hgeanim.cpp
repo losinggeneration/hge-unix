@@ -44,7 +44,7 @@ void HGE_Animation_Update(HGE_Animation_t *a, float fDeltaTime) {
 }
 
 BOOL HGE_Animation_IsPlaying(HGE_Animation_t *a) {
-	a->a->IsPlaying();
+	return a->a->IsPlaying();
 }
 
 void HGE_Animation_SetTexture(HGE_Animation_t *a, HTEXTURE tex) {
@@ -72,19 +72,19 @@ void HGE_Animation_SetFrames(HGE_Animation_t *a, int n) {
 }
 
 int HGE_Animation_GetMode(HGE_Animation_t *a) {
-	a->a->GetMode();
+	return a->a->GetMode();
 }
 
 float HGE_Animation_GetSpeed(HGE_Animation_t *a) {
-	a->a->GetSpeed();
+	return a->a->GetSpeed();
 }
 
 int HGE_Animation_GetFrame(HGE_Animation_t *a) {
-	a->a->GetFrame();
+	return a->a->GetFrame();
 }
 
 int HGE_Animation_GetFrames(HGE_Animation_t *a) {
-	a->a->GetFrames();
+	return a->a->GetFrames();
 }
 
 }

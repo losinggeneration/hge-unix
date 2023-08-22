@@ -63,7 +63,7 @@ void HGE_Rect_Clear(HGE_Rect_t *rect) {
 }
 
 BOOL HGE_Rect_IsClean(HGE_Rect_t *rect) {
-	rect->r->IsClean();
+	return rect->r->IsClean();
 }
 
 void HGE_Rect_Set(HGE_Rect_t *rect, float x1, float y1, float x2, float y2) {
@@ -79,11 +79,11 @@ void HGE_Rect_Encapsulate(HGE_Rect_t *rect, float x, float y) {
 }
 
 BOOL HGE_Rect_TestPoint(HGE_Rect_t *rect, float x, float y) {
-	rect->r->TestPoint(x, y);
+	return rect->r->TestPoint(x, y);
 }
 
 BOOL HGE_Rect_Intersect(HGE_Rect_t *rect, const HGE_Rect_t *rect2) {
-	rect->r->Intersect(rect2->r);
+	return rect->r->Intersect(rect2->r);
 }
 
 }

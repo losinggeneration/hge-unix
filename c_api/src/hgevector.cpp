@@ -27,39 +27,45 @@ void HGE_Vector_SetY(HGE_Vector_t *v, float y) {
 	v->v.y = y;
 }
 
-HGE_Vector_t HGE_Vector_New(float x, float y) {
-	HGE_Vector_t v = {hgeVector(x,y)};
+HGE_Vector_t *HGE_Vector_New(float x, float y) {
+	HGE_Vector_t *v = (HGE_Vector_t *)malloc(sizeof(HGE_Vector_t));
+	v->v.x = x;
+	v->v.y = y;
 	return v;
 }
 
-HGE_Vector_t HGE_Vector_NewEmpty() {
-	HGE_Vector_t v = {hgeVector()};
+HGE_Vector_t *HGE_Vector_NewEmpty() {
+	HGE_Vector_t *v = (HGE_Vector_t *)malloc(sizeof(HGE_Vector_t));
 	return v;
 }
 
-HGE_Vector_t HGE_Vector_Negate(const HGE_Vector_t v) {
-	HGE_Vector_t hgev = { -v.v };
-	return hgev;
+void HGE_Vector_Free(HGE_Vector_t *v) {
+	free(v);
 }
 
-HGE_Vector_t HGE_Vector_Subtract(const HGE_Vector_t v1, const HGE_Vector_t v2) {
-	HGE_Vector_t v = { v1.v-v2.v };
-	return v;
+HGE_Vector_t *HGE_Vector_Negate(const HGE_Vector_t v) {
+	-v.v;
+	return HGE_Vector_New(v.v.x, v.v.y);
 }
 
-HGE_Vector_t HGE_Vector_Add(const HGE_Vector_t v1, const HGE_Vector_t v2) {
-	HGE_Vector_t v = { v1.v + v2.v };
-	return v;
+HGE_Vector_t *HGE_Vector_Subtract(const HGE_Vector_t v1, const HGE_Vector_t v2) {
+	auto v = v1.v-v2.v;
+	return HGE_Vector_New(v.x, v.y);
 }
 
-HGE_Vector_t HGE_Vector_Multiply(const HGE_Vector_t v1, float scalar) {
-	HGE_Vector_t v = { v1.v * scalar };
-	return v;
+HGE_Vector_t *HGE_Vector_Add(const HGE_Vector_t v1, const HGE_Vector_t v2) {
+	auto v = v1.v + v2.v;
+	return HGE_Vector_New(v.x, v.y);
 }
 
-HGE_Vector_t HGE_Vector_Divide(const HGE_Vector_t v1, float scalar) {
-	HGE_Vector_t v = { v1.v / scalar };
-	return v;
+HGE_Vector_t *HGE_Vector_Multiply(const HGE_Vector_t v1, float scalar) {
+	auto v = v1.v * scalar;
+	return HGE_Vector_New(v.x, v.y);
+}
+
+HGE_Vector_t *HGE_Vector_Divide(const HGE_Vector_t v1, float scalar) {
+	auto v = v1.v / scalar;
+	return HGE_Vector_New(v.x, v.y);
 }
 
 HGE_Vector_t *HGE_Vector_SubtractEqual(HGE_Vector_t *v1, const HGE_Vector_t v2) {

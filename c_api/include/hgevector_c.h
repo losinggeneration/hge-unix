@@ -16,14 +16,15 @@ float HGE_Vector_GetY(HGE_Vector_t *v);
 void HGE_Vector_SetX(HGE_Vector_t *v, float x);
 void HGE_Vector_SetY(HGE_Vector_t *v, float y);
 
-HGE_Vector_t HGE_Vector_New(float x, float y);
-HGE_Vector_t HGE_Vector_NewEmpty();
+HGE_Vector_t *HGE_Vector_New(float x, float y);
+HGE_Vector_t *HGE_Vector_NewEmpty();
+void HGE_Vector_Free(HGE_Vector_t *v);
 
-HGE_Vector_t HGE_Vector_Negate(const HGE_Vector_t v);
-HGE_Vector_t HGE_Vector_Subtract(const HGE_Vector_t v1, const HGE_Vector_t v2);
-HGE_Vector_t HGE_Vector_Add(const HGE_Vector_t v1, const HGE_Vector_t v2);
-HGE_Vector_t HGE_Vector_Multiply(const HGE_Vector_t v1, float scalar);
-HGE_Vector_t HGE_Vector_Divide(const HGE_Vector_t v1, float scalar);
+HGE_Vector_t *HGE_Vector_Negate(const HGE_Vector_t v);
+HGE_Vector_t *HGE_Vector_Subtract(const HGE_Vector_t v1, const HGE_Vector_t v2);
+HGE_Vector_t *HGE_Vector_Add(const HGE_Vector_t v1, const HGE_Vector_t v2);
+HGE_Vector_t *HGE_Vector_Multiply(const HGE_Vector_t v1, float scalar);
+HGE_Vector_t *HGE_Vector_Divide(const HGE_Vector_t v1, float scalar);
 
 HGE_Vector_t *HGE_Vector_SubtractEqual(HGE_Vector_t *v1, const HGE_Vector_t v2);
 HGE_Vector_t *HGE_Vector_AddEqual(HGE_Vector_t *v1, const HGE_Vector_t v2);
